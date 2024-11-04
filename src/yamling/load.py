@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, TypeVar
 
@@ -13,37 +14,14 @@ import yaml_include
 from yamling import utils, yamltypes
 
 
+logger = logging.getLogger(__name__)
+
 LOADERS: dict[str, yamltypes.LoaderType] = {
     "unsafe": yaml.CUnsafeLoader,
     "full": yaml.CFullLoader,
     "safe": yaml.CSafeLoader,
 }
 T = TypeVar("T", bound=type)
-
-
-# def resolve_inherit_tag(self, path, mode: yamltypes.LoaderStr = "unsafe"):
-#     """Resolve INHERIT key-value pair for this YAML file.
-
-#     If this YAML file contains a key-value pair like "INHERIT: path_to_config.yml",
-#     this method will resolve that tag by using the config at given path as the
-#     "parent config".
-
-#     Also supports a list of files for INHERIT.
-
-#     Args:
-#         mode: The Yaml loader type
-#     """
-#     abspath = upath.UPath(path).resolve()
-#     if "INHERIT" not in self._data:
-#         return None
-#     file_path = self._data.pop("INHERIT")
-#     file_paths = [file_path] if isinstance(file_path, str) else file_path
-#     for path in file_paths:
-#         parent_cfg = abspath.parent / path
-#         logger.debug("Loading inherited configuration file: %s", parent_cfg)
-#         text = parent_cfg.read_text("utf-8")
-#         parent = load_yaml(text, mode)
-#         return serializefilters.merge(parent, self._data)
 
 
 def get_include_constructor(
@@ -147,6 +125,48 @@ def load_yaml(
     base_loader_cls: type = LOADERS[mode]
     loader = get_loader(base_loader_cls, include_base_path=include_base_path)
     return yaml.load(text, Loader=loader)
+
+
+def load_yaml_file(
+    path: str | os.PathLike[str],
+    mode: yamltypes.LoaderStr = "unsafe",
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    resolve_inherit: bool = False,
+) -> Any:
+    """Load a YAML string with specified safety mode and !include path support.
+
+    Args:
+        path: Path to YAML file (supports upath paths (github://... etc.))
+        mode: Loading mode determining safety level
+        include_base_path: Base path for resolving !include tags
+        resolve_inherit: Whether to resolve !INHERIT tags.
+
+    Returns:
+        Parsed YAML content
+    """
+    import upath
+
+    from yamling import deepmerge
+
+    path_obj = upath.UPath(path).resolve()
+    text = path_obj.read_text("utf-8")
+    data = load_yaml(text, mode, include_base_path=include_base_path)
+    if not resolve_inherit or "INHERIT" not in data:
+        return data
+    parent_path = data.pop("INHERIT")
+    file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
+    context = deepmerge.DeepMerger()
+    for p_path in reversed(file_paths):
+        parent_cfg = path_obj.parent / p_path
+        logger.debug("Loading parent configuration file %r for %r", parent_cfg, path)
+        parent_data = load_yaml_file(
+            parent_cfg,
+            mode=mode,
+            include_base_path=include_base_path,
+            resolve_inherit=resolve_inherit,
+        )
+        data = context.merge(data, parent_data)
+    return data
 
 
 if __name__ == "__main__":
