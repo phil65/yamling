@@ -14,11 +14,15 @@ if TYPE_CHECKING:
     from yamling import yamltypes
 
 
-def create_test_files(tmp_path: Path) -> None:
-    """Create test YAML files in the temporary directory.
+@pytest.fixture
+def yaml_files(tmp_path: Path) -> Path:
+    """Create test YAML files in a temporary directory.
 
     Args:
-        tmp_path: Temporary directory path
+        tmp_path: Pytest's temporary directory fixture
+
+    Returns:
+        Path to the temporary directory containing the test files
     """
     # Base configuration
     (tmp_path / "base.yaml").write_text(
@@ -83,31 +87,30 @@ name: circular2
 """.lstrip()
     )
 
+    return tmp_path
 
-def test_load_basic(tmp_path):
+
+def test_load_basic(yaml_files):
     """Test loading a YAML file without inheritance."""
-    create_test_files(tmp_path)
-    result = load_yaml_file(tmp_path / "base.yaml")
+    result = load_yaml_file(yaml_files / "base.yaml")
     assert result["name"] == "base"
     assert result["version"] == "1.0"
     assert result["settings"]["timeout"] == 30
     assert result["settings"]["retries"] == 3
 
 
-def test_single_inheritance(tmp_path):
+def test_single_inheritance(yaml_files):
     """Test loading a YAML file with single inheritance."""
-    create_test_files(tmp_path)
-    result = load_yaml_file(tmp_path / "feature.yaml", resolve_inherit=True)
+    result = load_yaml_file(yaml_files / "feature.yaml", resolve_inherit=True)
     assert result["name"] == "feature"  # Overridden value
     assert result["version"] == "1.0"  # Inherited value
     assert result["settings"]["timeout"] == 60  # Overridden value
     assert result["settings"]["retries"] == 3  # Inherited value
 
 
-def test_multiple_inheritance(tmp_path):
+def test_multiple_inheritance(yaml_files):
     """Test loading a YAML file with multiple inheritance."""
-    create_test_files(tmp_path)
-    result = load_yaml_file(tmp_path / "multi.yaml", resolve_inherit=True)
+    result = load_yaml_file(yaml_files / "multi.yaml", resolve_inherit=True)
     assert result["name"] == "multi"  # Last override wins
     assert result["version"] == "1.0"  # From base
     assert result["settings"]["timeout"] == 60  # From feature
@@ -115,10 +118,9 @@ def test_multiple_inheritance(tmp_path):
     assert result["extra"] == "value"  # Own value
 
 
-def test_nested_inheritance(tmp_path):
+def test_nested_inheritance(yaml_files):
     """Test loading a YAML file with nested inheritance."""
-    create_test_files(tmp_path)
-    result = load_yaml_file(tmp_path / "nested.yaml", resolve_inherit=True)
+    result = load_yaml_file(yaml_files / "nested.yaml", resolve_inherit=True)
     assert result["name"] == "nested"  # Own value
     assert result["version"] == "1.0"  # From base through feature
     assert result["settings"]["timeout"] == 60  # From feature
@@ -126,34 +128,30 @@ def test_nested_inheritance(tmp_path):
     assert result["settings"]["new_setting"] is True  # Own value
 
 
-def test_inheritance_disabled(tmp_path):
+def test_inheritance_disabled(yaml_files):
     """Test that inheritance is not resolved when disabled."""
-    create_test_files(tmp_path)
-    result = load_yaml_file(tmp_path / "feature.yaml", resolve_inherit=False)
+    result = load_yaml_file(yaml_files / "feature.yaml", resolve_inherit=False)
     assert result["name"] == "feature"
     assert "version" not in result
     assert result["settings"]["timeout"] == 60
     assert "retries" not in result["settings"]
 
 
-def test_different_loader_modes(tmp_path):
+def test_different_loader_modes(yaml_files):
     """Test loading with different safety modes."""
-    create_test_files(tmp_path)
     modes: list[yamltypes.LoaderStr] = ["unsafe", "full", "safe"]
     for mode in modes:
-        result = load_yaml_file(tmp_path / "base.yaml", mode=mode)
+        result = load_yaml_file(yaml_files / "base.yaml", mode=mode)
         assert result["name"] == "base"
 
 
-def test_missing_parent_file(tmp_path):
+def test_missing_parent_file(yaml_files):
     """Test error handling when parent file doesn't exist."""
-    create_test_files(tmp_path)
     with pytest.raises(FileNotFoundError):
-        load_yaml_file(tmp_path / "invalid.yaml", resolve_inherit=True)
+        load_yaml_file(yaml_files / "invalid.yaml", resolve_inherit=True)
 
 
-def test_inheritance_cycle_detection(tmp_path):
+def test_inheritance_cycle_detection(yaml_files):
     """Test that circular inheritance is handled properly."""
-    create_test_files(tmp_path)
     with pytest.raises(RecursionError):
-        load_yaml_file(tmp_path / "circular1.yaml", resolve_inherit=True)
+        load_yaml_file(yaml_files / "circular1.yaml", resolve_inherit=True)
