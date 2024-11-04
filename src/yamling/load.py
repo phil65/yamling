@@ -50,7 +50,7 @@ def get_include_constructor(
     fs: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     **kwargs: Any,
 ) -> yaml_include.Constructor:
-    """Create a YAML include constructor with fsspec filesystem support.
+    """Create a YAML include (!include) constructor with fsspec filesystem support.
 
     Args:
         fs: Filesystem specification (path or fsspec filesystem object)
