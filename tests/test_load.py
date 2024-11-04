@@ -1,4 +1,12 @@
-"""Test suite for YAML loading functionality."""
+"""Test suite for YAML loading functionality.
+
+This module tests the YAML loading capabilities including:
+- Basic YAML loading
+- Single and multiple inheritance
+- Nested inheritance
+- Different loader safety modes
+- Error handling for missing files and circular dependencies
+"""
 
 # ruff: noqa: PLR2004
 
@@ -17,6 +25,14 @@ if TYPE_CHECKING:
 @pytest.fixture
 def yaml_files(tmp_path: Path) -> Path:
     """Create test YAML files in a temporary directory.
+
+    Creates a test suite of YAML files with different inheritance patterns:
+    - base.yaml: Base configuration without inheritance
+    - feature.yaml: Single inheritance from base
+    - multi.yaml: Multiple inheritance from base and feature
+    - nested.yaml: Nested inheritance through feature
+    - invalid.yaml: Invalid inheritance (missing parent)
+    - circular1.yaml/circular2.yaml: Circular inheritance pattern
 
     Args:
         tmp_path: Pytest's temporary directory fixture
@@ -90,7 +106,7 @@ name: circular2
     return tmp_path
 
 
-def test_load_basic(yaml_files):
+def test_load_basic(yaml_files: Path) -> None:
     """Test loading a YAML file without inheritance."""
     result = load_yaml_file(yaml_files / "base.yaml")
     assert result["name"] == "base"
@@ -99,8 +115,12 @@ def test_load_basic(yaml_files):
     assert result["settings"]["retries"] == 3
 
 
-def test_single_inheritance(yaml_files):
-    """Test loading a YAML file with single inheritance."""
+def test_single_inheritance(yaml_files: Path) -> None:
+    """Test loading a YAML file with single inheritance.
+
+    !!! note
+        Tests both value inheritance and override behavior.
+    """
     result = load_yaml_file(yaml_files / "feature.yaml", resolve_inherit=True)
     assert result["name"] == "feature"  # Overridden value
     assert result["version"] == "1.0"  # Inherited value
@@ -108,8 +128,12 @@ def test_single_inheritance(yaml_files):
     assert result["settings"]["retries"] == 3  # Inherited value
 
 
-def test_multiple_inheritance(yaml_files):
-    """Test loading a YAML file with multiple inheritance."""
+def test_multiple_inheritance(yaml_files: Path) -> None:
+    """Test loading a YAML file with multiple inheritance.
+
+    !!! note
+        Verifies the inheritance precedence: last inherited file wins.
+    """
     result = load_yaml_file(yaml_files / "multi.yaml", resolve_inherit=True)
     assert result["name"] == "multi"  # Last override wins
     assert result["version"] == "1.0"  # From base
@@ -118,8 +142,12 @@ def test_multiple_inheritance(yaml_files):
     assert result["extra"] == "value"  # Own value
 
 
-def test_nested_inheritance(yaml_files):
-    """Test loading a YAML file with nested inheritance."""
+def test_nested_inheritance(yaml_files: Path) -> None:
+    """Test loading a YAML file with nested inheritance.
+
+    !!! note
+        Verifies that multi-level inheritance works correctly.
+    """
     result = load_yaml_file(yaml_files / "nested.yaml", resolve_inherit=True)
     assert result["name"] == "nested"  # Own value
     assert result["version"] == "1.0"  # From base through feature
@@ -128,8 +156,12 @@ def test_nested_inheritance(yaml_files):
     assert result["settings"]["new_setting"] is True  # Own value
 
 
-def test_inheritance_disabled(yaml_files):
-    """Test that inheritance is not resolved when disabled."""
+def test_inheritance_disabled(yaml_files: Path) -> None:
+    """Test that inheritance is not resolved when disabled.
+
+    !!! note
+        Ensures that INHERIT directives are ignored when resolve_inherit=False.
+    """
     result = load_yaml_file(yaml_files / "feature.yaml", resolve_inherit=False)
     assert result["name"] == "feature"
     assert "version" not in result
@@ -137,21 +169,47 @@ def test_inheritance_disabled(yaml_files):
     assert "retries" not in result["settings"]
 
 
-def test_different_loader_modes(yaml_files):
-    """Test loading with different safety modes."""
+def test_different_loader_modes(yaml_files: Path) -> None:
+    """Test loading with different safety modes.
+
+    Tests all available loader modes:
+    - unsafe: Allows all YAML tags and constructs
+    - full: Allows safe YAML tags and constructs
+    - safe: Most restrictive, only basic YAML constructs
+    """
     modes: list[yamltypes.LoaderStr] = ["unsafe", "full", "safe"]
     for mode in modes:
         result = load_yaml_file(yaml_files / "base.yaml", mode=mode)
         assert result["name"] == "base"
 
 
-def test_missing_parent_file(yaml_files):
-    """Test error handling when parent file doesn't exist."""
+def test_missing_parent_file(yaml_files: Path) -> None:
+    """Test error handling when parent file doesn't exist.
+
+    !!! warning
+        Should raise FileNotFoundError when trying to resolve inheritance
+        from non-existent files.
+    """
     with pytest.raises(FileNotFoundError):
         load_yaml_file(yaml_files / "invalid.yaml", resolve_inherit=True)
 
 
-def test_inheritance_cycle_detection(yaml_files):
-    """Test that circular inheritance is handled properly."""
+def test_inheritance_cycle_detection(yaml_files: Path) -> None:
+    """Test that circular inheritance is handled properly.
+
+    !!! warning
+        Should raise RecursionError when detecting circular inheritance
+        relationships.
+    """
     with pytest.raises(RecursionError):
         load_yaml_file(yaml_files / "circular1.yaml", resolve_inherit=True)
+
+
+def test_nonexistent_file() -> None:
+    """Test loading a non-existent file.
+
+    !!! warning
+        Should raise FileNotFoundError when the target file doesn't exist.
+    """
+    with pytest.raises(FileNotFoundError):
+        load_yaml_file(Path("nonexistent.yaml"))
