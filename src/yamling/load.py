@@ -173,12 +173,12 @@ def get_loader(
         loader_cls.add_constructor("!ENV", yaml_env_tag.construct_env_tag)
 
     if resolve_dict_keys or resolve_strings:
-        constructor = get_jinja2_constructor(
+        j_ctor = get_jinja2_constructor(
             jinja_env,
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
         )
-        loader_cls.add_constructor("tag:yaml.org,2002:str", constructor)
+        loader_cls.add_constructor("tag:yaml.org,2002:str", j_ctor)
 
     return loader_cls
 
