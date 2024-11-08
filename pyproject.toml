@@ -29,7 +29,13 @@ classifiers = [
 ]
 keywords = ["yaml", "PyYAML", "include", "yml", "serialization"]
 requires-python = ">=3.12"
-dependencies = ["PyYAML >=5.1", "pyyaml-include", "pyyaml_env_tag", "fsspec", "universal_pathlib"]
+dependencies = [
+    "PyYAML >=5.1",
+    "pyyaml-include",
+    "pyyaml_env_tag",
+    "fsspec",
+    "universal_pathlib",
+]
 license = "MIT"
 
 [tool.uv]
@@ -46,6 +52,7 @@ dev-dependencies = [
     # dev
     "pyreadline3",
     "pyinstrument",
+    "jinja2>=3.1.4",
 ]
 
 [project.urls]
@@ -54,7 +61,8 @@ Source = "https://github.com/phil65/yamling"
 
 [tool.pytest.ini_options]
 testpaths = "tests/"
-log_cli = true
+log_cli = false
+log_level = "ERROR"
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 addopts = "--cov=yamling/ --cov-report=term-missing --cov-report=xml"
