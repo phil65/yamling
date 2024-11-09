@@ -30,3 +30,172 @@
 
 [Read the documentation!](https://phil65.github.io/yamling/)
 
+
+Yamling is a YAML handling library that provides enhanced loading and dumping capabilities for YAML files. It builds upon [PyYAML](https://pyyaml.org/) to offer additional features like environment variable support, file inclusion, and Jinja2 template resolution.
+Special mentions also to `pyyaml_env_tag` as well as `pyyaml-include`, this library exposes these YAML extensions with a unified interface.
+
+## Loading YAML
+
+### Basic Loading
+
+To load YAML content from a string:
+
+```python
+from yamling import load_yaml
+
+# Simple YAML loading
+data = load_yaml("""
+name: John
+age: 30
+""")
+```
+
+To load from a file:
+
+```python
+from yamling import load_yaml_file
+
+# Load from local file
+config = load_yaml_file("config.yaml")
+
+# Load from remote file (S3, HTTP, etc.)
+remote_config = load_yaml_file("s3://bucket/config.yaml")
+```
+
+### Safety Modes
+
+Yamling supports three safety modes when loading YAML:
+
+```python
+# Safe mode - most restrictive, recommended for untrusted input
+data = load_yaml(content, mode="safe")
+
+# Full mode - allows some additional types but restricts dangerous ones
+data = load_yaml(content, mode="full")
+
+# Unsafe mode - allows all YAML features (default)
+data = load_yaml(content, mode="unsafe")
+```
+
+> **Warning**
+> Always use "safe" mode when loading untrusted YAML content to prevent code execution vulnerabilities.
+
+### File Inclusion
+
+Yamling supports including other YAML files using the `!include` tag:
+
+```yaml
+# main.yaml
+database:
+  !include db_config.yaml
+logging:
+  !include logging_config.yaml
+```
+
+When loading, specify the base path for includes:
+
+```python
+config = load_yaml_file("main.yaml", include_base_path="configs/")
+```
+
+### Environment Variables
+
+Use the `!ENV` tag to reference environment variables:
+
+```yaml
+database:
+  password: !ENV DB_PASSWORD
+  host: !ENV ${DB_HOST:localhost}  # with default value
+```
+
+### Template Resolution
+
+Yamling can resolve [Jinja2](https://jinja.palletsprojects.com/) templates in YAML:
+
+```python
+from jinja2 import Environment
+import yamling
+
+env = Environment()
+yaml_content = """
+message: "Hello {{ name }}!"
+"""
+
+data = load_yaml(
+    yaml_content,
+    resolve_strings=True,
+    jinja_env=env
+)
+```
+
+### Inheritance
+
+YAML files can inherit from other files using the `INHERIT` key:
+
+```yaml
+# base.yaml
+database:
+  host: localhost
+  port: 5432
+
+# prod.yaml
+INHERIT: base.yaml
+database:
+  host: prod.example.com
+```
+
+Load with inheritance enabled:
+
+```python
+config = load_yaml_file("prod.yaml", resolve_inherit=True)
+```
+
+## Dumping YAML
+
+To serialize Python objects to YAML:
+
+```python
+from yamling import dump_yaml
+
+data = {
+    "name": "John",
+    "scores": [1, 2, 3],
+    "active": True
+}
+
+yaml_string = dump_yaml(data)
+```
+
+### Custom Class Mapping
+
+Map custom classes to built-in types for YAML representation:
+
+```python
+from collections import OrderedDict
+
+data = OrderedDict([("b", 2), ("a", 1)])
+yaml_string = dump_yaml(data, class_mappings={OrderedDict: dict})
+```
+
+## Custom Loader Configuration
+
+For advanced use cases, you can create a custom loader:
+
+```python
+from yamling import get_loader
+import yaml
+
+# Create custom loader with specific features
+loader_cls = get_loader(
+    yaml.SafeLoader,
+    include_base_path="configs/",
+    enable_include=True,
+    enable_env=True,
+    resolve_strings=True,
+    jinja_env=jinja_env,
+    type_converters={int: str}
+)
+
+# Use custom loader
+data = yaml.load(content, Loader=loader_cls)
+```
