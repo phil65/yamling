@@ -265,6 +265,7 @@ def load_yaml(
         resolve_strings: Whether to resolve Jinja2 template strings
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
         resolve_inherit: Whether to resolve INHERIT directives
+                         (requires IO object with name attribute for text)
         jinja_env: Optional Jinja2 environment for template resolution
 
     Returns:
@@ -296,14 +297,10 @@ def load_yaml(
         )
         data = yaml.load(text, Loader=loader)
 
-        if resolve_inherit:
-            # Get base directory from text object if it has a name attribute
-            base_dir = None
-            if hasattr(text, "name"):
-                import upath
+        if resolve_inherit and hasattr(text, "name"):
+            import upath
 
-                base_dir = upath.UPath(text.name).parent
-
+            base_dir = upath.UPath(text.name).parent
             data = _resolve_inherit(
                 data,
                 base_dir,
