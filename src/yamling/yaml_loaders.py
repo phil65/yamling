@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import fsspec
 import yaml
@@ -27,6 +27,15 @@ LOADERS: dict[str, yamltypes.LoaderType] = {
     "safe": yaml.CSafeLoader,
 }
 T = TypeVar("T", bound=type)
+
+_T_co = TypeVar("_T_co", covariant=True)
+
+
+class SupportsRead(Protocol[_T_co]):
+    def read(self, length: int = ..., /) -> _T_co: ...
+
+
+YAMLInput = str | bytes | SupportsRead[str] | SupportsRead[bytes]
 
 
 def get_jinja2_constructor(
@@ -184,7 +193,7 @@ def get_loader(
 
 
 def load_yaml(
-    text: str,
+    text: YAMLInput,
     mode: yamltypes.LoaderStr = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,

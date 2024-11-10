@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import os
 from typing import TYPE_CHECKING
 
@@ -106,6 +107,18 @@ def test_load_yaml_with_modes():
         yamling.load_yaml(yaml_str, mode="safe")
 
     assert yamling.load_yaml(yaml_str, mode="unsafe") is os.system
+
+
+def test_load_yaml_accepts_textio():
+    # Test data
+    yaml_content = """
+    key1: value1
+    key2: value2
+    """
+
+    # Create a StringIO object (TextIO wrapper)
+    text_io = io.StringIO(yaml_content)
+    assert yamling.load_yaml(text_io)
 
 
 if __name__ == "__main__":
