@@ -1,7 +1,7 @@
 __version__ = "1.1.1"
 
 import yaml
-from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader
+from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader, YAMLInput
 from yamling.load_universal import load, load_file, ParsingError
 from yamling.yaml_dumpers import dump_yaml
 from yamling.dump_universal import DumpingError, dump, dump_file
@@ -21,4 +21,5 @@ __all__ = [
     "load_file",
     "ParsingError",
     "DumpingError",
+    "YAMLInput",
 ]
