@@ -45,7 +45,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
         case "yaml":
             from yaml import YAMLError
 
-            from yamling.dump import dump_yaml
+            from yamling import dump_yaml
 
             try:
                 return dump_yaml(data, **kwargs)
