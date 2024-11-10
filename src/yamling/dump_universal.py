@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import importlib.util
 from io import StringIO
 import logging
@@ -30,7 +31,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
     """Dump data to a string in the specified format.
 
     Args:
-        data: Data structure to dump
+        data: Data structure to dump (also accepts pydantic v2 models and dataclasses)
         mode: Format to dump the data in ("yaml", "toml", "json", or "ini")
         **kwargs: Additional keyword arguments passed to the underlying dump functions
 
@@ -41,6 +42,16 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
         ValueError: If the format is not supported
         DumpingError: If the data cannot be dumped in the specified format
     """
+    # Handle pydantic models
+    if importlib.util.find_spec("pydantic"):
+        import pydantic
+
+        if isinstance(data, pydantic.BaseModel):
+            data = data.model_dump()
+
+    if dataclasses.is_dataclass(data) and not isinstance(data, type):
+        data = dataclasses.asdict(data)
+
     match mode:
         case "yaml":
             from yaml import YAMLError

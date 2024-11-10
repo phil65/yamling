@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+import importlib.util
 from typing import Any
 
 import yaml
@@ -45,7 +47,7 @@ def dump_yaml(
     """Dump a data structure to a YAML string.
 
     Args:
-        obj: Object to serialize
+        obj: Object to serialize (also accepts pydantic models)
         class_mappings: Dict mapping classes to built-in types for YAML representation
         kwargs: Additional arguments for yaml.dump
 
@@ -56,6 +58,13 @@ def dump_yaml(
     if class_mappings:
         for class_type, target_type in class_mappings.items():
             map_class_to_builtin_type(dumper_cls, class_type, target_type)
+    if importlib.util.find_spec("pydantic"):
+        import pydantic
+
+        if isinstance(obj, pydantic.BaseModel):
+            obj = obj.model_dump()
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+        obj = dataclasses.asdict(obj)
     return yaml.dump(obj, Dumper=dumper_cls, **kwargs)
 
 

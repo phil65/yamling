@@ -165,6 +165,7 @@ data = {
 
 yaml_string = dump_yaml(data)
 ```
+Dataclasses and Pydantic v2 models can also get dumped.
 
 ### Custom Class Mapping
 
