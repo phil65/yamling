@@ -59,6 +59,16 @@ dev-dependencies = [
 Documentation = "https://phil65.github.io/yamling/"
 Source = "https://github.com/phil65/yamling"
 
+[project.entry-points.toolreg_functions]
+dump_file = "yamling:dump_file"
+load_yaml = "yamling:load_yaml"
+load_yaml_file = "yamling:load_yaml_file"
+load = "yamling:load"
+load_file = "yamling:load_file"
+dump_yaml = "yamling:dump_yaml"
+dump_yaml_file = "yamling:dump_yaml_file"
+dump = "yamling:dump"
+
 [tool.pytest.ini_options]
 testpaths = "tests/"
 log_cli = false
