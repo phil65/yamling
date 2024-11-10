@@ -256,7 +256,35 @@ def load_yaml(
     resolve_inherit: bool = False,
     jinja_env: jinja2.Environment | None = None,
 ) -> Any:
-    """Load a YAML string with specified safety mode and include path support."""
+    """Load a YAML string with specified safety mode and include path support.
+
+    Args:
+        text: The YAML content to load
+        mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
+        include_base_path: Base path for resolving !include directives
+        resolve_strings: Whether to resolve Jinja2 template strings
+        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
+        resolve_inherit: Whether to resolve INHERIT directives
+        jinja_env: Optional Jinja2 environment for template resolution
+
+    Returns:
+        The parsed YAML data
+
+    Example:
+        ```python
+        # Simple YAML loading
+        data = load_yaml("key: value")
+
+        # With Jinja2 template resolution
+        from jinja2 import Environment
+        env = Environment()
+        data = load_yaml(
+            "message: Hello {{ name }}!",
+            resolve_strings=True,
+            jinja_env=env
+        )
+        ```
+    """
     try:
         base_loader_cls: type = LOADERS[mode]
         loader = get_loader(
@@ -304,7 +332,30 @@ def load_yaml_file(
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
 ) -> Any:
-    """Load a YAML file with specified options."""
+    """Load a YAML file with specified options.
+
+    Args:
+        path: Path to the YAML file to load
+        mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
+        include_base_path: Base path for resolving !include directives
+        resolve_inherit: Whether to resolve INHERIT directives
+        resolve_strings: Whether to resolve Jinja2 template strings
+        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
+        jinja_env: Optional Jinja2 environment for template resolution
+
+    Returns:
+        The parsed YAML data
+
+    Example:
+        ```python
+        # Load YAML file with inheritance
+        data = load_yaml_file(
+            "config.yml",
+            resolve_inherit=True,  # Resolve INHERIT directives
+            include_base_path="configs/"  # Base path for includes
+        )
+        ```
+    """
     try:
         import upath
 
