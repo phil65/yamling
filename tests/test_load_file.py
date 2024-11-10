@@ -11,7 +11,7 @@ This module tests the YAML loading capabilities including:
 # ruff: noqa: PLR2004
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -194,14 +194,15 @@ def test_missing_parent_file(yaml_files: Path) -> None:
         load_yaml_file(yaml_files / "invalid.yaml", resolve_inherit=True)
 
 
-def test_inheritance_cycle_detection(yaml_files: Path) -> None:
+def test_inheritance_cycle_detection(yaml_files: Path, recursion_limit: Any) -> None:
     """Test that circular inheritance is handled properly.
 
     !!! warning
         Should raise RecursionError when detecting circular inheritance
         relationships.
     """
-    with pytest.raises(RecursionError):
+    # Set recursion limit very low to fail fast on cycles
+    with recursion_limit(100), pytest.raises(RecursionError):
         load_yaml_file(yaml_files / "circular1.yaml", resolve_inherit=True)
 
 

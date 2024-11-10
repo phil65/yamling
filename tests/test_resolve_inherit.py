@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import fsspec
 import pytest
@@ -149,7 +149,7 @@ def test_empty_inherit(tmp_path: Path):
     assert data == {"key": "value"}
 
 
-def test_inherit_cycle_detection(tmp_path: Path):
+def test_inherit_cycle_detection(tmp_path: Path, recursion_limit: Any):
     """Test that circular inheritance is handled properly."""
     # Create files that inherit from each other
     file1_content = dedent("""
@@ -165,7 +165,7 @@ def test_inherit_cycle_detection(tmp_path: Path):
     (tmp_path / "file1.yaml").write_text(file1_content)
     (tmp_path / "file2.yaml").write_text(file2_content)
 
-    with pytest.raises(RecursionError):  # Should detect circular dependency
+    with recursion_limit(100), pytest.raises(RecursionError):
         yaml_loaders.load_yaml_file(tmp_path / "file1.yaml", resolve_inherit=True)
 
 
