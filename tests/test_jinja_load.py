@@ -7,7 +7,7 @@ import pytest
 import yaml
 from yaml.constructor import ConstructorError
 
-from yamling.load import load_yaml, load_yaml_file
+from yamling.yaml_loaders import load_yaml, load_yaml_file
 
 
 # Test Constants

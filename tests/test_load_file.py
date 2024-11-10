@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from yamling.load import load_yaml_file
+from yamling.yaml_loaders import load_yaml_file
 
 
 if TYPE_CHECKING:

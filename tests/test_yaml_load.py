@@ -8,7 +8,7 @@ import yaml
 import yaml_include
 
 import yamling
-from yamling import load
+from yamling import yaml_loaders
 
 
 if TYPE_CHECKING:
@@ -60,32 +60,32 @@ def test_empty_yaml():
 
 
 def test_safe_loader():
-    loader = load.get_safe_loader(yaml.SafeLoader)
+    loader = yaml_loaders.get_safe_loader(yaml.SafeLoader)
     assert loader.yaml_constructors["!relative"] is not None
 
 
 def test_get_include_constructor():
     """Test get_include_constructor with different filesystem types."""
-    constructor = load.get_include_constructor()
+    constructor = yaml_loaders.get_include_constructor()
     assert isinstance(constructor, yaml_include.Constructor)
 
-    constructor = load.get_include_constructor(fs="file")
+    constructor = yaml_loaders.get_include_constructor(fs="file")
     assert isinstance(constructor, yaml_include.Constructor)
 
     with pytest.raises(TypeError):
-        load.get_include_constructor(fs=123)  # Invalid type
+        yaml_loaders.get_include_constructor(fs=123)  # Invalid type
 
 
 def test_get_loader():
     """Test get_loader with different configurations."""
-    loader = load.get_loader(yaml.SafeLoader)
+    loader = yaml_loaders.get_loader(yaml.SafeLoader)
     assert loader.yaml_constructors["!include"] is not None
     assert loader.yaml_constructors["!ENV"] is not None
 
-    loader = load.get_loader(yaml.SafeLoader, enable_include=False)
+    loader = yaml_loaders.get_loader(yaml.SafeLoader, enable_include=False)
     assert "!include" not in loader.yaml_constructors
 
-    loader = load.get_loader(yaml.SafeLoader, enable_env=False)
+    loader = yaml_loaders.get_loader(yaml.SafeLoader, enable_env=False)
     assert "!ENV" not in loader.yaml_constructors
 
 

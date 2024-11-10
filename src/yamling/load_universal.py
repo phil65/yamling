@@ -9,7 +9,7 @@ from typing import Any, Literal, get_args
 
 from yaml import YAMLError
 
-from yamling.yaml import load_yaml
+from yamling.yaml_loaders import load_yaml
 
 
 logger = logging.getLogger(__name__)

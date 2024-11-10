@@ -199,3 +199,31 @@ loader_cls = get_loader(
 # Use custom loader
 data = yaml.load(content, Loader=loader_cls)
 ```
+
+## Universal load interface
+
+Yamling provides a universal load function that can handle YAML, JSON, TOML, and INI files.
+Apart from yaml, only stdlib modules are used, so no additional dependencies are required.
+Here's a simple example:
+
+```python
+import yamling
+
+# Load files based on their extension
+config = yamling.load_file("config.yaml")    # YAML
+settings = yamling.load_file("settings.json") # JSON
+params = yamling.load_file("params.toml")    # TOML
+
+# Or explicitly specify the format
+data = yamling.load_file("config.txt", mode="yaml")
+
+# Load directly from strings
+yaml_text = """
+name: John
+age: 30
+"""
+data = yamling.load(yaml_text, mode="yaml")
+```
+
+> **Note**
+> If [orjson](https://github.com/ijl/orjson) is installed, the loader will automatically use it for JSON parsing, offering significantly better performance compared to the standard `json` module.
