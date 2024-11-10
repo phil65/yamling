@@ -1,4 +1,4 @@
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 
 import yaml
 from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader, YAMLInput
