@@ -4,12 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-import tomllib
 from typing import Any, Literal, get_args
-
-from yaml import YAMLError
-
-from yamling.yaml_loaders import load_yaml
 
 
 logger = logging.getLogger(__name__)
@@ -46,6 +41,10 @@ def load(text: str, mode: SupportedFormats, **kwargs: Any) -> Any:
     """
     match mode:
         case "yaml":
+            from yaml import YAMLError
+
+            from yamling.yaml_loaders import load_yaml
+
             try:
                 return load_yaml(text, **kwargs)
             except YAMLError as e:
@@ -54,6 +53,8 @@ def load(text: str, mode: SupportedFormats, **kwargs: Any) -> Any:
                 raise ParsingError(msg, e) from e
 
         case "toml":
+            import tomllib
+
             try:
                 return tomllib.loads(text, **kwargs)
             except tomllib.TOMLDecodeError as e:
