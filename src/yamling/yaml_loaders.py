@@ -192,12 +192,69 @@ def get_loader(
     return loader_cls
 
 
+def _resolve_inherit(
+    data: Any,
+    base_path: str | os.PathLike[str] | None,
+    mode: yamltypes.LoaderStr,
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None,
+    resolve_strings: bool,
+    resolve_dict_keys: bool,
+    jinja_env: jinja2.Environment | None,
+) -> Any:
+    """Resolve INHERIT directive in YAML data.
+
+    Args:
+        data: The loaded YAML data
+        base_path: Base path for resolving inherited files
+        mode: YAML loader mode
+        include_base_path: Base path for !include resolution
+        resolve_strings: Whether to resolve Jinja2 strings
+        resolve_dict_keys: Whether to resolve dictionary keys
+        jinja_env: Optional Jinja2 environment
+
+    Returns:
+        Merged configuration data
+    """
+    if not isinstance(data, dict) or "INHERIT" not in data or base_path is None:
+        return data
+
+    parent_path = data.pop("INHERIT")
+    if not parent_path:
+        return data
+
+    import upath
+
+    base_path_obj = upath.UPath(base_path)
+    if not base_path_obj.is_dir():
+        base_path_obj = base_path_obj.parent
+
+    file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
+    context = deepmerge.DeepMerger()
+
+    for p_path in reversed(file_paths):
+        parent_cfg = base_path_obj / p_path
+        logger.debug("Loading parent configuration file %r", parent_cfg)
+        parent_data = load_yaml_file(
+            parent_cfg,
+            mode=mode,
+            include_base_path=include_base_path,
+            resolve_inherit=True,
+            resolve_strings=resolve_strings,
+            resolve_dict_keys=resolve_dict_keys,
+            jinja_env=jinja_env,
+        )
+        data = context.merge(data, parent_data)
+
+    return data
+
+
 def load_yaml(
     text: YAMLInput,
     mode: yamltypes.LoaderStr = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
+    resolve_inherit: bool = False,
     jinja_env: jinja2.Environment | None = None,
 ) -> Any:
     """Load a YAML string with specified safety mode and include path support."""
@@ -210,13 +267,28 @@ def load_yaml(
             resolve_dict_keys=resolve_dict_keys,
             jinja_env=jinja_env,
         )
-        return yaml.load(text, Loader=loader)
+        data = yaml.load(text, Loader=loader)
+
+        if resolve_inherit:
+            # Try to get base path from text object if it has a name attribute
+            base_path = getattr(text, "name", None) if hasattr(text, "name") else None
+            data = _resolve_inherit(
+                data,
+                base_path,
+                mode=mode,
+                include_base_path=include_base_path,
+                resolve_strings=resolve_strings,
+                resolve_dict_keys=resolve_dict_keys,
+                jinja_env=jinja_env,
+            )
     except yaml.YAMLError:
         logger.exception("Failed to load YAML: \n%s", text)
         raise
     except Exception:
         logger.exception("Unexpected error while loading YAML:\n%s", text)
         raise
+    else:
+        return data
 
 
 def load_yaml_file(
@@ -241,32 +313,20 @@ def load_yaml_file(
             include_base_path=include_base_path,
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
+            resolve_inherit=False,  # We'll handle inheritance separately
             jinja_env=jinja_env,
         )
 
-        if not resolve_inherit or not isinstance(data, dict) or "INHERIT" not in data:
-            return data
-
-        parent_path = data.pop("INHERIT")
-        if not parent_path:
-            return data
-
-        file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
-        context = deepmerge.DeepMerger()
-
-        for p_path in reversed(file_paths):
-            parent_cfg = path_obj.parent / p_path
-            logger.debug("Loading parent configuration file %r for %r", parent_cfg, path)
-            parent_data = load_yaml_file(
-                parent_cfg,
+        if resolve_inherit:
+            data = _resolve_inherit(
+                data,
+                path_obj,
                 mode=mode,
                 include_base_path=include_base_path,
-                resolve_inherit=resolve_inherit,
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 jinja_env=jinja_env,
             )
-            data = context.merge(data, parent_data)
     except (OSError, yaml.YAMLError):
         logger.exception("Failed to load YAML file %r", path)
         raise
