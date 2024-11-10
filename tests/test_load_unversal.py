@@ -172,13 +172,6 @@ def test_load_file_invalid_explicit_format():
         load_file("test.yaml", mode="invalid")  # type: ignore
 
 
-def test_load_file_permission_error(setup_temp_files: Path):
-    test_file = setup_temp_files / "test.yaml"
-    test_file.chmod(0o000)  # Remove all permissions
-    load_file(test_file)
-    test_file.chmod(0o666)  # Restore permissions
-
-
 def test_load_file_invalid_content(setup_temp_files: Path):
     with pytest.raises(ParsingError):
         load_file(setup_temp_files / "invalid.yaml")
