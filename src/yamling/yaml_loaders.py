@@ -194,7 +194,7 @@ def get_loader(
 
 def _resolve_inherit(
     data: Any,
-    base_path: str | os.PathLike[str] | None,
+    base_dir: str | os.PathLike[str] | None,
     mode: yamltypes.LoaderStr,
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
@@ -205,7 +205,7 @@ def _resolve_inherit(
 
     Args:
         data: The loaded YAML data
-        base_path: Base path for resolving inherited files
+        base_dir: Directory to resolve inherited paths from
         mode: YAML loader mode
         include_base_path: Base path for !include resolution
         resolve_strings: Whether to resolve Jinja2 strings
@@ -215,7 +215,7 @@ def _resolve_inherit(
     Returns:
         Merged configuration data
     """
-    if not isinstance(data, dict) or "INHERIT" not in data or base_path is None:
+    if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
         return data
 
     parent_path = data.pop("INHERIT")
@@ -224,16 +224,15 @@ def _resolve_inherit(
 
     import upath
 
-    base_path_obj = upath.UPath(base_path)
-    if not base_path_obj.is_dir():
-        base_path_obj = base_path_obj.parent
-
+    base_dir = upath.UPath(base_dir)
     file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
     context = deepmerge.DeepMerger()
 
     for p_path in reversed(file_paths):
-        parent_cfg = base_path_obj / p_path
-        logger.debug("Loading parent configuration file %r", parent_cfg)
+        parent_cfg = base_dir / p_path
+        logger.debug(
+            "Loading parent configuration file %r relative to %r", parent_cfg, base_dir
+        )
         parent_data = load_yaml_file(
             parent_cfg,
             mode=mode,
@@ -270,11 +269,16 @@ def load_yaml(
         data = yaml.load(text, Loader=loader)
 
         if resolve_inherit:
-            # Try to get base path from text object if it has a name attribute
-            base_path = getattr(text, "name", None) if hasattr(text, "name") else None
+            # Get base directory from text object if it has a name attribute
+            base_dir = None
+            if hasattr(text, "name"):
+                import upath
+
+                base_dir = upath.UPath(text.name).parent
+
             data = _resolve_inherit(
                 data,
-                base_path,
+                base_dir,
                 mode=mode,
                 include_base_path=include_base_path,
                 resolve_strings=resolve_strings,
@@ -320,7 +324,7 @@ def load_yaml_file(
         if resolve_inherit:
             data = _resolve_inherit(
                 data,
-                path_obj,
+                path_obj.parent,  # Pass the parent directory directly
                 mode=mode,
                 include_base_path=include_base_path,
                 resolve_strings=resolve_strings,
