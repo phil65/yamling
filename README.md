@@ -201,6 +201,114 @@ loader_cls = get_loader(
 data = yaml.load(content, Loader=loader_cls)
 ```
 
+## Custom Tag Handling
+
+Yamling provides a `YAMLParser` class for handling custom YAML tags. This allows you to define how specific tagged values should be processed during YAML loading.
+
+### Basic Tag Registration
+
+You can register tag handlers using either a decorator or explicit registration:
+
+```python
+from yamling import YAMLParser
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+# Create parser instance
+yaml_parser = YAMLParser()
+
+# Register handler using decorator
+@yaml_parser.register("person")
+def handle_person(data: dict) -> Person:
+    return Person(**data)
+
+# Or register handler explicitly
+def handle_uppercase(data: str) -> str:
+    return data.upper()
+
+yaml_parser.register_handler("uppercase", handle_uppercase)
+```
+
+### Using Custom Tags
+
+Once registered, you can use the custom tags in your YAML:
+
+```yaml
+# config.yaml
+user: !person
+  name: John Doe
+  age: 30
+message: !uppercase "hello world"
+```
+
+Load the YAML using the parser:
+
+```python
+# Load from string
+data = yaml_parser.load_yaml("""
+user: !person
+  name: John Doe
+  age: 30
+message: !uppercase "hello world"
+""")
+
+# Or load from file
+data = yaml_parser.load_yaml_file("config.yaml")
+
+print(data["user"])  # Person(name='John Doe', age=30)
+print(data["message"])  # "HELLO WORLD"
+```
+
+### Complex Structures
+
+Custom tags can be used in nested structures and lists:
+
+```yaml
+team:
+  manager: !person
+    name: Alice Smith
+    age: 45
+  members:
+    - !person
+      name: Bob Johnson
+      age: 30
+    - !person
+      name: Carol White
+      age: 28
+messages:
+  - !uppercase "welcome"
+  - !uppercase "goodbye"
+```
+
+### Combining with Other Features
+
+The `YAMLParser` class supports all of Yamling's standard features:
+
+```python
+data = yaml_parser.load_yaml_file(
+    "config.yaml",
+    mode="safe",                    # Safety mode
+    include_base_path="configs/",   # For !include directives
+    resolve_strings=True,           # Enable Jinja2 template resolution
+    resolve_inherit=True,           # Enable inheritance
+    jinja_env=jinja_env           # Custom Jinja2 environment
+)
+```
+
+### Available Tags
+
+You can list all registered tags:
+
+```python
+tags = yaml_parser.list_tags()
+print(tags)  # ['!person', '!uppercase']
+```
+
+
 ## Universal load / dump interface
 
 Yamling provides a universal load function that can handle YAML, JSON, TOML, and INI files.
