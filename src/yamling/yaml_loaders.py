@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import fsspec
 import yaml
-import yaml_env_tag
 import yaml_include
 
 from yamling import deepmerge, utils, yamltypes
@@ -36,6 +35,49 @@ class SupportsRead(Protocol[_T_co]):
 
 
 YAMLInput = str | bytes | SupportsRead[str] | SupportsRead[bytes]
+
+
+def get_env_constructor(loader: yaml.Loader, node: yaml.Node) -> Any:
+    """Construct a YAML tag that references environment variables.
+
+    Args:
+        loader: YAML loader instance
+        node: Current YAML node being processed
+
+    Returns:
+        The resolved environment variable value or default value
+
+    Raises:
+        ConstructorError: If node is neither scalar nor sequence
+    """
+    default = None
+
+    match node:
+        case yaml.nodes.ScalarNode():
+            env_vars = [loader.construct_scalar(node)]
+
+        case yaml.nodes.SequenceNode():
+            child_nodes = node.value
+            if len(child_nodes) > 1:
+                default = loader.construct_object(child_nodes[-1])
+                child_nodes = child_nodes[:-1]
+            env_vars = [loader.construct_scalar(child) for child in child_nodes]
+
+        case _:
+            raise yaml.constructor.ConstructorError(
+                None,
+                None,
+                f"expected a scalar or sequence node, but found {node.tag}",
+                node.start_mark,
+            )
+
+    for var in env_vars:
+        if var in os.environ:
+            value = os.environ[var]
+            tag = loader.resolve(yaml.nodes.ScalarNode, value, (True, False))
+            return loader.construct_object(yaml.nodes.ScalarNode(tag, value))
+
+    return default
 
 
 def get_jinja2_constructor(
@@ -179,7 +221,7 @@ def get_loader(
         yaml.add_constructor("!include", constructor, loader_cls)
 
     if enable_env:
-        loader_cls.add_constructor("!ENV", yaml_env_tag.construct_env_tag)
+        loader_cls.add_constructor("!ENV", get_env_constructor)
 
     if resolve_dict_keys or resolve_strings:
         j_ctor = get_jinja2_constructor(

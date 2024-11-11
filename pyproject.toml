@@ -29,13 +29,7 @@ classifiers = [
 ]
 keywords = ["yaml", "PyYAML", "include", "yml", "serialization"]
 requires-python = ">=3.12"
-dependencies = [
-    "PyYAML >=5.1",
-    "pyyaml-include",
-    "pyyaml_env_tag",
-    "fsspec",
-    "universal_pathlib",
-]
+dependencies = ["PyYAML >=5.1", "pyyaml-include", "fsspec", "universal_pathlib"]
 license = "MIT"
 
 [tool.uv]
