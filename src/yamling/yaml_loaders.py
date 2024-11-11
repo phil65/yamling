@@ -195,7 +195,7 @@ def get_loader(
 def _resolve_inherit(
     data: Any,
     base_dir: str | os.PathLike[str] | None,
-    mode: yamltypes.LoaderStr,
+    mode: yamltypes.LoaderStr | yamltypes.LoaderType,
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
@@ -206,7 +206,7 @@ def _resolve_inherit(
     Args:
         data: The loaded YAML data
         base_dir: Directory to resolve inherited paths from
-        mode: YAML loader mode
+        mode: YAML loader mode or YAML loader class
         include_base_path: Base path for !include resolution
         resolve_strings: Whether to resolve Jinja2 strings
         resolve_dict_keys: Whether to resolve dictionary keys
@@ -249,7 +249,7 @@ def _resolve_inherit(
 
 def load_yaml(
     text: YAMLInput,
-    mode: yamltypes.LoaderStr = "unsafe",
+    mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -261,6 +261,7 @@ def load_yaml(
     Args:
         text: The YAML content to load
         mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
+              Custom YAML loader classes are also accepted.
         include_base_path: Base path for resolving !include directives
         resolve_strings: Whether to resolve Jinja2 template strings
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
@@ -287,7 +288,10 @@ def load_yaml(
         ```
     """
     try:
-        base_loader_cls: type = LOADERS[mode]
+        if isinstance(mode, str):
+            base_loader_cls: type = LOADERS[mode]
+        else:
+            base_loader_cls = mode
         loader = get_loader(
             base_loader_cls,
             include_base_path=include_base_path,
@@ -322,7 +326,7 @@ def load_yaml(
 
 def load_yaml_file(
     path: str | os.PathLike[str],
-    mode: yamltypes.LoaderStr = "unsafe",
+    mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
@@ -333,7 +337,8 @@ def load_yaml_file(
 
     Args:
         path: Path to the YAML file to load
-        mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
+        mode: YAML loader safety mode ('unsafe', 'full', or 'safe').
+              Custom YAML loader classes are also accepted.
         include_base_path: Base path for resolving !include directives
         resolve_inherit: Whether to resolve INHERIT directives
         resolve_strings: Whether to resolve Jinja2 template strings
