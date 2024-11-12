@@ -153,7 +153,7 @@ def load_file(path: str | os.PathLike[str], mode: FormatType = "auto") -> Any:
         raise ValueError(msg)
 
     try:
-        text = path_obj.read_text()
+        text = path_obj.read_text(encoding="utf-8")
         return load(text, mode)
     except (OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Failed to read file %r", path)
