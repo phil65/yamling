@@ -270,6 +270,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         jinja_env: jinja2.Environment | None = None,
+        storage_options: dict[str, Any] | None = None,
     ) -> Any:
         """Load YAML file with custom tag handlers.
 
@@ -282,6 +283,7 @@ class YAMLParser:
             resolve_strings: Whether to resolve Jinja2 template strings
             resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
             jinja_env: Optional Jinja2 environment for template resolution
+            storage_options: Additional keywords to pass to fsspec backend
 
         Returns:
             Parsed YAML data with custom tag handling
@@ -312,6 +314,7 @@ class YAMLParser:
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 jinja_env=jinja_env,
+                storage_options=storage_options,
             )
         except yaml.constructor.ConstructorError as e:
             msg = f"No handler registered for tag: {e.problem.split()[-1]}"

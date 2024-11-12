@@ -376,6 +376,7 @@ def load_yaml_file(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
+    storage_options: dict[str, Any] | None = None,
 ) -> Any:
     """Load a YAML file with specified options.
 
@@ -388,6 +389,7 @@ def load_yaml_file(
         resolve_strings: Whether to resolve Jinja2 template strings
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
         jinja_env: Optional Jinja2 environment for template resolution
+        storage_options: Additional keywords to pass to fsspec backend
 
     Returns:
         The parsed YAML data
@@ -405,7 +407,7 @@ def load_yaml_file(
     try:
         import upath
 
-        path_obj = upath.UPath(path).resolve()
+        path_obj = upath.UPath(path, **storage_options or {}).resolve()
         text = path_obj.read_text("utf-8")
 
         data = load_yaml(
