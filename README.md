@@ -253,22 +253,11 @@ You can register tag handlers using either a decorator or explicit registration:
 
 ```python
 from yamling import YAMLParser
-from dataclasses import dataclass
-
-@dataclass
-class Person:
-    name: str
-    age: int
 
 # Create parser instance
 yaml_parser = YAMLParser()
 
-# Register handler using decorator
-@yaml_parser.register("person")
-def handle_person(data: dict) -> Person:
-    return Person(**data)
-
-# Or register handler explicitly
+# register handler
 def handle_uppercase(data: str) -> str:
     return data.upper()
 
@@ -281,9 +270,6 @@ Once registered, you can use the custom tags in your YAML:
 
 ```yaml
 # config.yaml
-user: !person
-  name: John Doe
-  age: 30
 message: !uppercase "hello world"
 ```
 
@@ -292,17 +278,55 @@ Load the YAML using the parser:
 ```python
 # Load from string
 data = yaml_parser.load_yaml("""
-user: !person
-  name: John Doe
-  age: 30
 message: !uppercase "hello world"
 """)
 
 # Or load from file
 data = yaml_parser.load_yaml_file("config.yaml")
 
-print(data["user"])  # Person(name='John Doe', age=30)
 print(data["message"])  # "HELLO WORLD"
+```
+
+### Class Registration
+
+For simple cases where you just want to convert tagged dictionary data into class instances,
+you can use the `register_class` method. The method will automatically use the lowercase class name
+as the tag name (following YAML tag conventions), but you can override this with a custom tag name:
+
+```python
+from yamling import YAMLParser
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+@dataclass
+class HomeAddress:
+    street: str
+    city: str
+
+yaml_parser = YAMLParser()
+
+# Register using class name as tag (will use "person" as tag)
+yaml_parser.register_class(Person)
+
+# Register with custom tag name instead of "homeaddress"
+yaml_parser.register_class(HomeAddress, "address")
+
+# Now you can use it in YAML:
+data = yaml_parser.load_yaml("""
+user: !person
+  name: John Doe
+  age: 30
+home: !address
+  street: 123 Main St
+  city: New York
+""")
+
+print(data["user"])    # Person(name='John Doe', age=30)
+print(data["home"])    # HomeAddress(street='123 Main St', city='New York')
 ```
 
 ### Complex Structures

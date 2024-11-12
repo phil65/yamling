@@ -156,3 +156,98 @@ def test_different_node_types(yaml_parser: YAMLParser):
     assert result["scalar"] == "value"
     assert result["sequence"] == "[1, 2, 3]"
     assert result["mapping"] == "{'key': 'value'}"
+
+
+def test_register_class_automatic_tag(yaml_parser: YAMLParser):
+    """Test class registration using automatic tag name."""
+    yaml_parser.register_class(Person)
+
+    yaml_content = """
+    user: !person
+      name: John Doe
+      age: 30
+    """
+
+    result = yaml_parser.load_yaml(yaml_content)
+    assert isinstance(result["user"], Person)
+    assert result["user"].name == "John Doe"
+    assert result["user"].age == 30  # noqa: PLR2004
+
+
+def test_register_class_custom_tag(yaml_parser: YAMLParser):
+    """Test class registration using custom tag name."""
+    yaml_parser.register_class(Person, "user")
+
+    yaml_content = """
+    person: !user
+      name: John Doe
+      age: 30
+    """
+
+    result = yaml_parser.load_yaml(yaml_content)
+    assert isinstance(result["person"], Person)
+    assert result["person"].name == "John Doe"
+    assert result["person"].age == 30  # noqa: PLR2004
+
+
+def test_register_class_invalid_data(yaml_parser: YAMLParser):
+    """Test class registration with invalid data type."""
+    yaml_parser.register_class(Person)
+
+    yaml_content = "user: !person invalid"
+
+    with pytest.raises(TypeError, match="Data for person must be a mapping"):
+        yaml_parser.load_yaml(yaml_content)
+
+
+def test_register_decorator_with_class(yaml_parser: YAMLParser):
+    """Test decorator registration with a class."""
+
+    @yaml_parser.register()
+    class User:
+        def __init__(self, name: str, role: str):
+            self.name = name
+            self.role = role
+
+    yaml_content = """
+    admin: !user
+      name: John Doe
+      role: admin
+    """
+
+    result = yaml_parser.load_yaml(yaml_content)
+    assert isinstance(result["admin"], User)
+    assert result["admin"].name == "John Doe"
+    assert result["admin"].role == "admin"
+
+
+def test_register_decorator_class_custom_tag(yaml_parser: YAMLParser):
+    """Test decorator registration with a class and custom tag."""
+
+    @yaml_parser.register("employee")
+    class User:
+        def __init__(self, name: str, role: str):
+            self.name = name
+            self.role = role
+
+    yaml_content = """
+    staff: !employee
+      name: John Doe
+      role: manager
+    """
+
+    result = yaml_parser.load_yaml(yaml_content)
+    assert isinstance(result["staff"], User)
+    assert result["staff"].name == "John Doe"
+    assert result["staff"].role == "manager"
+
+
+def test_register_decorator_requires_tag_for_function(yaml_parser: YAMLParser):
+    """Test that decorator requires tag name when used with functions."""
+    with pytest.raises(
+        ValueError, match="tag_name is required when decorating functions"
+    ):
+
+        @yaml_parser.register()
+        def handle_test(data: str) -> str:
+            return data.upper()

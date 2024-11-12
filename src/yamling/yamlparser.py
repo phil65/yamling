@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from functools import wraps
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import yaml
@@ -31,34 +30,59 @@ class YAMLParser:
         self._tag_handlers: dict[str, HandlerFunc] = {}
         self._tag_prefix: str = "!"  # Default prefix for tags
 
-    def register(self, tag_name: str) -> Callable[[HandlerFunc[T]], HandlerFunc[T]]:
-        """Decorator to register a new tag handler.
+    def register(
+        self, tag_name: str | None = None
+    ) -> Callable[[HandlerFunc[T] | type[T]], HandlerFunc[T] | type[T]]:
+        """Decorator to register a new tag handler or class.
 
         Args:
-            tag_name: Name of the tag without prefix
+            tag_name: Optional name of the tag. If None and decorating a class,
+                    the lowercase class name will be used.
 
         Returns:
-            Decorator function that registers the handler
+            Decorator function that registers the handler or the original class
 
         Usage:
+            # Function registration
             @yaml_parser.register("person")
             def handle_person(data: dict) -> Person:
                 return Person(**data)
+
+            # Class registration
+            @yaml_parser.register()  # will use "person" as tag
+            class Person:
+                def __init__(self, name: str, age: int):
+                    self.name = name
+                    self.age = age
         """
 
-        def decorator(func: HandlerFunc[T]) -> HandlerFunc[T]:
-            full_tag = f"{self._tag_prefix}{tag_name}"
-            self._tag_handlers[full_tag] = func
+        def decorator(func_or_cls: HandlerFunc[T] | type[T]) -> HandlerFunc[T] | type[T]:
+            nonlocal tag_name
 
-            @wraps(func)
-            def wrapper(*args: Any, **kwargs: Any) -> T:
-                return func(*args, **kwargs)
+            if isinstance(func_or_cls, type):
+                # It's a class
+                cls = func_or_cls
+                tag = tag_name or cls.__name__.lower()
 
-            return wrapper
+                def class_handler(data: Any) -> T:
+                    if not isinstance(data, dict):
+                        msg = f"Data for {tag} must be a mapping, got {type(data)}"
+                        raise TypeError(msg)
+                    return cls(**data)
+
+                self.register_handler(tag, class_handler)
+                return cls  # Return the original class instead of the handler
+
+            # It's a function
+            if tag_name is None:
+                msg = "tag_name is required when decorating functions"
+                raise ValueError(msg)
+            self.register_handler(tag_name, func_or_cls)
+            return func_or_cls
 
         return decorator
 
-    def register_handler(self, tag_name: str, handler: HandlerFunc[T]) -> None:
+    def register_handler(self, tag_name: str, handler: HandlerFunc[T]):
         """Explicitly register a tag handler function.
 
         Args:
@@ -67,6 +91,39 @@ class YAMLParser:
         """
         full_tag = f"{self._tag_prefix}{tag_name}"
         self._tag_handlers[full_tag] = handler
+
+    def register_class(self, cls: type[T], tag_name: str | None = None) -> None:
+        """Register a class as a tag handler.
+
+        The class will be instantiated with the YAML data as kwargs.
+        If no tag_name is provided, the lowercase class name will be used.
+
+        Args:
+            cls: The class to register
+            tag_name: Optional custom tag name. If None, lowercase class name is used
+
+        Example:
+            @dataclass
+            class Person:
+                name: str
+                age: int
+
+            # Using class name as tag (will use "person" as tag name)
+            yaml_parser.register_class(Person)
+
+            # Using custom tag name
+            yaml_parser.register_class(Person, "user")
+        """
+        if tag_name is None:
+            tag_name = cls.__name__.lower()
+
+        def class_handler(data: Any) -> T:
+            if not isinstance(data, dict):
+                msg = f"Data for {tag_name} must be a mapping, got {type(data)}"
+                raise TypeError(msg)
+            return cls(**data)
+
+        self.register_handler(tag_name, class_handler)
 
     def process_tag(self, tag: str, data: Any) -> Any:
         """Process data with the registered handler for the given tag.
