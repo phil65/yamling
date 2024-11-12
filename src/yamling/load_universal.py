@@ -3,8 +3,9 @@ import importlib.util
 import json
 import logging
 import os
-from pathlib import Path
 from typing import Any, Literal, get_args
+
+import upath
 
 
 logger = logging.getLogger(__name__)
@@ -104,12 +105,17 @@ def load(text: str, mode: SupportedFormats, **kwargs: Any) -> Any:
             raise ValueError(msg)
 
 
-def load_file(path: str | os.PathLike[str], mode: FormatType = "auto") -> Any:
+def load_file(
+    path: str | os.PathLike[str],
+    mode: FormatType = "auto",
+    storage_options: dict[str, Any] | None = None,
+) -> Any:
     """Load data from a file, automatically detecting the format from extension if needed.
 
     Args:
         path: Path to the file to load
         mode: Format of the file ("yaml", "toml", "json", "ini" or "auto")
+        storage_options: Additional keyword arguments to pass to the fsspec backend
 
     Returns:
         Parsed data structure
@@ -121,7 +127,7 @@ def load_file(path: str | os.PathLike[str], mode: FormatType = "auto") -> Any:
         PermissionError: If file permissions prevent reading
         ParsingError: If the text cannot be parsed in the specified format
     """
-    path_obj = Path(path)
+    path_obj = upath.UPath(path, **storage_options or {})
 
     # Determine format from extension if auto mode
     if mode == "auto":
