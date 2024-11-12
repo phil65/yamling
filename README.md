@@ -130,18 +130,59 @@ data = load_yaml(
 
 ### Inheritance
 
-YAML files can inherit from other files using the `INHERIT` key:
+YAML files can inherit from other files using the `INHERIT` key. You can specify either a single file or a list of files to inherit from:
+
+```yaml
+# Single inheritance
+# prod.yaml
+INHERIT: base.yaml
+database:
+  host: prod.example.com
+
+# Multiple inheritance
+# prod_with_logging.yaml
+INHERIT:
+  - base.yaml
+  - logging.yaml
+  - monitoring.yaml
+database:
+  host: prod.example.com
+```
+
+When using multiple inheritance, files are processed in order, with later files taking precedence over earlier ones. The current file's values take precedence over all inherited values.
+
+For example:
 
 ```yaml
 # base.yaml
 database:
   host: localhost
   port: 5432
+  timeout: 30
+
+# logging.yaml
+database:
+  timeout: 60
+logging:
+  level: INFO
 
 # prod.yaml
-INHERIT: base.yaml
+INHERIT:
+  - base.yaml
+  - logging.yaml
 database:
   host: prod.example.com
+```
+
+When loading `prod.yaml`, the final configuration will be:
+
+```yaml
+database:
+  host: prod.example.com  # from prod.yaml
+  port: 5432             # from base.yaml
+  timeout: 60            # from logging.yaml
+logging:
+  level: INFO            # from logging.yaml
 ```
 
 Load with inheritance enabled:
@@ -149,6 +190,7 @@ Load with inheritance enabled:
 ```python
 config = load_yaml_file("prod.yaml", resolve_inherit=True)
 ```
+
 
 ## Dumping YAML
 

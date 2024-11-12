@@ -267,9 +267,11 @@ def _resolve_inherit(
     import upath
 
     base_dir = upath.UPath(base_dir)
+    # Convert string to list for uniform handling
     file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
     context = deepmerge.DeepMerger()
 
+    # Process inheritance in reverse order (last file is base configuration)
     for p_path in reversed(file_paths):
         parent_cfg = base_dir / p_path
         logger.debug(

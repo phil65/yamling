@@ -294,3 +294,134 @@ def test_load_yaml_with_bytes_io(temp_yaml_files: dict[str, Path]):
     assert data["value"] == 1  # Inherited from base.yaml
     assert data["custom"] == "value"
     assert "INHERIT" not in data
+
+
+def test_load_yaml_multiple_inherit_order(tmp_path: Path):
+    """Test that multiple inheritance follows the correct merge order."""
+    # Create test files
+    base_content = dedent("""
+        name: base
+        value: 1
+        nested:
+          key1: base
+          key2: base
+    """).strip()
+
+    middle_content = dedent("""
+        name: middle
+        nested:
+          key2: middle
+          key3: middle
+    """).strip()
+
+    top_content = dedent("""
+        INHERIT:
+          - base.yaml
+          - middle.yaml
+        nested:
+          key3: top
+          key4: top
+    """).strip()
+
+    (tmp_path / "base.yaml").write_text(base_content)
+    (tmp_path / "middle.yaml").write_text(middle_content)
+    (tmp_path / "top.yaml").write_text(top_content)
+
+    data = yaml_loaders.load_yaml_file(tmp_path / "top.yaml", resolve_inherit=True)
+
+    # Check merge order (last file in INHERIT list is merged last)
+    assert data["name"] == "middle"  # From middle.yaml
+    assert data["value"] == 1  # From base.yaml
+    assert data["nested"] == {
+        "key1": "base",  # From base.yaml
+        "key2": "middle",  # Overridden by middle.yaml
+        "key3": "top",  # Overridden by top.yaml
+        "key4": "top",  # Added by top.yaml
+    }
+
+
+def test_load_yaml_multiple_inherit_empty_list(tmp_path: Path):
+    """Test handling of empty list in multiple inheritance."""
+    yaml_content = dedent("""
+        INHERIT: []
+        key: value
+    """).strip()
+
+    test_file = tmp_path / "test.yaml"
+    test_file.write_text(yaml_content)
+
+    data = yaml_loaders.load_yaml_file(test_file, resolve_inherit=True)
+    assert data == {"key": "value"}
+
+
+def test_load_yaml_multiple_inherit_mixed_types(tmp_path: Path):
+    """Test that inheritance fails gracefully with mixed types in INHERIT list."""
+    yaml_content = dedent("""
+        INHERIT:
+          - base.yaml
+          - 123
+          - null
+        key: value
+    """).strip()
+
+    base_content = "name: base"
+
+    (tmp_path / "base.yaml").write_text(base_content)
+    test_file = tmp_path / "test.yaml"
+    test_file.write_text(yaml_content)
+
+    with pytest.raises(TypeError):
+        yaml_loaders.load_yaml_file(test_file, resolve_inherit=True)
+
+
+def test_load_yaml_multiple_inherit_nested(tmp_path: Path):
+    """Test nested multiple inheritance."""
+    # Create test files
+    base_content = dedent("""
+        name: base
+        value: 1
+    """).strip()
+
+    middle_content = dedent("""
+        INHERIT: base.yaml
+        name: middle
+        middle_value: 2
+    """).strip()
+
+    top_content = dedent("""
+        INHERIT:
+          - base.yaml
+          - middle.yaml
+        top_value: 3
+    """).strip()
+
+    (tmp_path / "base.yaml").write_text(base_content)
+    (tmp_path / "middle.yaml").write_text(middle_content)
+    (tmp_path / "top.yaml").write_text(top_content)
+
+    data = yaml_loaders.load_yaml_file(tmp_path / "top.yaml", resolve_inherit=True)
+
+    assert data["name"] == "middle"
+    assert data["value"] == 1
+    assert data["middle_value"] == 2  # noqa: PLR2004
+    assert data["top_value"] == 3  # noqa: PLR2004
+    assert "INHERIT" not in data
+
+
+def test_load_yaml_multiple_inherit_nonexistent(tmp_path: Path):
+    """Test handling of nonexistent files in multiple inheritance."""
+    yaml_content = dedent("""
+        INHERIT:
+          - base.yaml
+          - nonexistent.yaml
+        key: value
+    """).strip()
+
+    base_content = "name: base"
+
+    (tmp_path / "base.yaml").write_text(base_content)
+    test_file = tmp_path / "test.yaml"
+    test_file.write_text(yaml_content)
+
+    with pytest.raises(FileNotFoundError):
+        yaml_loaders.load_yaml_file(test_file, resolve_inherit=True)
