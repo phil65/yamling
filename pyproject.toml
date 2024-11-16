@@ -41,6 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 jinja2 = ["jinja2"]
 toml = ["tomli_w"]
+all = ["jinja2", "tomli_w"]
 
 [tool.uv]
 default-groups = ["dev", "lint", "docs"]
