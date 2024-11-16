@@ -10,7 +10,7 @@ import fsspec
 import yaml
 import yaml_include
 
-from yamling import deepmerge, utils, yamltypes
+from yamling import deepmerge, typedefs, utils
 
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-LOADERS: dict[str, yamltypes.LoaderType] = {
+LOADERS: dict[str, typedefs.LoaderType] = {
     "unsafe": yaml.CUnsafeLoader,
     "full": yaml.CFullLoader,
     "safe": yaml.CSafeLoader,
@@ -164,7 +164,7 @@ def get_include_constructor(
     return yaml_include.Constructor(fs=filesystem, **kwargs)
 
 
-def get_safe_loader(base_loader_cls: yamltypes.LoaderType) -> yamltypes.LoaderType:
+def get_safe_loader(base_loader_cls: typedefs.LoaderType) -> typedefs.LoaderType:
     """Create a SafeLoader with dummy constructors for common tags.
 
     Args:
@@ -192,14 +192,14 @@ def get_safe_loader(base_loader_cls: yamltypes.LoaderType) -> yamltypes.LoaderTy
 
 
 def get_loader(
-    base_loader_cls: yamltypes.LoaderType,
+    base_loader_cls: typedefs.LoaderType,
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     enable_include: bool = True,
     enable_env: bool = True,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
-) -> yamltypes.LoaderType:
+) -> typedefs.LoaderType:
     """Construct an enhanced YAML loader with optional support for !env and !include tags.
 
     Args:
@@ -237,7 +237,7 @@ def get_loader(
 def _resolve_inherit(
     data: Any,
     base_dir: str | os.PathLike[str] | None,
-    mode: yamltypes.LoaderStr | yamltypes.LoaderType,
+    mode: typedefs.LoaderStr | typedefs.LoaderType,
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
@@ -293,7 +293,7 @@ def _resolve_inherit(
 
 def load_yaml(
     text: YAMLInput,
-    mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -370,7 +370,7 @@ def load_yaml(
 
 def load_yaml_file(
     path: str | os.PathLike[str],
-    mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,

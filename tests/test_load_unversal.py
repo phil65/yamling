@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from yamling.load_universal import ParsingError, load, load_file
+from yamling.exceptions import ParsingError
+from yamling.load_universal import load, load_file
 
 
 # Test Constants

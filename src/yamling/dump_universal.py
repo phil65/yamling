@@ -4,7 +4,9 @@ import dataclasses
 import importlib.util
 from io import StringIO
 import logging
-from typing import TYPE_CHECKING, Any, Literal, get_args
+from typing import TYPE_CHECKING, Any, get_args
+
+from yamling import consts, exceptions, typedefs
 
 
 if TYPE_CHECKING:
@@ -12,22 +14,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-SupportedFormats = Literal["yaml", "toml", "json", "ini"]
-FormatType = SupportedFormats | Literal["auto"]
 
-# Check if orjson is available
-has_orjson = importlib.util.find_spec("orjson") is not None
-
-
-class DumpingError(Exception):
-    """Common exception for all dumping errors in yamling."""
-
-    def __init__(self, message: str, original_error: Exception | None = None) -> None:
-        super().__init__(message)
-        self.original_error = original_error
-
-
-def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
+def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
     """Dump data to a string in the specified format.
 
     Args:
@@ -63,7 +51,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
             except YAMLError as e:
                 logger.exception("Failed to dump YAML data")
                 msg = f"Failed to dump data to YAML: {e}"
-                raise DumpingError(msg, e) from e
+                raise exceptions.DumpingError(msg, e) from e
 
         case "toml":
             import tomli_w
@@ -73,10 +61,10 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
             except Exception as e:
                 logger.exception("Failed to dump TOML data")
                 msg = f"Failed to dump data to TOML: {e}"
-                raise DumpingError(msg, e) from e
+                raise exceptions.DumpingError(msg, e) from e
 
         case "json":
-            if has_orjson:
+            if consts.has_orjson:
                 import orjson
 
                 try:
@@ -91,7 +79,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
                 except Exception as e:
                     logger.exception("Failed to dump JSON data with orjson")
                     msg = f"Failed to dump data to JSON: {e}"
-                    raise DumpingError(msg, e) from e
+                    raise exceptions.DumpingError(msg, e) from e
             else:
                 import json
 
@@ -100,7 +88,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
                 except Exception as e:
                     logger.exception("Failed to dump JSON data with json")
                     msg = f"Failed to dump data to JSON: {e}"
-                    raise DumpingError(msg, e) from e
+                    raise exceptions.DumpingError(msg, e) from e
 
         case "ini":
             import configparser
@@ -108,11 +96,11 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
             def validate_ini_structure(data: Any) -> None:
                 if not isinstance(data, dict):
                     msg = "INI format requires dict of dicts structure"
-                    raise DumpingError(msg)
+                    raise exceptions.DumpingError(msg)
                 for values in data.values():
                     if not isinstance(values, dict):
                         msg = "INI format requires dict of dicts structure"
-                        raise DumpingError(msg)
+                        raise exceptions.DumpingError(msg)
 
             try:
                 validate_ini_structure(data)
@@ -122,12 +110,12 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
                 output = StringIO()
                 parser.write(output)
                 return output.getvalue()
-            except DumpingError:
+            except exceptions.DumpingError:
                 raise
             except Exception as e:
                 logger.exception("Failed to dump INI data")
                 msg = f"Failed to dump data to INI: {e}"
-                raise DumpingError(msg, e) from e
+                raise exceptions.DumpingError(msg, e) from e
 
         case _:
             msg = f"Unsupported format: {mode}"
@@ -137,7 +125,7 @@ def dump(data: Any, mode: SupportedFormats, **kwargs: Any) -> str:
 def dump_file(
     data: Any,
     path: str | os.PathLike[str],
-    mode: FormatType = "auto",
+    mode: typedefs.FormatType = "auto",
     **kwargs: Any,
 ) -> None:
     """Dump data to a file, automatically detecting the format from extension if needed.
@@ -159,29 +147,14 @@ def dump_file(
     # Determine format from extension if auto mode
     if mode == "auto":
         ext = path_obj.suffix.lower()
-        format_mapping: dict[str, SupportedFormats] = {
-            ".yaml": "yaml",
-            ".yml": "yaml",
-            ".toml": "toml",
-            ".tml": "toml",
-            ".json": "json",
-            ".jsonc": "json",
-            ".ini": "ini",
-            ".cfg": "ini",
-            ".conf": "ini",
-            ".config": "ini",
-            ".properties": "ini",
-            ".cnf": "ini",
-            ".env": "ini",
-        }
-        detected_mode = format_mapping.get(ext)
+        detected_mode = consts.FORMAT_MAPPING.get(ext)
         if detected_mode is None:
             msg = f"Could not determine format from file extension: {path}"
             raise ValueError(msg)
         mode = detected_mode
 
     # At this point, mode can't be "auto"
-    if mode not in get_args(SupportedFormats):
+    if mode not in get_args(typedefs.SupportedFormats):
         msg = f"Unsupported format: {mode}"
         raise ValueError(msg)
 
@@ -191,8 +164,8 @@ def dump_file(
     except (OSError, PermissionError) as e:
         logger.exception("Failed to write file %r", path)
         msg = f"Failed to write file {path}: {e!s}"
-        raise DumpingError(msg, e) from e
+        raise exceptions.DumpingError(msg, e) from e
     except Exception as e:
         logger.exception("Failed to dump data to %r as %s", path, mode)
         msg = f"Failed to dump data to {path} as {mode} format: {e!s}"
-        raise DumpingError(msg, e) from e
+        raise exceptions.DumpingError(msg, e) from e

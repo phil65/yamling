@@ -21,3 +21,6 @@ LoaderType = type[
 LoaderStr = Literal["unsafe", "full", "safe"]
 
 DumperType = type[yaml.Dumper | yaml.CDumper | yaml.SafeDumper | yaml.CSafeDumper]
+
+SupportedFormats = Literal["yaml", "toml", "json", "ini"]
+FormatType = SupportedFormats | Literal["auto"]

@@ -19,7 +19,7 @@ from yamling.yaml_loaders import load_yaml_file
 
 
 if TYPE_CHECKING:
-    from yamling import yamltypes
+    from yamling import typedefs
 
 
 @pytest.fixture
@@ -177,7 +177,7 @@ def test_different_loader_modes(yaml_files: Path) -> None:
     - full: Allows safe YAML tags and constructs
     - safe: Most restrictive, only basic YAML constructs
     """
-    modes: list[yamltypes.LoaderStr] = ["unsafe", "full", "safe"]
+    modes: list[typedefs.LoaderStr] = ["unsafe", "full", "safe"]
     for mode in modes:
         result = load_yaml_file(yaml_files / "base.yaml", mode=mode)
         assert result["name"] == "base"

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     import fsspec
     import jinja2
 
-    from yamling import yamltypes
+    from yamling import typedefs
 
 
 # Type for the handler function
@@ -186,7 +186,7 @@ class YAMLParser:
         return constructor
 
     def register_with_loader(
-        self, loader_class: yamltypes.LoaderType = SafeLoader
+        self, loader_class: typedefs.LoaderType = SafeLoader
     ) -> None:
         """Register all tags with a YAML loader class.
 
@@ -200,7 +200,7 @@ class YAMLParser:
         self,
         text: yaml_loaders.YAMLInput,
         *,
-        mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
         include_base_path: str
         | os.PathLike[str]
         | fsspec.AbstractFileSystem
@@ -261,7 +261,7 @@ class YAMLParser:
         self,
         path: str | os.PathLike[str],
         *,
-        mode: yamltypes.LoaderStr | yamltypes.LoaderType = "unsafe",
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
         include_base_path: str
         | os.PathLike[str]
         | fsspec.AbstractFileSystem

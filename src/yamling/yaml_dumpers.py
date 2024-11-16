@@ -8,11 +8,11 @@ from typing import Any
 
 import yaml
 
-from yamling import utils, yamltypes
+from yamling import typedefs, utils
 
 
 def map_class_to_builtin_type(
-    dumper_class: yamltypes.DumperType,
+    dumper_class: typedefs.DumperType,
     class_type: type,
     target_type: type,
 ):
@@ -30,7 +30,7 @@ def map_class_to_builtin_type(
     if hasattr(dumper_class, method_name):
         representer = getattr(dumper_class, method_name)
 
-        def represent_as_builtin(dumper: yamltypes.DumperType, data: Any) -> yaml.Node:
+        def represent_as_builtin(dumper: typedefs.DumperType, data: Any) -> yaml.Node:
             return representer(dumper, data)  # Pass data directly without conversion
 
         dumper_class.add_representer(class_type, represent_as_builtin)

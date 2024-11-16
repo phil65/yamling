@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 import pytest
 import yaml
 
-from yamling.dump_universal import DumpingError, dump, dump_file
+from yamling.dump_universal import dump, dump_file
+from yamling.exceptions import DumpingError
 
 
 if TYPE_CHECKING:
