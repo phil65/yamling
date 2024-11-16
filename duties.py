@@ -35,13 +35,12 @@ def update(ctx):
     """Update all environment packages using pip directly."""
     ctx.run("uv lock --upgrade")
     ctx.run("uv sync --all-extras")
-    ctx.run("uv pip install google-generativeai")
 
 
 @duty(capture=False)
 def lint(ctx):
     """Lint the code and fix issues if possible."""
-    ctx.run("uv run ruff check --fix .")
+    ctx.run("uv run ruff check --fix --unsafe-fixes .")
     ctx.run("uv run ruff format .")
     ctx.run("uv run mypy src/yamling/")
 

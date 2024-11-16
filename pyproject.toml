@@ -9,10 +9,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "yamling"
-authors = [
-    { name = "Philipp Temminghoff", email = "philipptemminghoff@gmail.com" },
-]
 description = "Enhanced YAML loading and dumping."
+authors = [
+    { name = "Philipp Temminghoff", email = "philipptemminghoff@googlemail.com" },
+]
 readme = "README.md"
 dynamic = ["version"]
 classifiers = [
@@ -29,29 +29,46 @@ classifiers = [
 ]
 keywords = ["yaml", "PyYAML", "include", "yml", "serialization"]
 requires-python = ">=3.12"
-dependencies = ["PyYAML >=5.1", "pyyaml-include", "fsspec", "universal_pathlib"]
-license = "MIT"
+dependencies = [
+
+    # Only add below (Copier)
+    "PyYAML >=5.1",
+    "pyyaml-include",
+    "fsspec",
+    "universal_pathlib",
+]
+license = { file = "LICENSE" }
 
 [tool.uv]
-dev-dependencies = [
-    # lint
-    "ruff",
-    "mypy[faster-cache]",
-    # test
+default-groups = ["dev", "lint", "docs"]
+
+[dependency-groups]
+dev = [
     "pytest",
     "pytest-cov",
-    # docs
-    "mkdocs-material",
-    "mkdocs-mknodes",
-    # dev
     "pyreadline3",
-    "pyinstrument",
-    "jinja2>=3.1.4",
+    "devtools",
+    # Only add below (Copier)
+]
+benchmark = ["pyinstrument"]
+lint = [
+    "ruff",
+    "mypy[faster-cache]; python_version < '3.14'",
+    "mypy; python_version >= '3.14'",
+    # Only add below (Copier)
+]
+docs = [
+    "mkdocs-mknodes",
+    "mkdocs-material",
+    # Only add below (Copier)
 ]
 
 [project.urls]
 Documentation = "https://phil65.github.io/yamling/"
 Source = "https://github.com/phil65/yamling"
+Issues = "https://github.com/phil65/yamling/issues"
+Discussions = "https://github.com/phil65/yamling/discussions"
+"Code coverage" = "https://app.codecov.io/gh/phil65/yamling"
 
 [project.entry-points.toolreg_functions]
 dump_file = "yamling:dump_file"
@@ -65,11 +82,9 @@ dump = "yamling:dump"
 
 [tool.pytest.ini_options]
 testpaths = "tests/"
-log_cli = false
-log_level = "ERROR"
+log_cli = true
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-addopts = "--cov=yamling/ --cov-report=term-missing --cov-report=xml"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -82,11 +97,11 @@ exclude_lines = [
 
 [tool.mypy]
 python_version = "3.12"
-# python_executable = ".venv/env/virtual/yamling/Scripts/python.exe"
 disable_error_code = ["misc", "import"]
 pretty = true
 check_untyped_defs = true
 exclude = ['venv/', '.venv/', 'tests/']
+plugins = []
 
 [tool.ruff]
 line-length = 90
@@ -217,6 +232,7 @@ reportUnknownVariableType = false
 reportAny = false
 reportImplicitOverride = false
 reportUnusedFunction = false
+reportImplicitStringConcatenation = false
 
 [tool.mknodes]
 allowed-commit-types = [

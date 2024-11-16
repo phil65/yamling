@@ -1,8 +1,8 @@
-site_name: YAMLing
+site_name: "yamling"
 site_description: "Enhanced YAML loading and dumping."
 repo_url: "https://github.com/phil65/yamling/"
 site_url: https://phil65.github.io/yamling/
-site_author: Philipp Temminghoff
+site_author: "Philipp Temminghoff"
 copyright: Copyright &copy; 2024 Philipp Temminghoff
 
 theme:
@@ -57,15 +57,7 @@ theme:
 plugins:
   - search
   - autorefs
-  - mknodes:
-      build_fn: yamling.manual:Build.build
-      # global_resources: false
-      render_by_default: false
-      # jinja_loaders:
-      # - type: filesystem
-      #   searchpath: docs
-      # - type: template_file
-      #   path: templates.toml
+  - mknodes
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -75,6 +67,7 @@ plugins:
               domains: [std, py]
           options:
             # https://mkdocstrings.github.io/python/usage/
+            enable_inventory: !ENV [CI, false]
             show_signature_annotations: true
             show_symbol_type_toc: true
             show_symbol_type_heading: true
@@ -85,10 +78,15 @@ plugins:
             signature_crossrefs: true
             separate_signature: true
             line_length: 90
-          preload_modules:
-            - mknodes
 markdown_extensions:
   - attr_list
   - pymdownx.emoji
   - toc:
       permalink: true
+
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/phil65
+  - icon: fontawesome/brands/python
+    link: https://pypi.org/project/yamling/
