@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 import yaml
 from yaml import MappingNode, Node, SafeLoader, ScalarNode, SequenceNode
@@ -19,8 +19,9 @@ if TYPE_CHECKING:
 
 
 # Type for the handler function
-T = TypeVar("T")
+T = TypeVar("T", bound=object)
 HandlerFunc = Callable[[Any], T]
+TVerify = TypeVar("TVerify")
 
 
 class YAMLParser:
@@ -196,6 +197,7 @@ class YAMLParser:
         for tag in self._tag_handlers:
             loader_class.add_constructor(tag, self.create_constructor(tag[1:]))
 
+    @overload
     def load_yaml(
         self,
         text: yaml_loaders.YAMLInput,
@@ -209,21 +211,57 @@ class YAMLParser:
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
         jinja_env: jinja2.Environment | None = None,
-    ) -> Any:
+        verify_type: None = None,
+    ) -> Any: ...
+
+    @overload
+    def load_yaml(
+        self,
+        text: yaml_loaders.YAMLInput,
+        *,
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+        include_base_path: str
+        | os.PathLike[str]
+        | fsspec.AbstractFileSystem
+        | None = None,
+        resolve_strings: bool = False,
+        resolve_dict_keys: bool = False,
+        resolve_inherit: bool = False,
+        jinja_env: jinja2.Environment | None = None,
+        verify_type: type[TVerify],
+    ) -> TVerify: ...
+
+    def load_yaml(
+        self,
+        text: yaml_loaders.YAMLInput,
+        *,
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+        include_base_path: str
+        | os.PathLike[str]
+        | fsspec.AbstractFileSystem
+        | None = None,
+        resolve_strings: bool = False,
+        resolve_dict_keys: bool = False,
+        resolve_inherit: bool = False,
+        jinja_env: jinja2.Environment | None = None,
+        verify_type: type[TVerify] | None = None,
+    ) -> Any | TVerify:
         """Load YAML content with custom tag handlers.
 
         Args:
             text: The YAML content to load
             mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
-                  Custom YAML loader classes are also accepted
+                Custom YAML loader classes are also accepted
             include_base_path: Base path for resolving !include directives
             resolve_strings: Whether to resolve Jinja2 template strings
             resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
             resolve_inherit: Whether to resolve INHERIT directives
             jinja_env: Optional Jinja2 environment for template resolution
+            verify_type: Type to verify and cast the output to
 
         Returns:
-            Parsed YAML data with custom tag handling
+            Parsed YAML data with custom tag handling,
+            typed according to verify_type if provided
 
         Example:
             ```python
@@ -233,29 +271,73 @@ class YAMLParser:
             def handle_person(data: dict) -> Person:
                 return Person(**data)
 
+            # Without type verification
             data = yaml_parser.load_yaml(
                 "person: !person {name: John, age: 30}",
                 mode="safe",
                 resolve_strings=True
             )
+
+            # With type verification
+            data = yaml_parser.load_yaml(
+                "config: {key: value}",
+                mode="safe",
+                verify_type=dict
+            )
             ```
         """
-        loader = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
-        self.register_with_loader(loader)
+        loader_class = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
+        self.register_with_loader(loader_class)
         try:
             return yaml_loaders.load_yaml(
                 text,
-                mode=loader,
+                mode=loader_class,
                 include_base_path=include_base_path,
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 resolve_inherit=resolve_inherit,
                 jinja_env=jinja_env,
+                verify_type=verify_type,
             )
         except yaml.constructor.ConstructorError as e:
-            # Convert YAML ConstructorError to ValueError
             msg = f"No handler registered for tag: {e.problem.split()[-1]}"
             raise ValueError(msg) from e
+
+    @overload
+    def load_yaml_file(
+        self,
+        path: str | os.PathLike[str],
+        *,
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+        include_base_path: str
+        | os.PathLike[str]
+        | fsspec.AbstractFileSystem
+        | None = None,
+        resolve_inherit: bool = False,
+        resolve_strings: bool = False,
+        resolve_dict_keys: bool = False,
+        jinja_env: jinja2.Environment | None = None,
+        storage_options: dict[str, Any] | None = None,
+        verify_type: None = None,
+    ) -> Any: ...
+
+    @overload
+    def load_yaml_file(
+        self,
+        path: str | os.PathLike[str],
+        *,
+        mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+        include_base_path: str
+        | os.PathLike[str]
+        | fsspec.AbstractFileSystem
+        | None = None,
+        resolve_inherit: bool = False,
+        resolve_strings: bool = False,
+        resolve_dict_keys: bool = False,
+        jinja_env: jinja2.Environment | None = None,
+        storage_options: dict[str, Any] | None = None,
+        verify_type: type[TVerify],
+    ) -> TVerify: ...
 
     def load_yaml_file(
         self,
@@ -271,22 +353,25 @@ class YAMLParser:
         resolve_dict_keys: bool = False,
         jinja_env: jinja2.Environment | None = None,
         storage_options: dict[str, Any] | None = None,
-    ) -> Any:
+        verify_type: type[TVerify] | None = None,
+    ) -> Any | TVerify:
         """Load YAML file with custom tag handlers.
 
         Args:
             path: Path to the YAML file
             mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
-                  Custom YAML loader classes are also accepted
+                Custom YAML loader classes are also accepted
             include_base_path: Base path for resolving !include directives
             resolve_inherit: Whether to resolve INHERIT directives
             resolve_strings: Whether to resolve Jinja2 template strings
             resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
             jinja_env: Optional Jinja2 environment for template resolution
             storage_options: Additional keywords to pass to fsspec backend
+            verify_type: Type to verify and cast the output to
 
         Returns:
-            Parsed YAML data with custom tag handling
+            Parsed YAML data with custom tag handling,
+            typed according to verify_type if provided
 
         Example:
             ```python
@@ -296,10 +381,18 @@ class YAMLParser:
             def handle_config(data: dict) -> Config:
                 return Config(**data)
 
+            # Without type verification
             data = yaml_parser.load_yaml_file(
                 "config.yml",
                 resolve_inherit=True,
                 include_base_path="configs/"
+            )
+
+            # With type verification
+            config = yaml_parser.load_yaml_file(
+                "config.yml",
+                resolve_inherit=True,
+                verify_type=dict
             )
             ```
         """
@@ -315,6 +408,7 @@ class YAMLParser:
                 resolve_dict_keys=resolve_dict_keys,
                 jinja_env=jinja_env,
                 storage_options=storage_options,
+                verify_type=verify_type,  # type: ignore
             )
         except yaml.constructor.ConstructorError as e:
             msg = f"No handler registered for tag: {e.problem.split()[-1]}"

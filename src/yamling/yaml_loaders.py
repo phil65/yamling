@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload
 
 import fsspec
 import yaml
@@ -28,6 +28,8 @@ LOADERS: dict[str, typedefs.LoaderType] = {
 T = TypeVar("T", bound=type)
 
 _T_co = TypeVar("_T_co", covariant=True)
+
+TVerify = TypeVar("TVerify", bound=object)
 
 
 class SupportsRead(Protocol[_T_co]):
@@ -291,6 +293,7 @@ def _resolve_inherit(
     return data
 
 
+@overload
 def load_yaml(
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
@@ -299,8 +302,34 @@ def load_yaml(
     resolve_dict_keys: bool = False,
     resolve_inherit: bool = False,
     jinja_env: jinja2.Environment | None = None,
-) -> Any:
-    """Load a YAML string with specified safety mode and include path support.
+    verify_type: None = None,
+) -> Any: ...
+
+
+@overload
+def load_yaml(
+    text: YAMLInput,
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    resolve_inherit: bool = False,
+    jinja_env: jinja2.Environment | None = None,
+    verify_type: type[TVerify] = ...,
+) -> TVerify: ...
+
+
+def load_yaml(
+    text: YAMLInput,
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    resolve_inherit: bool = False,
+    jinja_env: jinja2.Environment | None = None,
+    verify_type: type[TVerify] | None = None,
+) -> Any | TVerify:
+    r"""Load a YAML string with specified safety mode and include path support.
 
     Args:
         text: The YAML content to load
@@ -312,9 +341,10 @@ def load_yaml(
         resolve_inherit: Whether to resolve INHERIT directives
                          (requires IO object with name attribute for text)
         jinja_env: Optional Jinja2 environment for template resolution
+        verify_type: Type to verify and cast the output to
 
     Returns:
-        The parsed YAML data
+        The parsed YAML data, typed according to verify_type if provided
 
     Example:
         ```python
@@ -329,6 +359,10 @@ def load_yaml(
             resolve_strings=True,
             jinja_env=env
         )
+
+        # With type verification
+        config = load_yaml("key: value", verify_type=dict)
+        items = load_yaml("- item1\n- item2", verify_type=list)
         ```
     """
     try:
@@ -365,7 +399,43 @@ def load_yaml(
         logger.exception("Unexpected error while loading YAML:\n%s", text)
         raise
     else:
+        if verify_type is not None:
+            if not isinstance(data, verify_type):
+                msg = (
+                    f"Data is of type {type(data).__name__}, "
+                    f"expected {verify_type.__name__}"
+                )
+                raise TypeError(msg)
+            return data  # type: ignore[no-any-return]
         return data
+
+
+@overload
+def load_yaml_file(
+    path: str | os.PathLike[str],
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    resolve_inherit: bool = False,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    jinja_env: jinja2.Environment | None = None,
+    storage_options: dict[str, Any] | None = None,
+    verify_type: None = None,
+) -> Any: ...
+
+
+@overload
+def load_yaml_file(
+    path: str | os.PathLike[str],
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    resolve_inherit: bool = False,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    jinja_env: jinja2.Environment | None = None,
+    storage_options: dict[str, Any] | None = None,
+    verify_type: type[TVerify] = ...,
+) -> TVerify: ...
 
 
 def load_yaml_file(
@@ -377,8 +447,11 @@ def load_yaml_file(
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
     storage_options: dict[str, Any] | None = None,
-) -> Any:
+    verify_type: type[TVerify] | None = None,
+) -> Any | TVerify:
     """Load a YAML file with specified options.
+
+    Use verify_type to get proper output type for LSPs and a simple validation.
 
     Args:
         path: Path to the YAML file to load
@@ -390,6 +463,7 @@ def load_yaml_file(
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
         jinja_env: Optional Jinja2 environment for template resolution
         storage_options: Additional keywords to pass to fsspec backend
+        verify_type: Checks for the correct output type (eg. dict)
 
     Returns:
         The parsed YAML data
@@ -401,6 +475,12 @@ def load_yaml_file(
             "config.yml",
             resolve_inherit=True,  # Resolve INHERIT directives
             include_base_path="configs/"  # Base path for includes
+        )
+
+        # Load YAML file with type verification
+        data = load_yaml_file(
+            "config.yml",
+            verify_type=dict  # Will return dict type
         )
         ```
     """
@@ -437,6 +517,11 @@ def load_yaml_file(
         logger.exception("Unexpected error while loading YAML file %r", path)
         raise
     else:
+        if verify_type is not None:
+            if not isinstance(data, verify_type):
+                msg = f"Expected {verify_type.__name__}, got {type(data).__name__}"
+                raise TypeError(msg)
+            return data  # type: ignore[no-any-return]
         return data
 
 
