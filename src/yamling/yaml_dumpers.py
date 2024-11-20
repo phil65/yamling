@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import dataclasses
 import importlib.util
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+import upath
 import yaml
 
 from yamling import typedefs, utils
+
+
+if TYPE_CHECKING:
+    import os
 
 
 def map_class_to_builtin_type(
@@ -66,6 +71,16 @@ def dump_yaml(
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         obj = dataclasses.asdict(obj)
     return yaml.dump(obj, Dumper=dumper_cls, **kwargs)
+
+
+def dump_yaml_file(
+    path: str | os.PathLike[str],
+    obj: Any,
+    class_mappings: dict[type, type] | None = None,
+    **kwargs: Any,
+):
+    string = dump_yaml(obj, class_mappings, **kwargs)
+    upath.UPath(path).write_text(string)
 
 
 if __name__ == "__main__":
