@@ -210,6 +210,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
+        variables: dict[str, Any] | None = None,
         jinja_env: jinja2.Environment | None = None,
         verify_type: None = None,
     ) -> Any: ...
@@ -227,6 +228,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
+        variables: dict[str, Any] | None = None,
         jinja_env: jinja2.Environment | None = None,
         verify_type: type[TVerify],
     ) -> TVerify: ...
@@ -243,6 +245,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
+        variables: dict[str, Any] | None = None,
         jinja_env: jinja2.Environment | None = None,
         verify_type: type[TVerify] | None = None,
     ) -> Any | TVerify:
@@ -256,6 +259,7 @@ class YAMLParser:
             resolve_strings: Whether to resolve Jinja2 template strings
             resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
             resolve_inherit: Whether to resolve INHERIT directives
+            variables: An optional dictionary to resolving !var tags
             jinja_env: Optional Jinja2 environment for template resolution
             verify_type: Type to verify and cast the output to
 
@@ -296,8 +300,9 @@ class YAMLParser:
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 resolve_inherit=resolve_inherit,
+                variables=variables,
                 jinja_env=jinja_env,
-                verify_type=verify_type,
+                verify_type=verify_type,  # type: ignore[arg-type]
             )
         except yaml.constructor.ConstructorError as e:
             msg = f"No handler registered for tag: {e.problem.split()[-1]}"
@@ -317,6 +322,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         jinja_env: jinja2.Environment | None = None,
+        variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: None = None,
     ) -> Any: ...
@@ -335,6 +341,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         jinja_env: jinja2.Environment | None = None,
+        variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: type[TVerify],
     ) -> TVerify: ...
@@ -352,6 +359,7 @@ class YAMLParser:
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         jinja_env: jinja2.Environment | None = None,
+        variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: type[TVerify] | None = None,
     ) -> Any | TVerify:
@@ -366,6 +374,7 @@ class YAMLParser:
             resolve_strings: Whether to resolve Jinja2 template strings
             resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
             jinja_env: Optional Jinja2 environment for template resolution
+            variables: An optional dictionary to resolving !var tags
             storage_options: Additional keywords to pass to fsspec backend
             verify_type: Type to verify and cast the output to
 
@@ -407,6 +416,7 @@ class YAMLParser:
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 jinja_env=jinja_env,
+                variables=variables,
                 storage_options=storage_options,
                 verify_type=verify_type,  # type: ignore
             )

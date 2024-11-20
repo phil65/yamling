@@ -11,6 +11,7 @@ import yaml
 import yaml_include
 
 from yamling import deepmerge, typedefs, utils
+from yamling.constructors import variable
 
 
 if TYPE_CHECKING:
@@ -200,6 +201,7 @@ def get_loader(
     enable_env: bool = True,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
+    variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
 ) -> typedefs.LoaderType:
     """Construct an enhanced YAML loader with optional support for !env and !include tags.
@@ -211,12 +213,16 @@ def get_loader(
         enable_env: Whether to enable !ENV tag support
         resolve_strings: Whether to resolve strings using Jinja2
         resolve_dict_keys: Whether to resolve dictionary keys using Jinja2
+        variables: An optional dictionary to resolving !var tags
         jinja_env: Optional Jinja2 environment for template resolution
 
     Returns:
         Enhanced loader class
     """
     loader_cls = utils.create_subclass(base_loader_cls)
+    if variables:
+        constructor = variable.ConfigConstructor(variables)
+        loader_cls.add_constructor("!var", constructor.construct_variable)
 
     if enable_include:
         constructor = get_include_constructor(fs=include_base_path)
@@ -301,6 +307,7 @@ def load_yaml(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     resolve_inherit: bool = False,
+    variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: None = None,
 ) -> Any: ...
@@ -314,6 +321,7 @@ def load_yaml(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     resolve_inherit: bool = False,
+    variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[TVerify] = ...,
 ) -> TVerify: ...
@@ -326,6 +334,7 @@ def load_yaml(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     resolve_inherit: bool = False,
+    variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[TVerify] | None = None,
 ) -> Any | TVerify:
@@ -341,6 +350,7 @@ def load_yaml(
         resolve_inherit: Whether to resolve INHERIT directives
                          (requires IO object with name attribute for text)
         jinja_env: Optional Jinja2 environment for template resolution
+        variables: An optional dictionary to resolving !var tags
         verify_type: Type to verify and cast the output to
 
     Returns:
@@ -375,6 +385,7 @@ def load_yaml(
             include_base_path=include_base_path,
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
+            variables=variables,
             jinja_env=jinja_env,
         )
         data = yaml.load(text, Loader=loader)
@@ -419,6 +430,7 @@ def load_yaml_file(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
+    variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
 ) -> Any: ...
@@ -433,6 +445,7 @@ def load_yaml_file(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
+    variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[TVerify] = ...,
 ) -> TVerify: ...
@@ -446,6 +459,7 @@ def load_yaml_file(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     jinja_env: jinja2.Environment | None = None,
+    variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[TVerify] | None = None,
 ) -> Any | TVerify:
@@ -462,6 +476,7 @@ def load_yaml_file(
         resolve_strings: Whether to resolve Jinja2 template strings
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
         jinja_env: Optional Jinja2 environment for template resolution
+        variables: An optional dictionary to resolving !var tags
         storage_options: Additional keywords to pass to fsspec backend
         verify_type: Checks for the correct output type (eg. dict)
 
