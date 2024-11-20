@@ -221,8 +221,8 @@ def get_loader(
     """
     loader_cls = utils.create_subclass(base_loader_cls)
     if variables:
-        constructor = variable.ConfigConstructor(variables)
-        loader_cls.add_constructor("!var", constructor.construct_variable)
+        var_ctor = variable.ConfigConstructor(variables)
+        loader_cls.add_constructor("!var", var_ctor.construct_variable)
 
     if enable_include:
         constructor = get_include_constructor(fs=include_base_path)
