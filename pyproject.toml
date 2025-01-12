@@ -37,6 +37,7 @@ dependencies = [
     "pyyaml-include",
     "fsspec",
     "universal_pathlib",
+    "pydantic",
 ]
 [project.optional-dependencies]
 jinja2 = ["jinja2"]
