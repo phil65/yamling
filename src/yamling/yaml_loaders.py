@@ -10,7 +10,7 @@ import fsspec
 import yaml
 import yaml_include
 
-from yamling import deepmerge, typedefs, utils
+from yamling import deepmerge, typedefs, utils, verify
 from yamling.constructors import variable
 
 
@@ -323,8 +323,8 @@ def load_yaml(
     resolve_inherit: bool = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
-    verify_type: type[TVerify] = ...,
-) -> TVerify: ...
+    verify_type: type[T] = ...,
+) -> T: ...
 
 
 def load_yaml(
@@ -336,8 +336,8 @@ def load_yaml(
     resolve_inherit: bool = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
-    verify_type: type[TVerify] | None = None,
-) -> Any | TVerify:
+    verify_type: type[T] | None = None,
+) -> Any | T:
     r"""Load a YAML string with specified safety mode and include path support.
 
     Args:
@@ -351,7 +351,7 @@ def load_yaml(
                          (requires IO object with name attribute for text)
         jinja_env: Optional Jinja2 environment for template resolution
         variables: An optional dictionary to resolving !var tags
-        verify_type: Type to verify and cast the output to
+        verify_type: Type to verify and cast the output to (supports TypedDict)
 
     Returns:
         The parsed YAML data, typed according to verify_type if provided
@@ -361,6 +361,18 @@ def load_yaml(
         # Simple YAML loading
         data = load_yaml("key: value")
 
+        # With TypedDict verification
+        from typing import TypedDict
+
+        class Config(TypedDict):
+            host: str
+            port: int
+
+        config = load_yaml('''
+            host: localhost
+            port: 8080
+        ''', verify_type=Config)
+
         # With Jinja2 template resolution
         from jinja2 import Environment
         env = Environment()
@@ -369,10 +381,6 @@ def load_yaml(
             resolve_strings=True,
             jinja_env=env
         )
-
-        # With type verification
-        config = load_yaml("key: value", verify_type=dict)
-        items = load_yaml("- item1\n- item2", verify_type=list)
         ```
     """
     try:
@@ -411,13 +419,11 @@ def load_yaml(
         raise
     else:
         if verify_type is not None:
-            if not isinstance(data, verify_type):
-                msg = (
-                    f"Data is of type {type(data).__name__}, "
-                    f"expected {verify_type.__name__}"
-                )
-                raise TypeError(msg)
-            return data  # type: ignore[no-any-return]
+            try:
+                return verify.verify_type(data, verify_type)
+            except TypeError as e:
+                msg = f"YAML data doesn't match expected type: {e}"
+                raise TypeError(msg) from e
         return data
 
 
@@ -447,8 +453,8 @@ def load_yaml_file(
     jinja_env: jinja2.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
-    verify_type: type[TVerify] = ...,
-) -> TVerify: ...
+    verify_type: type[T] = ...,
+) -> T: ...
 
 
 def load_yaml_file(
@@ -461,11 +467,11 @@ def load_yaml_file(
     jinja_env: jinja2.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
-    verify_type: type[TVerify] | None = None,
-) -> Any | TVerify:
+    verify_type: type[T] | None = None,
+) -> Any | T:
     """Load a YAML file with specified options.
 
-    Use verify_type to get proper output type for LSPs and a simple validation.
+    Use verify_type to get proper output type for LSPs and runtime validation.
 
     Args:
         path: Path to the YAML file to load
@@ -478,24 +484,26 @@ def load_yaml_file(
         jinja_env: Optional Jinja2 environment for template resolution
         variables: An optional dictionary to resolving !var tags
         storage_options: Additional keywords to pass to fsspec backend
-        verify_type: Checks for the correct output type (eg. dict)
+        verify_type: Type to verify and cast the output to (supports TypedDict)
 
     Returns:
         The parsed YAML data
 
     Example:
         ```python
-        # Load YAML file with inheritance
-        data = load_yaml_file(
+        from typing import TypedDict
+
+        class Config(TypedDict):
+            database: str
+            port: int
+            debug: bool
+
+        # Load YAML file with inheritance and TypedDict verification
+        config = load_yaml_file(
             "config.yml",
             resolve_inherit=True,  # Resolve INHERIT directives
-            include_base_path="configs/"  # Base path for includes
-        )
-
-        # Load YAML file with type verification
-        data = load_yaml_file(
-            "config.yml",
-            verify_type=dict  # Will return dict type
+            include_base_path="configs/",  # Base path for includes
+            verify_type=Config  # Verify against TypedDict
         )
         ```
     """
@@ -533,10 +541,11 @@ def load_yaml_file(
         raise
     else:
         if verify_type is not None:
-            if not isinstance(data, verify_type):
-                msg = f"Expected {verify_type.__name__}, got {type(data).__name__}"
-                raise TypeError(msg)
-            return data  # type: ignore[no-any-return]
+            try:
+                return verify.verify_type(data, verify_type)
+            except TypeError as e:
+                msg = f"YAML data doesn't match expected type: {e}"
+                raise TypeError(msg) from e
         return data
 
 

@@ -7,16 +7,16 @@ from typing import TYPE_CHECKING, Any, TypeVar, get_args, overload
 
 import upath
 
-from yamling import consts, exceptions, typedefs
+from yamling import consts, exceptions, typedefs, verify
 
 
 if TYPE_CHECKING:
     import os
 
-T = TypeVar("T")
-
-
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T")  # Generic for any type
+TVerify = TypeVar("TVerify")  # Specific for verification types
 
 
 @overload
@@ -42,7 +42,7 @@ def load(
     Args:
         text: String containing data in the specified format
         mode: Format of the input data ("yaml", "toml", "json", or "ini")
-        verify_type: Type to verify and cast the output to
+        verify_type: Type to verify and cast the output to (supports TypedDict)
         **kwargs: Additional keyword arguments passed to the underlying load functions
 
     Returns:
@@ -55,12 +55,17 @@ def load(
 
     Example:
         ```python
+        from typing import TypedDict
+
+        class Config(TypedDict):
+            name: str
+            port: int
+
         # Without type verification
         data = load("key: value", mode="yaml")
 
-        # With type verification
-        config = load("key: value", mode="yaml", verify_type=dict)
-        items = load('["item1", "item2"]', mode="json", verify_type=list)
+        # With TypedDict verification
+        config = load('{"name": "test", "port": 8080}', mode="json", verify_type=Config)
         ```
     """
     match mode:
@@ -128,13 +133,11 @@ def load(
             raise ValueError(msg)
 
     if verify_type is not None:
-        if not isinstance(data, verify_type):
-            msg = (
-                f"Data loaded from {mode} format is of type {type(data).__name__}, "
-                f"expected {verify_type.__name__}"
-            )
-            raise TypeError(msg)
-        return data  # type: ignore[no-any-return]
+        try:
+            return verify.verify_type(data, verify_type)
+        except TypeError as e:
+            msg = f"Data loaded from {mode} format doesn't match expected type: {e}"
+            raise TypeError(msg) from e
     return data
 
 
@@ -168,7 +171,7 @@ def load_file(
         path: Path to the file to load
         mode: Format of the file ("yaml", "toml", "json", "ini" or "auto")
         storage_options: Additional keyword arguments to pass to the fsspec backend
-        verify_type: Type to verify and cast the output to
+        verify_type: Type to verify and cast the output to (supports TypedDict)
 
     Returns:
         Parsed data structure, typed according to verify_type if provided
@@ -183,14 +186,22 @@ def load_file(
 
     Example:
         ```python
+        from typing import TypedDict
+
+        class ServerConfig(TypedDict):
+            host: str
+            port: int
+            debug: bool
+
         # Auto-detect format and return as Any
         data = load_file("config.yml")
 
-        # Specify format and verify type as dict
-        config = load_file("config.json", mode="json", verify_type=dict)
-
-        # Auto-detect format and verify type as list
-        items = load_file("items.yaml", verify_type=list)
+        # Specify format and verify as TypedDict
+        config = load_file(
+            "config.json",
+            mode="json",
+            verify_type=ServerConfig
+        )
         ```
     """
     path_obj = upath.UPath(path, **storage_options or {})
@@ -211,22 +222,24 @@ def load_file(
 
     try:
         text = path_obj.read_text(encoding="utf-8")
-        data = load(text, mode)
+        return load(text, mode, verify_type=verify_type)
     except (OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Failed to read file %r", path)
         msg = f"Failed to read file {path}: {e!s}"
         raise
     except Exception as e:
-        logger.exception("Failed to parse file %r as %s", path, mode)
-        msg = f"Failed to parse {path} as {mode} format: {e!s}"
+        logger.exception("Failed to load file %r as %s", path, mode)
+        msg = f"Failed to load {path} as {mode} format: {e!s}"
         raise
-    else:
-        if verify_type is not None:
-            if not isinstance(data, verify_type):
-                msg = (
-                    f"Data loaded from {path} is of type {type(data).__name__}, "
-                    f"expected {verify_type.__name__}"
-                )
-                raise TypeError(msg)
-            return data  # type: ignore[no-any-return]
-        return data
+
+
+if __name__ == "__main__":
+    from typing import TypedDict
+
+    class Config(TypedDict):
+        host: str
+        port: int
+        debug: bool
+
+    json_str = '{"host": "localhost", "port": 8080, "debug": true}'
+    config = load(json_str, mode="json", verify_type=Config)
