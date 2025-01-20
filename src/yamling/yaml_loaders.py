@@ -306,7 +306,7 @@ def load_yaml(
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool = False,
+    resolve_inherit: bool | str | os.PathLike[str] = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: None = None,
@@ -320,7 +320,7 @@ def load_yaml(
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool = False,
+    resolve_inherit: bool | str | os.PathLike[str] = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] = ...,
@@ -333,7 +333,7 @@ def load_yaml(
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool = False,
+    resolve_inherit: bool | str | os.PathLike[str] = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] | None = None,
@@ -348,7 +348,8 @@ def load_yaml(
         resolve_strings: Whether to resolve Jinja2 template strings
         resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
         resolve_inherit: Whether to resolve INHERIT directives
-                         (requires IO object with name attribute for text)
+                         If True, then requires IO object with name attribute for text
+                         If str or PathLike, its interpreted as the base path
         jinja_env: Optional Jinja2 environment for template resolution
         variables: An optional dictionary to resolving !var tags
         verify_type: Type to verify and cast the output to (supports TypedDict)
@@ -398,19 +399,31 @@ def load_yaml(
         )
         data = yaml.load(text, Loader=loader)
 
-        if resolve_inherit and hasattr(text, "name"):
+        if resolve_inherit:
             import upath
 
-            base_dir = upath.UPath(text.name).parent
-            data = _resolve_inherit(
-                data,
-                base_dir,
-                mode=mode,
-                include_base_path=include_base_path,
-                resolve_strings=resolve_strings,
-                resolve_dict_keys=resolve_dict_keys,
-                jinja_env=jinja_env,
-            )
+            if hasattr(text, "name"):
+                base_dir = upath.UPath(text.name).parent
+                data = _resolve_inherit(
+                    data,
+                    base_dir,
+                    mode=mode,
+                    include_base_path=include_base_path,
+                    resolve_strings=resolve_strings,
+                    resolve_dict_keys=resolve_dict_keys,
+                    jinja_env=jinja_env,
+                )
+            elif isinstance(resolve_inherit, str | os.PathLike):
+                base_dir = upath.UPath(resolve_inherit)
+                data = _resolve_inherit(
+                    data,
+                    base_dir,
+                    mode=mode,
+                    include_base_path=include_base_path,
+                    resolve_strings=resolve_strings,
+                    resolve_dict_keys=resolve_dict_keys,
+                    jinja_env=jinja_env,
+                )
     except yaml.YAMLError:
         logger.exception("Failed to load YAML: \n%s", text)
         raise
