@@ -6,14 +6,13 @@ import dataclasses
 import importlib.util
 from typing import TYPE_CHECKING, Any
 
-import upath
-import yaml
-
 from yamling import typedefs, utils
 
 
 if TYPE_CHECKING:
     import os
+
+    import yaml
 
 
 def map_class_to_builtin_type(
@@ -59,6 +58,8 @@ def dump_yaml(
     Returns:
         YAML string representation
     """
+    import yaml
+
     dumper_cls = utils.create_subclass(yaml.Dumper)
     if class_mappings:
         for class_type, target_type in class_mappings.items():
@@ -79,6 +80,8 @@ def dump_yaml_file(
     class_mappings: dict[type, type] | None = None,
     **kwargs: Any,
 ):
+    import upath
+
     string = dump_yaml(obj, class_mappings, **kwargs)
     upath.UPath(path).write_text(string)
 

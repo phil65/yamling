@@ -4,7 +4,6 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 import yaml
-from yaml import MappingNode, Node, SafeLoader, ScalarNode, SequenceNode
 
 from yamling import yaml_loaders
 
@@ -14,6 +13,7 @@ if TYPE_CHECKING:
 
     import fsspec
     import jinja2
+    from yaml import Node
 
     from yamling import typedefs
 
@@ -169,6 +169,8 @@ class YAMLParser:
         Returns:
             Constructor function for the YAML loader
         """
+        from yaml import MappingNode, ScalarNode, SequenceNode
+
         full_tag = f"{self._tag_prefix}{tag_name}"
 
         def constructor(loader: yaml.Loader, node: Node) -> Any:
@@ -187,13 +189,17 @@ class YAMLParser:
         return constructor
 
     def register_with_loader(
-        self, loader_class: typedefs.LoaderType = SafeLoader
+        self,
+        loader_class: typedefs.LoaderType | None = None,
     ) -> None:
         """Register all tags with a YAML loader class.
 
         Args:
             loader_class: The YAML loader class to register with
         """
+        from yaml import SafeLoader
+
+        loader_class = loader_class or SafeLoader
         for tag in self._tag_handlers:
             loader_class.add_constructor(tag, self.create_constructor(tag[1:]))
 

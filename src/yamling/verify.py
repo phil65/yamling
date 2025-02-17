@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from pydantic import TypeAdapter
-
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -24,6 +22,8 @@ def verify_type(data: Any, type_hint: type[T]) -> T:
     Raises:
         TypeError: If validation fails
     """
+    from pydantic import TypeAdapter
+
     if isinstance(type_hint, type) and not hasattr(type_hint, "__annotations__"):  # pyright: ignores
         if isinstance(data, type_hint):
             return data  # type: ignore
