@@ -5,8 +5,6 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar, get_args, overload
 
-import upath
-
 from yamling import consts, exceptions, typedefs, verify
 
 
@@ -204,6 +202,8 @@ def load_file(
         )
         ```
     """
+    import upath
+
     path_obj = upath.UPath(path, **storage_options or {})
 
     # Determine format from extension if auto mode

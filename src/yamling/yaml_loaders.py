@@ -6,9 +6,7 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload
 
-import fsspec
 import yaml
-import yaml_include
 
 from yamling import deepmerge, typedefs, utils, verify
 from yamling.constructors import variable
@@ -17,7 +15,9 @@ from yamling.constructors import variable
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    import fsspec
     import jinja2
+    import yaml_include
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +153,9 @@ def get_include_constructor(
     Returns:
         Configured YAML include constructor
     """
+    import fsspec
+    import yaml_include
+
     match fs:
         case str() | os.PathLike():
             filesystem, _ = fsspec.url_to_fs(str(fs))
