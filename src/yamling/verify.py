@@ -22,8 +22,6 @@ def verify_type(data: Any, type_hint: type[T]) -> T:
     Raises:
         TypeError: If validation fails
     """
-    from pydantic import TypeAdapter
-
     if isinstance(type_hint, type) and not hasattr(type_hint, "__annotations__"):  # pyright: ignores
         if isinstance(data, type_hint):
             return data  # type: ignore
@@ -32,6 +30,8 @@ def verify_type(data: Any, type_hint: type[T]) -> T:
 
     # Use pydantic for complex types
     try:
+        from pydantic import TypeAdapter
+
         adapter = TypeAdapter(type_hint)
         return adapter.validate_python(data)
     except Exception as e:
