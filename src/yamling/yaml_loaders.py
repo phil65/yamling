@@ -21,11 +21,18 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-LOADERS: dict[str, typedefs.LoaderType] = {
-    "unsafe": yaml.CUnsafeLoader,
-    "full": yaml.CFullLoader,
-    "safe": yaml.CSafeLoader,
-}
+try:
+    LOADERS: dict[str, typedefs.LoaderType] = {
+        "unsafe": yaml.CUnsafeLoader,
+        "full": yaml.CFullLoader,
+        "safe": yaml.CSafeLoader,
+    }
+except Exception:  # noqa: BLE001
+    LOADERS: dict[str, typedefs.LoaderType] = {  # type: ignore
+        "unsafe": yaml.UnsafeLoader,
+        "full": yaml.FullLoader,
+        "safe": yaml.SafeLoader,
+    }
 T = TypeVar("T", bound=type)
 
 _T_co = TypeVar("_T_co", covariant=True)
