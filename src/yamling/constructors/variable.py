@@ -35,7 +35,7 @@ class ConfigConstructor(Constructor):
 
 
 if __name__ == "__main__":
-    import json
+    import anyenv
 
     import yamling
 
@@ -46,4 +46,4 @@ llm_settings:
 """
     variables = {"temperature": 0.5, "max_tokens": 50}
     dct = yamling.load_yaml(text, variables=variables)
-    print(json.dumps(dct))
+    print(anyenv.dump_json(dct))

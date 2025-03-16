@@ -31,13 +31,13 @@ keywords = ["yaml", "PyYAML", "include", "yml", "serialization"]
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 dependencies = [
-
     # Only add below (Copier)
     "PyYAML >=5.1",
     "pyyaml-include",
     "fsspec",
     "universal_pathlib",
     "pydantic",
+    "anyenv>=0.4.7",
 ]
 [project.optional-dependencies]
 jinja2 = ["jinja2"]

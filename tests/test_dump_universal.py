@@ -161,7 +161,6 @@ def test_dump_file_directory_not_exists():
 def test_dump_file_with_kwargs(format_type: str, tmp_path: Path):
     test_file = tmp_path / f"test.{format_type}"
     if format_type == "json":
-        # Remove indent parameter as orjson doesn't support it
         dump_file(SAMPLE_DICT, test_file)
     elif format_type == "yaml":
         dump_file(SAMPLE_DICT, test_file, default_flow_style=False)

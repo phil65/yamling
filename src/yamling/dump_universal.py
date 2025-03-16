@@ -64,31 +64,14 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
                 raise exceptions.DumpingError(msg, e) from e
 
         case "json":
-            if consts.has_orjson:
-                import orjson
+            import anyenv
 
-                try:
-                    valid_kwargs = {
-                        k: v
-                        for k, v in kwargs.items()
-                        if k in {"default", "option", "indent"}
-                    }
-                    return orjson.dumps(
-                        data, option=orjson.OPT_INDENT_2, **valid_kwargs
-                    ).decode("utf-8")
-                except Exception as e:
-                    logger.exception("Failed to dump JSON data with orjson")
-                    msg = f"Failed to dump data to JSON: {e}"
-                    raise exceptions.DumpingError(msg, e) from e
-            else:
-                import json
-
-                try:
-                    return json.dumps(data, indent=2, **kwargs)
-                except Exception as e:
-                    logger.exception("Failed to dump JSON data with json")
-                    msg = f"Failed to dump data to JSON: {e}"
-                    raise exceptions.DumpingError(msg, e) from e
+            try:
+                return anyenv.dump_json(data, indent=True, **kwargs)
+            except anyenv.JsonDumpError as e:
+                logger.exception("Failed to dump JSON data with json")
+                msg = f"Failed to dump data to JSON: {e}"
+                raise exceptions.DumpingError(msg, e) from e
 
         case "ini":
             import configparser

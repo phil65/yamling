@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import configparser
-import json
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar, get_args, overload
 
@@ -90,25 +89,14 @@ def load(
                 raise exceptions.ParsingError(msg, e) from e
 
         case "json":
-            if consts.has_orjson:
-                import orjson
+            import anyenv
 
-                try:
-                    valid_kwargs = {
-                        k: v for k, v in kwargs.items() if k in {"default", "option"}
-                    }
-                    data = orjson.loads(text, **valid_kwargs)
-                except orjson.JSONDecodeError as e:
-                    logger.exception("Failed to load JSON data with orjson")
-                    msg = f"Failed to parse JSON data: {e}"
-                    raise exceptions.ParsingError(msg, e) from e
-            else:
-                try:
-                    data = json.loads(text, **kwargs)
-                except json.JSONDecodeError as e:
-                    logger.exception("Failed to load JSON data with json")
-                    msg = f"Failed to parse JSON data: {e}"
-                    raise exceptions.ParsingError(msg, e) from e
+            try:
+                data = anyenv.load_json(text, **kwargs)
+            except anyenv.JsonLoadError as e:
+                logger.exception("Failed to load JSON data with json")
+                msg = f"Failed to parse JSON data: {e}"
+                raise exceptions.ParsingError(msg, e) from e
 
         case "ini":
             try:
