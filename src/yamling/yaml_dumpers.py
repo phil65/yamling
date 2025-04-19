@@ -7,6 +7,7 @@ import importlib.util
 from typing import TYPE_CHECKING, Any
 
 from yamling import typedefs, utils
+from yamling.exceptions import DumpingError
 
 
 if TYPE_CHECKING:
@@ -78,17 +79,27 @@ def dump_yaml_file(
     path: str | os.PathLike[str],
     obj: Any,
     class_mappings: dict[type, type] | None = None,
+    overwrite: bool = False,
     **kwargs: Any,
 ):
     import upath
 
-    string = dump_yaml(obj, class_mappings, **kwargs)
-    upath.UPath(path).write_text(string)
+    yaml_str = dump_yaml(obj, class_mappings, **kwargs)
+    try:
+        file_path = upath.UPath(path)
+        if file_path.exists() and not overwrite:
+            msg = f"File already exists: {path}"
+            raise FileExistsError(msg)  # noqa: TRY301
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(yaml_str)
+    except Exception as exc:
+        msg = f"Failed to save configuration to {path}"
+        raise DumpingError(msg) from exc
 
 
 if __name__ == "__main__":
     from collections import OrderedDict
 
     test_data = OrderedDict([("b", 2), ("a", 1)])
-    yaml_str = dump_yaml(test_data, class_mappings={OrderedDict: dict})
-    print(yaml_str)
+    text = dump_yaml(test_data, class_mappings={OrderedDict: dict})
+    print(text)

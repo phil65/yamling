@@ -109,6 +109,7 @@ def dump_file(
     data: Any,
     path: str | os.PathLike[str],
     mode: typedefs.FormatType = "auto",
+    overwrite: bool = False,
     **kwargs: Any,
 ) -> None:
     """Dump data to a file, automatically detecting the format from extension if needed.
@@ -117,6 +118,7 @@ def dump_file(
         data: Data structure to dump
         path: Path to the file to write
         mode: Format to write the file in ("yaml", "toml", "json", "ini" or "auto")
+        overwrite: Whether to overwrite the file if it already exists
         **kwargs: Additional keyword arguments passed to the underlying dump functions
 
     Raises:
@@ -143,7 +145,13 @@ def dump_file(
 
     try:
         text = dump(data, mode, **kwargs)
-        path_obj.write_text(text)
+        file_path = upath.UPath(path)
+        if file_path.exists() and not overwrite:
+            msg = f"File already exists: {path}"
+            raise FileExistsError(msg)  # noqa: TRY301
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(text)
+
     except (OSError, PermissionError) as e:
         logger.exception("Failed to write file %r", path)
         msg = f"Failed to write file {path}: {e!s}"
