@@ -395,10 +395,7 @@ def load_yaml(
         ```
     """
     try:
-        if isinstance(mode, str):
-            base_loader_cls: type = LOADERS[mode]
-        else:
-            base_loader_cls = mode
+        base_loader_cls: type = LOADERS[mode] if isinstance(mode, str) else mode
         loader = get_loader(
             base_loader_cls,
             include_base_path=include_base_path,
