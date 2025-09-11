@@ -174,15 +174,16 @@ class YAMLParser:
         full_tag = f"{self._tag_prefix}{tag_name}"
 
         def constructor(loader: yaml.Loader, node: Node) -> Any:
-            if isinstance(node, ScalarNode):
-                value = loader.construct_scalar(node)
-            elif isinstance(node, SequenceNode):
-                value = loader.construct_sequence(node)
-            elif isinstance(node, MappingNode):
-                value = loader.construct_mapping(node)
-            else:
-                msg = f"Unsupported node type for tag {full_tag}"
-                raise TypeError(msg)
+            match node:
+                case ScalarNode():
+                    value = loader.construct_scalar(node)
+                case SequenceNode():
+                    value = loader.construct_sequence(node)
+                case MappingNode():
+                    value = loader.construct_mapping(node)
+                case _:
+                    msg = f"Unsupported node type for tag {full_tag}"
+                    raise TypeError(msg)
 
             return self.process_tag(full_tag, value)
 
