@@ -23,12 +23,12 @@ def load(
 
 
 @overload
-def load(
+def load[T](
     text: str, mode: typedefs.SupportedFormats, verify_type: type[T], **kwargs: Any
 ) -> T: ...
 
 
-def load(
+def load[T](
     text: str,
     mode: typedefs.SupportedFormats,
     verify_type: type[T] | None = None,
@@ -137,7 +137,7 @@ def load_file(
 
 
 @overload
-def load_file(
+def load_file[T](
     path: str | os.PathLike[str],
     mode: typedefs.FormatType = "auto",
     storage_options: dict[str, Any] | None = None,
@@ -145,7 +145,7 @@ def load_file(
 ) -> T: ...
 
 
-def load_file(
+def load_file[T](
     path: str | os.PathLike[str],
     mode: typedefs.FormatType = "auto",
     storage_options: dict[str, Any] | None = None,

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload
 
 import yaml
 
-from yamling import deepmerge, typedefs, utils, verify
+from yamling import deepmerge, utils, verify
 from yamling.constructors import variable
 
 
@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     import fsspec
     import jinja2
     import yaml_include
+
+    from yamling import typedefs
 
 logger = logging.getLogger(__name__)
 
@@ -322,7 +324,7 @@ def load_yaml(
 
 
 @overload
-def load_yaml(
+def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
@@ -335,7 +337,7 @@ def load_yaml(
 ) -> T: ...
 
 
-def load_yaml(
+def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
@@ -461,7 +463,7 @@ def load_yaml_file(
 
 
 @overload
-def load_yaml_file(
+def load_yaml_file[T: type](
     path: str | os.PathLike[str],
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
@@ -475,7 +477,7 @@ def load_yaml_file(
 ) -> T: ...
 
 
-def load_yaml_file(
+def load_yaml_file[T: type](
     path: str | os.PathLike[str],
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,

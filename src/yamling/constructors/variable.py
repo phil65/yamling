@@ -1,7 +1,12 @@
-from collections.abc import Mapping
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from yaml.constructor import Constructor
+
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class VariableReference:

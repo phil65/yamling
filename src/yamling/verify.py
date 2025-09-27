@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-def verify_type(data: Any, type_hint: type[T]) -> T:
+def verify_type[T](data: Any, type_hint: type[T]) -> T:
     """Verify that data matches the expected type using pydantic.
 
     Args:

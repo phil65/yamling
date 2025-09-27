@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import AbstractContextManager, contextmanager
+from contextlib import contextmanager
 import sys
 from typing import TYPE_CHECKING
 
@@ -9,6 +9,7 @@ import pytest
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
+    from contextlib import AbstractContextManager
 
 
 @contextmanager

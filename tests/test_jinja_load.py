@@ -142,7 +142,7 @@ def test_invalid_template(basic_jinja_env):
 
 
 def test_file_loading_with_resolution(basic_jinja_env, temp_yaml_files):
-    parent_path, child_path = temp_yaml_files
+    _parent_path, child_path = temp_yaml_files
     result = load_yaml_file(
         child_path, resolve_strings=True, resolve_inherit=True, jinja_env=basic_jinja_env
     )

@@ -6,7 +6,7 @@ import dataclasses
 import importlib.util
 from typing import TYPE_CHECKING, Any
 
-from yamling import typedefs, utils
+from yamling import utils
 from yamling.exceptions import DumpingError
 
 
@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     import os
 
     import yaml
+
+    from yamling import typedefs
 
 
 def map_class_to_builtin_type(
