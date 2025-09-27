@@ -2,8 +2,6 @@
 
 [![PyPI License](https://img.shields.io/pypi/l/yamling.svg)](https://pypi.org/project/yamling/)
 [![Package status](https://img.shields.io/pypi/status/yamling.svg)](https://pypi.org/project/yamling/)
-[![Daily downloads](https://img.shields.io/pypi/dd/yamling.svg)](https://pypi.org/project/yamling/)
-[![Weekly downloads](https://img.shields.io/pypi/dw/yamling.svg)](https://pypi.org/project/yamling/)
 [![Monthly downloads](https://img.shields.io/pypi/dm/yamling.svg)](https://pypi.org/project/yamling/)
 [![Distribution format](https://img.shields.io/pypi/format/yamling.svg)](https://pypi.org/project/yamling/)
 [![Wheel availability](https://img.shields.io/pypi/wheel/yamling.svg)](https://pypi.org/project/yamling/)
@@ -21,11 +19,8 @@
 [![Github last commit](https://img.shields.io/github/last-commit/phil65/yamling)](https://github.com/phil65/yamling/commits)
 [![Github release date](https://img.shields.io/github/release-date/phil65/yamling)](https://github.com/phil65/yamling/releases)
 [![Github language count](https://img.shields.io/github/languages/count/phil65/yamling)](https://github.com/phil65/yamling)
-[![Github commits this week](https://img.shields.io/github/commit-activity/w/phil65/yamling)](https://github.com/phil65/yamling)
 [![Github commits this month](https://img.shields.io/github/commit-activity/m/phil65/yamling)](https://github.com/phil65/yamling)
-[![Github commits this year](https://img.shields.io/github/commit-activity/y/phil65/yamling)](https://github.com/phil65/yamling)
 [![Package status](https://codecov.io/gh/phil65/yamling/branch/main/graph/badge.svg)](https://codecov.io/gh/phil65/yamling/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyUp](https://pyup.io/repos/github/phil65/yamling/shield.svg)](https://pyup.io/repos/github/phil65/yamling/)
 
 [Read the documentation!](https://phil65.github.io/yamling/)
