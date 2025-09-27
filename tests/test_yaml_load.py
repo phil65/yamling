@@ -74,7 +74,9 @@ def test_get_include_constructor():
     assert isinstance(constructor, yaml_include.Constructor)
 
     with pytest.raises(TypeError):
-        yaml_loaders.get_include_constructor(fs=123)  # Invalid type
+        yaml_loaders.get_include_constructor(
+            fs=123  # Invalid type  # pyright: ignore[reportArgumentType]  # type: ignore
+        )
 
 
 def test_get_loader():
