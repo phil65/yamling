@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 import logging
 from typing import Any
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Type aliases
 type YAMLConstructor = Callable[[yaml.Loader, Node], Any]
-type TemplateValue = str | list[Any] | dict[str, Any]
+type TemplateValue = str | list[Any] | dict[Hashable, Any]
 
 
 class JinjaConstructionError(ConstructorError):

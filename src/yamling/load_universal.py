@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import configparser
 import logging
-from typing import TYPE_CHECKING, Any, TypeVar, get_args, overload
+from typing import TYPE_CHECKING, Any, get_args, overload
 
 from yamling import consts, exceptions, typedefs, verify
 
@@ -11,9 +11,6 @@ if TYPE_CHECKING:
     import os
 
 logger = logging.getLogger(__name__)
-
-T = TypeVar("T")  # Generic for any type
-TVerify = TypeVar("TVerify")  # Specific for verification types
 
 
 @overload
