@@ -54,6 +54,7 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
             import tomli_w
 
             try:
+                assert isinstance(data, dict)
                 return tomli_w.dumps(data, **kwargs)
             except Exception as e:
                 logger.exception("Failed to dump TOML data")
@@ -83,6 +84,7 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
                         raise exceptions.DumpingError(msg)
 
             try:
+                assert isinstance(data, dict)
                 validate_ini_structure(data)
                 parser = configparser.ConfigParser(**kwargs)
                 for section, values in data.items():
