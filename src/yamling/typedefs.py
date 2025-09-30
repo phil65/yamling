@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Literal
 
+from upath.types import JoinablePathLike
 import yaml
 
+
+StrPath = JoinablePathLike | os.PathLike[str]
 
 YAMLPrimitive = str | int | float | bool | None
 YAMLValue = YAMLPrimitive | dict[str, Any] | list[Any]
