@@ -82,12 +82,8 @@ def get_jinja_constructor(
         try:
             return env.from_string(template).render()
         except jinja2.TemplateError as e:
-            raise JinjaConstructionError(
-                None,
-                None,
-                f"Failed to render Jinja2 template: {e!s}",
-                None,
-            ) from e
+            msg = f"Failed to render Jinja2 template: {e!s}"
+            raise JinjaConstructionError(None, None, msg, None) from e
 
     def process_value(value: TemplateValue) -> TemplateValue:
         """Process a value, rendering any template strings.
@@ -144,7 +140,7 @@ def get_jinja_constructor(
                     return process_value(value)
 
                 case _:
-                    return loader.construct_scalar(node)
+                    return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
 
         except JinjaConstructionError:
             raise

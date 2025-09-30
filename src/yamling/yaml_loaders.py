@@ -110,7 +110,7 @@ def get_jinja2_constructor(
     def construct_jinja2_str(loader: yaml.Loader, node: yaml.Node) -> Any:  # noqa: PLR0911
         try:
             if env is None or not resolve_strings:
-                return loader.construct_scalar(node)
+                return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
 
             match node:
                 case yaml.ScalarNode():
@@ -136,13 +136,13 @@ def get_jinja2_constructor(
                     return loader.construct_sequence(node)
 
                 case _:
-                    return loader.construct_scalar(node)
+                    return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
 
         except jinja2.TemplateError:  # Handle Jinja2 errors separately
             raise  # Re-raise Jinja2 errors
         except Exception:  # Handle other exceptions
             logger.exception("Error in Jinja2 constructor")
-            return loader.construct_scalar(node)
+            return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
 
     return construct_jinja2_str
 
@@ -410,7 +410,7 @@ def load_yaml[T: type](
             import upath
 
             if hasattr(text, "name"):
-                base_dir = upath.UPath(text.name).parent
+                base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
                 data = _resolve_inherit(
                     data,
                     base_dir,

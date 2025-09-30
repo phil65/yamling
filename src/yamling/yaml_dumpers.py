@@ -40,7 +40,7 @@ def map_class_to_builtin_type(
         def represent_as_builtin(dumper: typedefs.DumperType, data: Any) -> yaml.Node:
             return representer(dumper, data)  # Pass data directly without conversion
 
-        dumper_class.add_representer(class_type, represent_as_builtin)
+        dumper_class.add_representer(class_type, represent_as_builtin)  # pyright: ignore[reportArgumentType]
     else:
         msg = f"No representer found for type {target_type}"
         raise ValueError(msg)
