@@ -6,7 +6,7 @@ import dataclasses
 import importlib.util
 from typing import TYPE_CHECKING, Any
 
-from yamling import utils
+from yamling import exceptions, utils
 from yamling.exceptions import DumpingError
 
 
@@ -81,6 +81,7 @@ def dump_yaml_file(
     obj: Any,
     class_mappings: dict[type, type] | None = None,
     overwrite: bool = False,
+    create_dirs: bool = False,
     **kwargs: Any,
 ):
     from upathtools import to_upath
@@ -91,7 +92,11 @@ def dump_yaml_file(
         if file_path.exists() and not overwrite:
             msg = f"File already exists: {path}"
             raise FileExistsError(msg)  # noqa: TRY301
-        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if create_dirs:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+        elif not file_path.parent.exists():
+            msg = f"Directory does not exist: {file_path.parent}"
+            raise exceptions.DumpingError(msg)  # noqa: TRY301
         file_path.write_text(yaml_str)
     except Exception as exc:
         msg = f"Failed to save configuration to {path}"

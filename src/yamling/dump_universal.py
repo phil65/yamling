@@ -109,6 +109,7 @@ def dump_file(
     path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
     overwrite: bool = False,
+    create_dirs: bool = False,
     **kwargs: Any,
 ) -> None:
     """Dump data to a file, automatically detecting the format from extension if needed.
@@ -118,6 +119,7 @@ def dump_file(
         path: Path to the file to write
         mode: Format to write the file in ("yaml", "toml", "json", "ini" or "auto")
         overwrite: Whether to overwrite the file if it already exists
+        create_dirs: Whether to create parent directories if they don't exist
         **kwargs: Additional keyword arguments passed to the underlying dump functions
 
     Raises:
@@ -148,7 +150,11 @@ def dump_file(
         if file_path.exists() and not overwrite:
             msg = f"File already exists: {path}"
             raise FileExistsError(msg)  # noqa: TRY301
-        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if create_dirs:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+        elif not file_path.parent.exists():
+            msg = f"Directory does not exist: {file_path.parent}"
+            raise exceptions.DumpingError(msg)  # noqa: TRY301
         file_path.write_text(text)
 
     except (OSError, PermissionError) as e:

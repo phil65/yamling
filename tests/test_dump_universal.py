@@ -147,14 +147,18 @@ def test_dump_file_permission_error(tmp_path: Path):
     test_file.touch(mode=0o000)  # Create file with no permissions
     try:
         with pytest.raises(DumpingError, match="Failed to write file"):
-            dump_file(SAMPLE_DICT, test_file)
+            dump_file(SAMPLE_DICT, test_file, overwrite=True)
     finally:
         test_file.chmod(0o666)  # Reset permissions for cleanup
 
 
-def test_dump_file_directory_not_exists():
-    with pytest.raises(DumpingError):
-        dump_file(SAMPLE_DICT, "/nonexistent/directory/file.yaml")
+def test_dump_file_directory_not_exists(tmp_path):
+    # Try to write to a directory that doesn't exist
+    nonexistent_dir = tmp_path / "does_not_exist"
+    target_path = nonexistent_dir / "file.yaml"
+
+    with pytest.raises(DumpingError, match="Directory does not exist"):
+        dump_file(SAMPLE_DICT, target_path)
 
 
 @pytest.mark.parametrize("format_type", ["yaml", "json", "toml", "ini"])
