@@ -41,6 +41,7 @@ dependencies = [
     "universal_pathlib",
     "pydantic",
     "anyenv>=0.4.7",
+    "upathtools>=0.6.4",
 ]
 [project.optional-dependencies]
 jinja2 = ["jinja2"]
