@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     import yaml_include
 
     from yamling import typedefs
+    from yamling.typedefs import StrPath
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +149,7 @@ def get_jinja2_constructor(
 
 
 def get_include_constructor(
-    fs: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    fs: StrPath | fsspec.AbstractFileSystem | None = None,
     **kwargs: Any,
 ) -> yaml_include.Constructor:
     """Create a YAML include (!include) constructor with fsspec filesystem support.
@@ -206,7 +207,7 @@ def get_safe_loader(base_loader_cls: typedefs.LoaderType) -> typedefs.LoaderType
 
 def get_loader(
     base_loader_cls: typedefs.LoaderType,
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     enable_include: bool = True,
     enable_env: bool = True,
     resolve_strings: bool = False,
@@ -254,9 +255,9 @@ def get_loader(
 
 def _resolve_inherit(
     data: Any,
-    base_dir: str | os.PathLike[str] | None,
+    base_dir: StrPath | None,
     mode: typedefs.LoaderStr | typedefs.LoaderType,
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
     jinja_env: jinja2.Environment | None,
@@ -282,9 +283,9 @@ def _resolve_inherit(
     if not parent_path:
         return data
 
-    import upath
+    from upathtools import to_upath
 
-    base_dir = upath.UPath(base_dir)
+    base_dir = to_upath(base_dir)
     # Convert string to list for uniform handling
     file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
     context = deepmerge.DeepMerger()
@@ -313,10 +314,10 @@ def _resolve_inherit(
 def load_yaml(
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | str | os.PathLike[str] = False,
+    resolve_inherit: bool | StrPath = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: None = None,
@@ -327,10 +328,10 @@ def load_yaml(
 def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | str | os.PathLike[str] = False,
+    resolve_inherit: bool | StrPath = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] = ...,
@@ -340,10 +341,10 @@ def load_yaml[T: type](
 def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | str | os.PathLike[str] = False,
+    resolve_inherit: bool | StrPath = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] | None = None,
@@ -408,6 +409,7 @@ def load_yaml[T: type](
 
         if resolve_inherit:
             import upath
+            from upathtools import to_upath
 
             if hasattr(text, "name"):
                 base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
@@ -420,8 +422,8 @@ def load_yaml[T: type](
                     resolve_dict_keys=resolve_dict_keys,
                     jinja_env=jinja_env,
                 )
-            elif isinstance(resolve_inherit, str | os.PathLike):
-                base_dir = upath.UPath(resolve_inherit)
+            elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
+                base_dir = to_upath(resolve_inherit)
                 data = _resolve_inherit(
                     data,
                     base_dir,
@@ -449,9 +451,9 @@ def load_yaml[T: type](
 
 @overload
 def load_yaml_file(
-    path: str | os.PathLike[str],
+    path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -464,9 +466,9 @@ def load_yaml_file(
 
 @overload
 def load_yaml_file[T: type](
-    path: str | os.PathLike[str],
+    path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -478,9 +480,9 @@ def load_yaml_file[T: type](
 
 
 def load_yaml_file[T: type](
-    path: str | os.PathLike[str],
+    path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-    include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
+    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -530,7 +532,8 @@ def load_yaml_file[T: type](
     try:
         import upath
 
-        path_obj = upath.UPath(path, **storage_options or {}).resolve()
+        p = os.fspath(path) if isinstance(path, os.PathLike) else path
+        path_obj = upath.UPath(p, **storage_options or {}).resolve()
         text = path_obj.read_text("utf-8")
 
         data = load_yaml(

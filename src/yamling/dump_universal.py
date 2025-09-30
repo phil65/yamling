@@ -4,13 +4,10 @@ import dataclasses
 import importlib.util
 from io import StringIO
 import logging
-from typing import TYPE_CHECKING, Any, get_args
+from typing import Any, get_args
 
 from yamling import consts, exceptions, typedefs
 
-
-if TYPE_CHECKING:
-    import os
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +106,7 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
 
 def dump_file(
     data: Any,
-    path: str | os.PathLike[str],
+    path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
     overwrite: bool = False,
     **kwargs: Any,
@@ -127,9 +124,9 @@ def dump_file(
         ValueError: If the format cannot be determined or is not supported
         DumpingError: If the data cannot be dumped or the file cannot be written
     """
-    import upath
+    from upathtools import to_upath
 
-    path_obj = upath.UPath(path)
+    path_obj = to_upath(path)
 
     # Determine format from extension if auto mode
     if mode == "auto":
@@ -147,7 +144,7 @@ def dump_file(
 
     try:
         text = dump(data, mode, **kwargs)
-        file_path = upath.UPath(path)
+        file_path = to_upath(path)
         if file_path.exists() and not overwrite:
             msg = f"File already exists: {path}"
             raise FileExistsError(msg)  # noqa: TRY301

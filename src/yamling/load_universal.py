@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import configparser
 import logging
-from typing import TYPE_CHECKING, Any, get_args, overload
+import os
+from typing import Any, get_args, overload
 
 from yamling import consts, exceptions, typedefs, verify
 
-
-if TYPE_CHECKING:
-    import os
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +124,7 @@ def load[T](
 
 @overload
 def load_file(
-    path: str | os.PathLike[str],
+    path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
@@ -135,7 +133,7 @@ def load_file(
 
 @overload
 def load_file[T](
-    path: str | os.PathLike[str],
+    path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] = ...,
@@ -143,7 +141,7 @@ def load_file[T](
 
 
 def load_file[T](
-    path: str | os.PathLike[str],
+    path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
@@ -189,7 +187,9 @@ def load_file[T](
     """
     import upath
 
-    path_obj = upath.UPath(path, **storage_options or {})
+    p = os.fspath(path) if isinstance(path, os.PathLike) else path
+
+    path_obj = upath.UPath(p, **storage_options or {})
 
     # Determine format from extension if auto mode
     if mode == "auto":

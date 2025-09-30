@@ -11,11 +11,10 @@ from yamling.exceptions import DumpingError
 
 
 if TYPE_CHECKING:
-    import os
-
     import yaml
 
     from yamling import typedefs
+    from yamling.typedefs import StrPath
 
 
 def map_class_to_builtin_type(
@@ -78,17 +77,17 @@ def dump_yaml(
 
 
 def dump_yaml_file(
-    path: str | os.PathLike[str],
+    path: StrPath,
     obj: Any,
     class_mappings: dict[type, type] | None = None,
     overwrite: bool = False,
     **kwargs: Any,
 ):
-    import upath
+    from upathtools import to_upath
 
     yaml_str = dump_yaml(obj, class_mappings, **kwargs)
     try:
-        file_path = upath.UPath(path)
+        file_path = to_upath(path)
         if file_path.exists() and not overwrite:
             msg = f"File already exists: {path}"
             raise FileExistsError(msg)  # noqa: TRY301
