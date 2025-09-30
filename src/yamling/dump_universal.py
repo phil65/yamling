@@ -37,8 +37,6 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
     if dataclasses.is_dataclass(data) and not isinstance(data, type):
         data = dataclasses.asdict(data)
 
-    assert isinstance(data, dict)
-
     match mode:
         case "yaml":
             from yaml import YAMLError
