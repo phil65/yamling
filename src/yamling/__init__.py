@@ -1,4 +1,7 @@
-"""yamling: Enhanced YAML loading and dumping."""
+"""yamling: main package.
+
+Enhanced YAML loading and dumping.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +9,7 @@ from importlib.metadata import version
 
 __version__ = version("yamling")
 __title__ = "yamling"
-__description__ = "Enhanced YAML loading and dumping."
+
 __author__ = "Philipp Temminghoff"
 __author_email__ = "philipptemminghoff@googlemail.com"
 __copyright__ = "Copyright (c) 2024 Philipp Temminghoff"
