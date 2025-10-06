@@ -1,8 +1,17 @@
+"""yamling: Enhanced YAML loading and dumping."""
+
 from __future__ import annotations
 
 from importlib.metadata import version
 
 __version__ = version("yamling")
+__title__ = "yamling"
+__description__ = "Enhanced YAML loading and dumping."
+__author__ = "Philipp Temminghoff"
+__author_email__ = "philipptemminghoff@googlemail.com"
+__copyright__ = "Copyright (c) 2024 Philipp Temminghoff"
+__license__ = "MIT"
+__url__ = "https://github.com/phil65/yamling"
 
 import yaml
 from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader, YAMLInput
