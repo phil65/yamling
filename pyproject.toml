@@ -1,5 +1,6 @@
 [project]
 name = "yamling"
+version = "1.8.7"
 description = "Enhanced YAML loading and dumping."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -32,7 +33,6 @@ dependencies = [
   "universal_pathlib",
   "upathtools>=0.6.4",
 ]
-dynamic = ["version"]
 
 [project.urls]
 "Code coverage" = "https://app.codecov.io/gh/phil65/yamling"
@@ -78,7 +78,7 @@ lint = [
 ]
 
 [build-system]
-requires = ["hatch-regex-commit", "hatchling"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.coverage.report]
@@ -89,11 +89,6 @@ exclude_lines = [
   "except ImportError",
   'if __name__ == "__main__":',
 ]
-
-[tool.hatch.version]
-source = "regex_commit"
-commit_extra_args = ["-e"]
-path = "src/yamling/__init__.py"
 
 [tool.mknodes]
 allowed-commit-types = [

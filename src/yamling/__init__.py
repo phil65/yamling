@@ -1,4 +1,8 @@
-__version__ = "1.8.7"
+from __future__ import annotations
+
+from importlib.metadata import version
+
+__version__ = version("yamling")
 
 import yaml
 from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader, YAMLInput
@@ -13,6 +17,7 @@ YAMLError = yaml.YAMLError  # Reference for external libs that need to catch thi
 
 
 __all__ = [
+    "__version__",
     "DumpingError",
     "FormatType",
     "LoaderType",
