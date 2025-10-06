@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 # Type for the handler function
 T = TypeVar("T", bound=object)
 HandlerFunc = Callable[[Any], T]
-TVerify = TypeVar("TVerify")
 
 
 class YAMLParser:
@@ -223,7 +222,7 @@ class YAMLParser:
     ) -> Any: ...
 
     @overload
-    def load_yaml(
+    def load_yaml[TVerify](
         self,
         text: yaml_loaders.YAMLInput,
         *,
@@ -240,7 +239,7 @@ class YAMLParser:
         verify_type: type[TVerify],
     ) -> TVerify: ...
 
-    def load_yaml(
+    def load_yaml[TVerify](
         self,
         text: yaml_loaders.YAMLInput,
         *,
@@ -335,7 +334,7 @@ class YAMLParser:
     ) -> Any: ...
 
     @overload
-    def load_yaml_file(
+    def load_yaml_file[TVerify](
         self,
         path: str | os.PathLike[str],
         *,
@@ -353,7 +352,7 @@ class YAMLParser:
         verify_type: type[TVerify],
     ) -> TVerify: ...
 
-    def load_yaml_file(
+    def load_yaml_file[TVerify](
         self,
         path: str | os.PathLike[str],
         *,

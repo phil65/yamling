@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 
 if TYPE_CHECKING:
     from typing import TypedDict
-
-T = TypeVar("T")
 
 
 def verify_type[T](data: Any, type_hint: type[T]) -> T:

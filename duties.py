@@ -54,7 +54,6 @@ def lint_check(ctx):
     ctx.run("uv run ruff format --check .")
     ctx.run("uv run mypy src/yamling/")
 
-
     @duty(capture=False)
     def version(
         ctx,

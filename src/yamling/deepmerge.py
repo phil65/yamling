@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
-
-
-T = TypeVar("T")
 
 
 def merge_dict(merger: DeepMerger, source: Mapping, target: Mapping) -> Mapping:
@@ -40,7 +37,7 @@ class DeepMerger:
         if mergers is not None:
             self.mergers = mergers
 
-    def merge(self, source: T, target: T) -> T:
+    def merge[T](self, source: T, target: T) -> T:
         source_type = type(source)
         target_type = type(target)
         merger = self.mergers.get(target_type)
