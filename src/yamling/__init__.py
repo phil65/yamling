@@ -17,7 +17,6 @@ YAMLError = yaml.YAMLError  # Reference for external libs that need to catch thi
 
 
 __all__ = [
-    "__version__",
     "DumpingError",
     "FormatType",
     "LoaderType",
@@ -26,6 +25,7 @@ __all__ = [
     "YAMLError",
     "YAMLInput",
     "YAMLParser",
+    "__version__",
     "dump",
     "dump_file",
     "dump_yaml",
