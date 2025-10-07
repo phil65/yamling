@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @contextmanager
-def temporary_recursion_limit(limit: int) -> Generator[None, None, None]:
+def temporary_recursion_limit(limit: int) -> Generator[None]:
     """Context manager to temporarily set recursion limit.
 
     Args:
