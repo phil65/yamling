@@ -36,7 +36,6 @@ except Exception:  # noqa: BLE001
         "full": yaml.FullLoader,
         "safe": yaml.SafeLoader,
     }
-T = TypeVar("T", bound=type)
 
 _T_co = TypeVar("_T_co", covariant=True)
 
