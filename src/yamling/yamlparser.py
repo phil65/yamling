@@ -311,7 +311,8 @@ class YAMLParser:
                 verify_type=verify_type,  # type: ignore[arg-type]
             )
         except yaml.constructor.ConstructorError as e:
-            msg = f"No handler registered for tag: {e.problem.split()[-1]}"
+            tag = e.problem.split()[-1] if e.problem else "unknown"
+            msg = f"No handler registered for tag: {tag}"
             raise ValueError(msg) from e
 
     @overload
@@ -427,7 +428,8 @@ class YAMLParser:
                 verify_type=verify_type,  # type: ignore
             )
         except yaml.constructor.ConstructorError as e:
-            msg = f"No handler registered for tag: {e.problem.split()[-1]}"
+            tag = e.problem.split()[-1] if e.problem else "unknown"
+            msg = f"No handler registered for tag: {tag}"
             raise ValueError(msg) from e
 
 

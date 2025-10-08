@@ -313,6 +313,7 @@ def _resolve_inherit(
 def load_yaml(
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -327,19 +328,21 @@ def load_yaml(
 def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     resolve_inherit: bool | StrPath = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
-    verify_type: type[T] = ...,
+    verify_type: type[T],
 ) -> T: ...
 
 
 def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -452,6 +455,7 @@ def load_yaml[T: type](
 def load_yaml_file(
     path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
@@ -467,6 +471,7 @@ def load_yaml_file(
 def load_yaml_file[T: type](
     path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
@@ -474,13 +479,14 @@ def load_yaml_file[T: type](
     jinja_env: jinja2.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
-    verify_type: type[T] = ...,
+    verify_type: type[T],
 ) -> T: ...
 
 
 def load_yaml_file[T: type](
     path: StrPath,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
     include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
