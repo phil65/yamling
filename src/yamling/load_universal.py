@@ -126,6 +126,7 @@ def load[T](
 def load_file(
     path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
+    *,
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
 ) -> Any: ...
@@ -135,14 +136,16 @@ def load_file(
 def load_file[T](
     path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
+    *,
     storage_options: dict[str, Any] | None = None,
-    verify_type: type[T] = ...,
+    verify_type: type[T],
 ) -> T: ...
 
 
 def load_file[T](
     path: typedefs.StrPath,
     mode: typedefs.FormatType = "auto",
+    *,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
 ) -> Any | T:
