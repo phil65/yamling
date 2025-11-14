@@ -32,7 +32,7 @@ class YAMLParser:
 
     def register(
         self, tag_name: str | None = None
-    ) -> Callable[[HandlerFunc[T] | type[T]], HandlerFunc[T] | type[T]]:
+    ) -> Callable[[HandlerFunc[T]], HandlerFunc[T]] | Callable[[type[T]], type[T]]:
         """Decorator to register a new tag handler or class.
 
         Args:
@@ -55,6 +55,12 @@ class YAMLParser:
                     self.name = name
                     self.age = age
         """
+
+        @overload
+        def decorator(func_or_cls: HandlerFunc[T]) -> HandlerFunc[T]: ...
+
+        @overload
+        def decorator(func_or_cls: type[T]) -> type[T]: ...
 
         def decorator(func_or_cls: HandlerFunc[T] | type[T]) -> HandlerFunc[T] | type[T]:
             nonlocal tag_name
