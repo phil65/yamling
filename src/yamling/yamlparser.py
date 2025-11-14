@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar, overload
+from typing import TYPE_CHECKING, Any, overload
 
 import yaml
 
@@ -18,21 +18,17 @@ if TYPE_CHECKING:
     from yamling import typedefs
 
 
-# Type for the handler function
-T = TypeVar("T", bound=object)
-HandlerFunc = Callable[[Any], T]
+type HandlerFunc[T] = Callable[[Any], T]
 
 
 class YAMLParser:
     """Manages custom YAML tags and provides YAML loading capabilities."""
 
     def __init__(self) -> None:
-        self._tag_handlers: dict[str, HandlerFunc] = {}
+        self._tag_handlers: dict[str, HandlerFunc[Any]] = {}
         self._tag_prefix: str = "!"  # Default prefix for tags
 
-    def register(
-        self, tag_name: str | None = None
-    ) -> Callable[[HandlerFunc[T]], HandlerFunc[T]] | Callable[[type[T]], type[T]]:
+    def register[T](self, tag_name: str | None = None) -> Callable[[T], T]:
         """Decorator to register a new tag handler or class.
 
         Args:
@@ -56,13 +52,7 @@ class YAMLParser:
                     self.age = age
         """
 
-        @overload
-        def decorator(func_or_cls: HandlerFunc[T]) -> HandlerFunc[T]: ...
-
-        @overload
-        def decorator(func_or_cls: type[T]) -> type[T]: ...
-
-        def decorator(func_or_cls: HandlerFunc[T] | type[T]) -> HandlerFunc[T] | type[T]:
+        def decorator(func_or_cls: Any) -> Any:
             nonlocal tag_name
 
             if isinstance(func_or_cls, type):
@@ -70,11 +60,11 @@ class YAMLParser:
                 cls = func_or_cls
                 tag = tag_name or cls.__name__.lower()
 
-                def class_handler(data: Any) -> T:
+                def class_handler(data: Any) -> Any:
                     if not isinstance(data, dict):
                         msg = f"Data for {tag} must be a mapping, got {type(data)}"
                         raise TypeError(msg)
-                    return cls(**data)  # pyright: ignore[reportReturnType]
+                    return cls(**data)  # type: ignore[return-value]
 
                 self.register_handler(tag, class_handler)
                 return cls  # Return the original class instead of the handler
@@ -88,7 +78,7 @@ class YAMLParser:
 
         return decorator
 
-    def register_handler(self, tag_name: str, handler: HandlerFunc[T]):
+    def register_handler(self, tag_name: str, handler: HandlerFunc[Any]) -> None:
         """Explicitly register a tag handler function.
 
         Args:
@@ -98,7 +88,7 @@ class YAMLParser:
         full_tag = f"{self._tag_prefix}{tag_name}"
         self._tag_handlers[full_tag] = handler
 
-    def register_class(self, cls: type[T], tag_name: str | None = None) -> None:
+    def register_class[T](self, cls: type[T], tag_name: str | None = None) -> None:
         """Register a class as a tag handler.
 
         The class will be instantiated with the YAML data as kwargs.
@@ -123,7 +113,7 @@ class YAMLParser:
         if tag_name is None:
             tag_name = cls.__name__.lower()
 
-        def class_handler(data: Any) -> T:
+        def class_handler(data: Any) -> Any:
             if not isinstance(data, dict):
                 msg = f"Data for {tag_name} must be a mapping, got {type(data)}"
                 raise TypeError(msg)
@@ -146,7 +136,7 @@ class YAMLParser:
             raise ValueError(msg)
         return self._tag_handlers[tag](data)
 
-    def get_handler(self, tag: str) -> HandlerFunc | None:
+    def get_handler(self, tag: str) -> HandlerFunc[Any] | None:
         """Get the handler function for a specific tag.
 
         Args:

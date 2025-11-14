@@ -325,7 +325,7 @@ def load_yaml(
 
 
 @overload
-def load_yaml[T: type](
+def load_yaml[T](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
@@ -339,7 +339,7 @@ def load_yaml[T: type](
 ) -> T: ...
 
 
-def load_yaml[T: type](
+def load_yaml[T](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
@@ -468,7 +468,7 @@ def load_yaml_file(
 
 
 @overload
-def load_yaml_file[T: type](
+def load_yaml_file[T](
     path: JoinablePathLike,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
@@ -483,7 +483,7 @@ def load_yaml_file[T: type](
 ) -> T: ...
 
 
-def load_yaml_file[T: type](
+def load_yaml_file[T](
     path: JoinablePathLike,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
