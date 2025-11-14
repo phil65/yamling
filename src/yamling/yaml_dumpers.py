@@ -11,10 +11,10 @@ from yamling.exceptions import DumpingError
 
 
 if TYPE_CHECKING:
+    from upath.types import JoinablePathLike
     import yaml
 
     from yamling import typedefs
-    from yamling.typedefs import StrPath
 
 
 def map_class_to_builtin_type(
@@ -77,7 +77,7 @@ def dump_yaml(
 
 
 def dump_yaml_file(
-    path: StrPath,
+    path: JoinablePathLike,
     obj: Any,
     class_mappings: dict[type, type] | None = None,
     overwrite: bool = False,

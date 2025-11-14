@@ -17,15 +17,15 @@ if TYPE_CHECKING:
 
     import fsspec
     import jinja2
+    from upath.types import JoinablePathLike
     import yaml_include
 
     from yamling import typedefs
-    from yamling.typedefs import StrPath
 
 logger = logging.getLogger(__name__)
 
 try:
-    LOADERS: dict[str, typedefs.LoaderType] = {
+    LOADERS: dict[str, typedefs.LoaderType] = {  # pyright: ignore[reportAttributeAccessIssue, reportRedeclaration]
         "unsafe": yaml.CUnsafeLoader,
         "full": yaml.CFullLoader,
         "safe": yaml.CSafeLoader,
@@ -148,7 +148,7 @@ def get_jinja2_constructor(
 
 
 def get_include_constructor(
-    fs: StrPath | fsspec.AbstractFileSystem | None = None,
+    fs: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     **kwargs: Any,
 ) -> yaml_include.Constructor:
     """Create a YAML include (!include) constructor with fsspec filesystem support.
@@ -206,7 +206,7 @@ def get_safe_loader(base_loader_cls: typedefs.LoaderType) -> typedefs.LoaderType
 
 def get_loader(
     base_loader_cls: typedefs.LoaderType,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     enable_include: bool = True,
     enable_env: bool = True,
     resolve_strings: bool = False,
@@ -254,9 +254,9 @@ def get_loader(
 
 def _resolve_inherit(
     data: Any,
-    base_dir: StrPath | None,
+    base_dir: JoinablePathLike | None,
     mode: typedefs.LoaderStr | typedefs.LoaderType,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
     jinja_env: jinja2.Environment | None,
@@ -314,10 +314,10 @@ def load_yaml(
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | StrPath = False,
+    resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: None = None,
@@ -329,10 +329,10 @@ def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | StrPath = False,
+    resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T],
@@ -343,10 +343,10 @@ def load_yaml[T: type](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    resolve_inherit: bool | StrPath = False,
+    resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] | None = None,
@@ -453,10 +453,10 @@ def load_yaml[T: type](
 
 @overload
 def load_yaml_file(
-    path: StrPath,
+    path: JoinablePathLike,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -469,10 +469,10 @@ def load_yaml_file(
 
 @overload
 def load_yaml_file[T: type](
-    path: StrPath,
+    path: JoinablePathLike,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
@@ -484,10 +484,10 @@ def load_yaml_file[T: type](
 
 
 def load_yaml_file[T: type](
-    path: StrPath,
+    path: JoinablePathLike,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
     *,
-    include_base_path: StrPath | fsspec.AbstractFileSystem | None = None,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,

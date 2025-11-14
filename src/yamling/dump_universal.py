@@ -4,9 +4,13 @@ import dataclasses
 import importlib.util
 from io import StringIO
 import logging
-from typing import Any, get_args
+from typing import TYPE_CHECKING, Any, get_args
 
 from yamling import consts, exceptions, typedefs
+
+
+if TYPE_CHECKING:
+    from upath.types import JoinablePathLike
 
 
 logger = logging.getLogger(__name__)
@@ -106,7 +110,7 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
 
 def dump_file(
     data: Any,
-    path: typedefs.StrPath,
+    path: JoinablePathLike,
     mode: typedefs.FormatType = "auto",
     overwrite: bool = False,
     create_dirs: bool = False,

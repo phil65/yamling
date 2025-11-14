@@ -3,9 +3,13 @@ from __future__ import annotations
 import configparser
 import logging
 import os
-from typing import Any, get_args, overload
+from typing import TYPE_CHECKING, Any, get_args, overload
 
 from yamling import consts, exceptions, typedefs, verify
+
+
+if TYPE_CHECKING:
+    from upath.types import JoinablePathLike
 
 
 logger = logging.getLogger(__name__)
@@ -124,7 +128,7 @@ def load[T](
 
 @overload
 def load_file(
-    path: typedefs.StrPath,
+    path: JoinablePathLike,
     mode: typedefs.FormatType = "auto",
     *,
     storage_options: dict[str, Any] | None = None,
@@ -134,7 +138,7 @@ def load_file(
 
 @overload
 def load_file[T](
-    path: typedefs.StrPath,
+    path: JoinablePathLike,
     mode: typedefs.FormatType = "auto",
     *,
     storage_options: dict[str, Any] | None = None,
@@ -143,7 +147,7 @@ def load_file[T](
 
 
 def load_file[T](
-    path: typedefs.StrPath,
+    path: JoinablePathLike,
     mode: typedefs.FormatType = "auto",
     *,
     storage_options: dict[str, Any] | None = None,
