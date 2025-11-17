@@ -22,7 +22,7 @@ def verify_type[T](data: Any, type_hint: type[T]) -> T:
     """
     if isinstance(type_hint, type) and not hasattr(type_hint, "__annotations__"):  # pyright: ignores
         if isinstance(data, type_hint):
-            return data  # type: ignore
+            return data
         msg = f"Expected {type_hint.__name__}, got {type(data).__name__}"
         raise TypeError(msg)
 

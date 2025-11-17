@@ -21,7 +21,7 @@ def map_class_to_builtin_type(
     dumper_class: typedefs.DumperType,
     class_type: type,
     target_type: type,
-):
+) -> Any:
     """Maps a Python class to use an existing PyYAML representer for a built-in type.
 
     The original type is preserved, only the representation format is borrowed.
@@ -37,7 +37,7 @@ def map_class_to_builtin_type(
         representer = getattr(dumper_class, method_name)
 
         def represent_as_builtin(dumper: typedefs.DumperType, data: Any) -> yaml.Node:
-            return representer(dumper, data)  # Pass data directly without conversion
+            return representer(dumper, data)  # type: ignore[no-any-return]
 
         dumper_class.add_representer(class_type, represent_as_builtin)  # type: ignore[arg-type]
     else:
@@ -73,7 +73,7 @@ def dump_yaml(
             obj = obj.model_dump()
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         obj = dataclasses.asdict(obj)
-    return yaml.dump(obj, Dumper=dumper_cls, **kwargs)
+    return yaml.dump(obj, Dumper=dumper_cls, **kwargs)  # type: ignore[no-any-return]
 
 
 def dump_yaml_file(
@@ -83,7 +83,7 @@ def dump_yaml_file(
     overwrite: bool = False,
     create_dirs: bool = False,
     **kwargs: Any,
-):
+) -> None:
     from upathtools import to_upath
 
     yaml_str = dump_yaml(obj, class_mappings, **kwargs)

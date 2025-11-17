@@ -64,7 +64,7 @@ class YAMLParser:
                     if not isinstance(data, dict):
                         msg = f"Data for {tag} must be a mapping, got {type(data)}"
                         raise TypeError(msg)
-                    return cls(**data)  # type: ignore[return-value]
+                    return cls(**data)
 
                 self.register_handler(tag, class_handler)
                 return cls  # Return the original class instead of the handler

@@ -110,6 +110,7 @@ docstring-style = "google"
 python_version = "3.13"
 pretty = true
 check_untyped_defs = true
+strict = true
 exclude = ["venv/", ".venv/", "tests/"]
 plugins = []
 
