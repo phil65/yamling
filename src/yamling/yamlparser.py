@@ -11,7 +11,7 @@ from yamling import yaml_loaders
 if TYPE_CHECKING:
     import os
 
-    import fsspec
+    import fsspec  # type: ignore[import-untyped]
     import jinja2
     from yaml import Node
 
@@ -171,7 +171,7 @@ class YAMLParser:
         def constructor(loader: yaml.Loader, node: Node) -> Any:
             match node:
                 case ScalarNode():
-                    value = loader.construct_scalar(node)
+                    value: Any = loader.construct_scalar(node)
                 case SequenceNode():
                     value = loader.construct_sequence(node)
                 case MappingNode():
@@ -295,7 +295,7 @@ class YAMLParser:
         loader_class = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
         self.register_with_loader(loader_class)
         try:
-            return yaml_loaders.load_yaml(
+            return yaml_loaders.load_yaml(  # type: ignore[misc]
                 text,
                 mode=loader_class,
                 include_base_path=include_base_path,

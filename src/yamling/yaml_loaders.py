@@ -15,7 +15,7 @@ from yamling.constructors import variable
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    import fsspec
+    import fsspec  # type: ignore[import-untyped]
     import jinja2
     from upath.types import JoinablePathLike
     import yaml_include
@@ -110,17 +110,19 @@ def get_jinja2_constructor(
     def construct_jinja2_str(loader: yaml.Loader, node: yaml.Node) -> Any:  # noqa: PLR0911
         try:
             if env is None or not resolve_strings:
-                return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
+                return loader.construct_scalar(node)  # type: ignore[arg-type]
 
             match node:
                 case yaml.ScalarNode():
-                    value = loader.construct_scalar(node)
-                    if isinstance(value, str):
-                        return env.from_string(value).render()  # Remove inner try-except
-                    return value
+                    scalar_val = loader.construct_scalar(node)
+                    if isinstance(scalar_val, str):
+                        return env.from_string(
+                            scalar_val
+                        ).render()  # Remove inner try-except
+                    return scalar_val
 
                 case yaml.MappingNode():
-                    value = loader.construct_mapping(node)
+                    map_val = loader.construct_mapping(node)
                     if resolve_dict_keys:
                         return {
                             (
@@ -128,21 +130,21 @@ def get_jinja2_constructor(
                                 if isinstance(k, str)
                                 else k
                             ): v
-                            for k, v in value.items()
+                            for k, v in map_val.items()
                         }
-                    return value
+                    return map_val
 
                 case yaml.SequenceNode():
                     return loader.construct_sequence(node)
 
                 case _:
-                    return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
+                    return loader.construct_scalar(node)  # type: ignore[arg-type]
 
         except jinja2.TemplateError:  # Handle Jinja2 errors separately
             raise  # Re-raise Jinja2 errors
         except Exception:  # Handle other exceptions
             logger.exception("Error in Jinja2 constructor")
-            return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
+            return loader.construct_scalar(node)  # type: ignore[arg-type]
 
     return construct_jinja2_str
 

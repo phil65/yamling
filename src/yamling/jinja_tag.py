@@ -128,19 +128,19 @@ def get_jinja_constructor(
         try:
             match node:
                 case ScalarNode():
-                    value = loader.construct_scalar(node)
-                    return process_value(value)
+                    scalar_val = loader.construct_scalar(node)
+                    return process_value(scalar_val)
 
                 case SequenceNode():
-                    value = loader.construct_sequence(node)
-                    return process_value(value)
+                    seq_val = loader.construct_sequence(node)
+                    return process_value(seq_val)
 
                 case MappingNode():
-                    value = loader.construct_mapping(node)
-                    return process_value(value)
+                    map_val = loader.construct_mapping(node)
+                    return process_value(map_val)
 
                 case _:
-                    return loader.construct_scalar(node)  # pyright: ignore[reportArgumentType]
+                    return loader.construct_scalar(node)  # type: ignore[arg-type]
 
         except JinjaConstructionError:
             raise
