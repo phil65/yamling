@@ -79,11 +79,13 @@ def dump_yaml(
             obj = obj.model_dump()
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         obj = dataclasses.asdict(obj)
+    kwargs = kwargs or {}
+    if default_flow_style is not None:
+        kwargs["default_flow_style"] = default_flow_style
     return yaml.dump(  # type: ignore[no-any-return]
         obj,
         Dumper=dumper_cls,
         indent=indent,
-        default_flow_style=default_flow_style,
         allow_unicode=allow_unicode,
         **kwargs,
     )
