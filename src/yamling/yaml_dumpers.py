@@ -48,6 +48,9 @@ def map_class_to_builtin_type(
 def dump_yaml(
     obj: Any,
     class_mappings: dict[type, type] | None = None,
+    indent: int | None = None,
+    default_flow_style: bool | None = None,
+    allow_unicode: bool | None = None,
     **kwargs: Any,
 ) -> str:
     """Dump a data structure to a YAML string.
@@ -55,6 +58,9 @@ def dump_yaml(
     Args:
         obj: Object to serialize (also accepts pydantic models)
         class_mappings: Dict mapping classes to built-in types for YAML representation
+        indent: Indentation level for YAML output
+        default_flow_style: Whether to use flow style for YAML output
+        allow_unicode: Whether to allow unicode characters in YAML output
         kwargs: Additional arguments for yaml.dump
 
     Returns:
@@ -73,7 +79,14 @@ def dump_yaml(
             obj = obj.model_dump()
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         obj = dataclasses.asdict(obj)
-    return yaml.dump(obj, Dumper=dumper_cls, **kwargs)  # type: ignore[no-any-return]
+    return yaml.dump(  # type: ignore[no-any-return]
+        obj,
+        Dumper=dumper_cls,
+        indent=indent,
+        default_flow_style=default_flow_style,
+        allow_unicode=allow_unicode,
+        **kwargs,
+    )
 
 
 def dump_yaml_file(
