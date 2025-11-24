@@ -244,9 +244,7 @@ def test_register_decorator_class_custom_tag(yaml_parser: YAMLParser):
 
 def test_register_decorator_requires_tag_for_function(yaml_parser: YAMLParser):
     """Test that decorator requires tag name when used with functions."""
-    with pytest.raises(
-        ValueError, match="tag_name is required when decorating functions"
-    ):
+    with pytest.raises(ValueError, match="tag_name is required when decorating functions"):
 
         @yaml_parser.register()
         def handle_test(data: str) -> str:

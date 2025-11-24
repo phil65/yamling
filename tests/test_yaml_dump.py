@@ -21,11 +21,7 @@ def test_class_mapping():
     # Test without mapping (default OrderedDict representation)
     dumped_no_mapping = yamling.dump_yaml(data)
     expected_no_mapping = (
-        "!!python/object/apply:collections.OrderedDict\n"
-        "- - - b\n"
-        "    - 2\n"
-        "  - - a\n"
-        "    - 1\n"
+        "!!python/object/apply:collections.OrderedDict\n- - - b\n    - 2\n  - - a\n    - 1\n"
     )
     assert dumped_no_mapping == expected_no_mapping
 

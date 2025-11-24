@@ -116,20 +116,14 @@ def get_jinja2_constructor(
                 case yaml.ScalarNode():
                     scalar_val = loader.construct_scalar(node)
                     if isinstance(scalar_val, str):
-                        return env.from_string(
-                            scalar_val
-                        ).render()  # Remove inner try-except
+                        return env.from_string(scalar_val).render()  # Remove inner try-except
                     return scalar_val
 
                 case yaml.MappingNode():
                     map_val = loader.construct_mapping(node)
                     if resolve_dict_keys:
                         return {
-                            (
-                                env.from_string(str(k)).render()
-                                if isinstance(k, str)
-                                else k
-                            ): v
+                            (env.from_string(str(k)).render() if isinstance(k, str) else k): v
                             for k, v in map_val.items()
                         }
                     return map_val
@@ -294,9 +288,7 @@ def _resolve_inherit(
     # Process inheritance in reverse order (last file is base configuration)
     for p_path in reversed(file_paths):
         parent_cfg = base_dir / p_path
-        logger.debug(
-            "Loading parent configuration file %r relative to %r", parent_cfg, base_dir
-        )
+        logger.debug("Loading parent configuration file %r relative to %r", parent_cfg, base_dir)
         parent_data = load_yaml_file(
             parent_cfg,
             mode=mode,

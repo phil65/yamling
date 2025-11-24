@@ -99,9 +99,7 @@ def get_jinja_constructor(
                 return render_template(value)
             case list():
                 return [
-                    render_template(item)
-                    if isinstance(item, str)
-                    else process_value(item)
+                    render_template(item) if isinstance(item, str) else process_value(item)
                     for item in value
                 ]
             case dict():

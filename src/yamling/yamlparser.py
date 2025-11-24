@@ -205,10 +205,7 @@ class YAMLParser:
         text: yaml_loaders.YAMLInput,
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
@@ -223,10 +220,7 @@ class YAMLParser:
         text: yaml_loaders.YAMLInput,
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
@@ -240,10 +234,7 @@ class YAMLParser:
         text: yaml_loaders.YAMLInput,
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
@@ -317,10 +308,7 @@ class YAMLParser:
         path: str | os.PathLike[str],
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
@@ -336,10 +324,7 @@ class YAMLParser:
         path: str | os.PathLike[str],
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
@@ -354,10 +339,7 @@ class YAMLParser:
         path: str | os.PathLike[str],
         *,
         mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
-        include_base_path: str
-        | os.PathLike[str]
-        | fsspec.AbstractFileSystem
-        | None = None,
+        include_base_path: str | os.PathLike[str] | fsspec.AbstractFileSystem | None = None,
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,

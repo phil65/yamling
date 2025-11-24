@@ -101,9 +101,7 @@ def load[T](
             try:
                 parser = configparser.ConfigParser(**kwargs)
                 parser.read_string(text)
-                data = {
-                    section: dict(parser.items(section)) for section in parser.sections()
-                }
+                data = {section: dict(parser.items(section)) for section in parser.sections()}
             except (
                 configparser.Error,
                 configparser.ParsingError,

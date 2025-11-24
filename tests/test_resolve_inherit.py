@@ -81,9 +81,7 @@ def test_load_yaml_file_simple(temp_yaml_files: dict[str, Path]):
 
 def test_load_yaml_file_with_inherit(temp_yaml_files: dict[str, Path]):
     """Test loading a YAML file with single inheritance."""
-    data = yaml_loaders.load_yaml_file(
-        temp_yaml_files["simple_inherit"], resolve_inherit=True
-    )
+    data = yaml_loaders.load_yaml_file(temp_yaml_files["simple_inherit"], resolve_inherit=True)
     assert data["name"] == "child"  # Overridden value
     assert data["value"] == 1  # Inherited value
     assert data["nested"]["key"] == "base_value"  # Inherited nested value
@@ -93,9 +91,7 @@ def test_load_yaml_file_with_inherit(temp_yaml_files: dict[str, Path]):
 
 def test_load_yaml_file_with_multiple_inherit(temp_yaml_files: dict[str, Path]):
     """Test loading a YAML file with multiple inheritance."""
-    data = yaml_loaders.load_yaml_file(
-        temp_yaml_files["multiple_inherit"], resolve_inherit=True
-    )
+    data = yaml_loaders.load_yaml_file(temp_yaml_files["multiple_inherit"], resolve_inherit=True)
     assert data["name"] == "multi_child"  # Last override wins
     assert data["value"] == 1  # From base
     assert data["other_value"] == 2  # From other  # noqa: PLR2004
@@ -285,9 +281,7 @@ def test_load_yaml_with_bytes_io(temp_yaml_files: dict[str, Path]):
         custom: value
     """).strip()
 
-    buffer = NamedBytesIO(
-        yaml_content.encode("utf-8"), str(temp_yaml_files["simple_inherit"])
-    )
+    buffer = NamedBytesIO(yaml_content.encode("utf-8"), str(temp_yaml_files["simple_inherit"]))
 
     data = yaml_loaders.load_yaml(buffer, resolve_inherit=True)
     assert data["name"] == "from_bytesio"

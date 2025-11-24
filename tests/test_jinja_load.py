@@ -59,30 +59,22 @@ def temp_yaml_files(tmp_path):
 
 
 def test_basic_string_resolution(basic_jinja_env):
-    result = load_yaml(
-        yaml.dump(BASIC_STR), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(BASIC_STR), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == "Hello John!"
 
 
 def test_basic_dict_resolution(basic_jinja_env):
-    result = load_yaml(
-        yaml.dump(BASIC_DICT), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(BASIC_DICT), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"greeting": "Hello John!"}
 
 
 def test_nested_dict_resolution(basic_jinja_env):
-    result = load_yaml(
-        yaml.dump(NESTED_DICT), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(NESTED_DICT), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"user": {"greeting": "Hello John!", "farewell": "Goodbye John!"}}
 
 
 def test_list_resolution(basic_jinja_env):
-    result = load_yaml(
-        yaml.dump(BASIC_LIST), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(BASIC_LIST), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == ["Hello John!", "Hi John!"]
 
 
@@ -111,9 +103,7 @@ def test_complex_nested_resolution(basic_jinja_env):
 
 
 def test_no_resolution_when_disabled(basic_jinja_env):
-    result = load_yaml(
-        yaml.dump(BASIC_DICT), resolve_strings=False, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(BASIC_DICT), resolve_strings=False, jinja_env=basic_jinja_env)
     assert result == BASIC_DICT
 
 
@@ -136,9 +126,7 @@ def test_empty_string(basic_jinja_env):
 
 def test_invalid_template(basic_jinja_env):
     with pytest.raises(jinja2.TemplateError):
-        load_yaml(
-            yaml.dump("{{ invalid"), resolve_strings=True, jinja_env=basic_jinja_env
-        )
+        load_yaml(yaml.dump("{{ invalid"), resolve_strings=True, jinja_env=basic_jinja_env)
 
 
 def test_file_loading_with_resolution(basic_jinja_env, temp_yaml_files):
@@ -186,9 +174,7 @@ def test_resolution_with_env_tag(basic_jinja_env):
     env_var: !ENV TEST_ENV_VAR
     template: '{{ name }}'
     """
-    result = load_yaml(
-        dedent(yaml_content), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(dedent(yaml_content), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result["env_var"] == "env_value"
     assert result["template"] == "John"
 
@@ -217,9 +203,7 @@ def test_resolution_with_fsspec_filesystem(basic_jinja_env):
 
 def test_unicode_strings(basic_jinja_env):
     unicode_dict = {"greeting": "Hello {{ name }} 👋"}
-    result = load_yaml(
-        yaml.dump(unicode_dict), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(unicode_dict), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"greeting": "Hello John 👋"}
 
 
@@ -230,9 +214,7 @@ def test_mixed_resolution(basic_jinja_env):
         "static": "Hello World!",
         "nested": {"template": "{{ name }}", "static": "static"},
     }
-    result = load_yaml(
-        yaml.dump(mixed_dict), resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml(yaml.dump(mixed_dict), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {
         "template": "Hello John!",
         "static": "Hello World!",
