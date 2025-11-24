@@ -58,6 +58,7 @@ dump = "yamling:dump"
 all = ["jinja2", "tomli_w"]
 jinja2 = ["jinja2"]
 toml = ["tomli_w"]
+toon = ["python-toon"]
 
 [dependency-groups]
 dev = [

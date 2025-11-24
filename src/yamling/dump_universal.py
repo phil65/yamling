@@ -75,6 +75,12 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
                 msg = f"Failed to dump data to JSON: {e}"
                 raise exceptions.DumpingError(msg, e) from e
 
+        case "toon":
+            import toon
+
+            assert isinstance(data, dict)
+            return toon.encode(data)
+
         case "ini":
             import configparser
 

@@ -11,7 +11,7 @@ YAMLValue = YAMLPrimitive | dict[str, Any] | list[Any]
 DumperType = type[yaml.Dumper | yaml.CDumper | yaml.SafeDumper | yaml.CSafeDumper]
 LoaderStr = Literal["unsafe", "full", "safe"]
 
-SupportedFormats = Literal["yaml", "toml", "json", "ini"]
+SupportedFormats = Literal["yaml", "toml", "json", "ini", "toon"]
 FormatType = SupportedFormats | Literal["auto"]
 
 LoaderType = type[

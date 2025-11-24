@@ -23,9 +23,7 @@ class JinjaConstructionError(ConstructorError):
     """Error raised when Jinja2 template construction fails."""
 
 
-def get_jinja_constructor(
-    env: jinja2.Environment | None,
-) -> YAMLConstructor:
+def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
     """Create a constructor that resolves !JINJA tags using a Jinja2 environment.
 
     This constructor allows explicit template processing for values marked with the
