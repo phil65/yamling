@@ -404,21 +404,23 @@ def load_yaml[T](
             jinja_env=jinja_env,
         )
         data = yaml.load(text, Loader=loader)
-
         if resolve_inherit:
             if hasattr(text, "name"):
                 base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
             elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
                 base_dir = to_upath(resolve_inherit)
-            data = _resolve_inherit(
-                data,
-                base_dir,
-                mode=mode,
-                include_base_path=include_base_path,
-                resolve_strings=resolve_strings,
-                resolve_dict_keys=resolve_dict_keys,
-                jinja_env=jinja_env,
-            )
+            else:
+                base_dir = None
+            if base_dir:
+                data = _resolve_inherit(
+                    data,
+                    base_dir,
+                    mode=mode,
+                    include_base_path=include_base_path,
+                    resolve_strings=resolve_strings,
+                    resolve_dict_keys=resolve_dict_keys,
+                    jinja_env=jinja_env,
+                )
     except yaml.YAMLError:
         logger.exception("Failed to load YAML: \n%s", text)
         raise
