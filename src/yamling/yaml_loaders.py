@@ -6,6 +6,8 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload
 
+import upath
+from upathtools import to_upath
 import yaml
 
 from yamling import deepmerge, utils, verify
@@ -404,31 +406,19 @@ def load_yaml[T](
         data = yaml.load(text, Loader=loader)
 
         if resolve_inherit:
-            import upath
-            from upathtools import to_upath
-
             if hasattr(text, "name"):
                 base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
-                data = _resolve_inherit(
-                    data,
-                    base_dir,
-                    mode=mode,
-                    include_base_path=include_base_path,
-                    resolve_strings=resolve_strings,
-                    resolve_dict_keys=resolve_dict_keys,
-                    jinja_env=jinja_env,
-                )
             elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
                 base_dir = to_upath(resolve_inherit)
-                data = _resolve_inherit(
-                    data,
-                    base_dir,
-                    mode=mode,
-                    include_base_path=include_base_path,
-                    resolve_strings=resolve_strings,
-                    resolve_dict_keys=resolve_dict_keys,
-                    jinja_env=jinja_env,
-                )
+            data = _resolve_inherit(
+                data,
+                base_dir,
+                mode=mode,
+                include_base_path=include_base_path,
+                resolve_strings=resolve_strings,
+                resolve_dict_keys=resolve_dict_keys,
+                jinja_env=jinja_env,
+            )
     except yaml.YAMLError:
         logger.exception("Failed to load YAML: \n%s", text)
         raise
