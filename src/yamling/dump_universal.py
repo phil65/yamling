@@ -76,10 +76,10 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
                 raise exceptions.DumpingError(msg, e) from e
 
         case "toon":
-            import toon
+            import toon  # type: ignore[import-untyped]
 
             assert isinstance(data, dict)
-            return toon.encode(data)
+            return toon.encode(data)  # type: ignore[no-any-return]
 
         case "ini":
             import configparser
