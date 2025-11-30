@@ -170,7 +170,10 @@ def load[T](
             base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
         elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
             base_dir = to_upath(resolve_inherit)
-        data = _resolve_inherit(data, base_dir, mode=mode)
+        else:
+            base_dir = None
+        if base_dir:
+            data = _resolve_inherit(data, base_dir, mode=mode)
 
     if verify_type is not None:
         try:
