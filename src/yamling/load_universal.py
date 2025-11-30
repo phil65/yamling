@@ -276,7 +276,9 @@ def load_file[T](
 
     try:
         text = path_obj.read_text(encoding="utf-8")
-        return load(text, mode, verify_type=verify_type)
+        data = load(text, mode, verify_type=verify_type)
+        if resolve_inherit:
+            data = _resolve_inherit(data, path_obj.parent, mode=mode)
     except (OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Failed to read file %r", path)
         msg = f"Failed to read file {path}: {e!s}"
@@ -285,6 +287,8 @@ def load_file[T](
         logger.exception("Failed to load file %r as %s", path, mode)
         msg = f"Failed to load {path} as {mode} format: {e!s}"
         raise
+    else:
+        return data
 
 
 if __name__ == "__main__":
