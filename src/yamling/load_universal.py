@@ -5,25 +5,73 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any, get_args, overload
 
-from yamling import consts, exceptions, typedefs, verify
+import upath
+from upathtools import to_upath
+
+from yamling import consts, deepmerge, exceptions, typedefs, verify
 
 
 if TYPE_CHECKING:
     from upath.types import JoinablePathLike
 
-
 logger = logging.getLogger(__name__)
+
+
+def _resolve_inherit(
+    data: Any,
+    base_dir: JoinablePathLike | None,
+    mode: typedefs.SupportedFormats,
+) -> Any:
+    """Resolve INHERIT directive in YAML data.
+
+    Args:
+        data: The loaded YAML data
+        base_dir: Directory to resolve inherited paths from
+        mode: YAML loader mode or YAML loader class
+        include_base_path: Base path for !include resolution
+        jinja_env: Optional Jinja2 environment
+
+    Returns:
+        Merged configuration data
+    """
+    if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
+        return data
+
+    parent_path = data.pop("INHERIT")
+    if not parent_path:
+        return data
+
+    base_dir = to_upath(base_dir)
+    # Convert string to list for uniform handling
+    file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
+    context = deepmerge.DeepMerger()
+    # Process inheritance in reverse order (last file is base configuration)
+    for p_path in reversed(file_paths):
+        parent_cfg = base_dir / p_path
+        logger.debug("Loading parent configuration file %r relative to %r", parent_cfg, base_dir)
+        parent_data = load_file(parent_cfg, mode=mode, resolve_inherit=True)
+        data = context.merge(data, parent_data)
+
+    return data
 
 
 @overload
 def load(
-    text: str, mode: typedefs.SupportedFormats, verify_type: None = None, **kwargs: Any
+    text: str,
+    mode: typedefs.SupportedFormats,
+    verify_type: None = None,
+    resolve_inherit: bool | JoinablePathLike = False,
+    **kwargs: Any,
 ) -> Any: ...
 
 
 @overload
 def load[T](
-    text: str, mode: typedefs.SupportedFormats, verify_type: type[T], **kwargs: Any
+    text: str,
+    mode: typedefs.SupportedFormats,
+    verify_type: type[T],
+    resolve_inherit: bool | JoinablePathLike = False,
+    **kwargs: Any,
 ) -> T: ...
 
 
@@ -31,6 +79,7 @@ def load[T](
     text: str,
     mode: typedefs.SupportedFormats,
     verify_type: type[T] | None = None,
+    resolve_inherit: bool | JoinablePathLike = False,
     **kwargs: Any,
 ) -> Any | T:
     """Load data from a string in the specified format.
@@ -39,6 +88,7 @@ def load[T](
         text: String containing data in the specified format
         mode: Format of the input data ("yaml", "toml", "json", or "ini")
         verify_type: Type to verify and cast the output to (supports TypedDict)
+        resolve_inherit: Whether to resolve inheritance in the loaded data
         **kwargs: Additional keyword arguments passed to the underlying load functions
 
     Returns:
@@ -115,6 +165,13 @@ def load[T](
             msg = f"Unsupported format: {mode}"
             raise ValueError(msg)
 
+    if resolve_inherit:
+        if hasattr(text, "name"):
+            base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
+        elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
+            base_dir = to_upath(resolve_inherit)
+        data = _resolve_inherit(data, base_dir, mode=mode)
+
     if verify_type is not None:
         try:
             return verify.verify_type(data, verify_type)
@@ -131,6 +188,7 @@ def load_file(
     *,
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
+    resolve_inherit: bool = True,
 ) -> Any: ...
 
 
@@ -141,6 +199,7 @@ def load_file[T](
     *,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T],
+    resolve_inherit: bool = True,
 ) -> T: ...
 
 
@@ -150,6 +209,7 @@ def load_file[T](
     *,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
+    resolve_inherit: bool = True,
 ) -> Any | T:
     """Load data from a file, automatically detecting the format from extension if needed.
 
@@ -158,6 +218,7 @@ def load_file[T](
         mode: Format of the file ("yaml", "toml", "json", "ini" or "auto")
         storage_options: Additional keyword arguments to pass to the fsspec backend
         verify_type: Type to verify and cast the output to (supports TypedDict)
+        resolve_inherit: Whether to resolve inheritance in the loaded data
 
     Returns:
         Parsed data structure, typed according to verify_type if provided
