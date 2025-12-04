@@ -125,7 +125,7 @@ def test_dump_file_auto_detection(temp_file: Path, extension: str, expected_form
     test_data = SAMPLE_INI_DICT if expected_format == "ini" else SAMPLE_DICT
     dump_file(test_data, file_path)
     assert file_path.exists()
-    content = file_path.read_text()
+    content = file_path.read_text("utf-8")
     assert content.strip()
 
 
@@ -138,7 +138,7 @@ def test_dump_file_unknown_extension(temp_file: Path):
 def test_dump_file_explicit_format(temp_file: Path):
     file_path = temp_file.with_suffix(".txt")
     dump_file(SAMPLE_DICT, file_path, mode="json")
-    content = file_path.read_text()
+    content = file_path.read_text("utf-8")
     assert json.loads(content) == SAMPLE_DICT
 
 
@@ -187,7 +187,7 @@ def test_dump_file_with_path_object(temp_file: Path):
     file_path = temp_file.with_suffix(".yaml")
     dump_file(SAMPLE_DICT, file_path)
     assert file_path.exists()
-    assert yaml.safe_load(file_path.read_text()) == SAMPLE_DICT
+    assert yaml.safe_load(file_path.read_text("utf-8")) == SAMPLE_DICT
 
 
 def test_dump_nested_lists():
