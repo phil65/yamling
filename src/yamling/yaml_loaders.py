@@ -250,29 +250,17 @@ def get_loader(
     return loader_cls
 
 
-def _resolve_inherit(
-    data: Any,
+def _resolve_inherit[T](
+    data: T,
     base_dir: JoinablePathLike | None,
     mode: typedefs.LoaderStr | typedefs.LoaderType,
     include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
     jinja_env: jinja2.Environment | None,
-) -> Any:
-    """Resolve INHERIT directive in YAML data.
-
-    Args:
-        data: The loaded YAML data
-        base_dir: Directory to resolve inherited paths from
-        mode: YAML loader mode or YAML loader class
-        include_base_path: Base path for !include resolution
-        resolve_strings: Whether to resolve Jinja2 strings
-        resolve_dict_keys: Whether to resolve dictionary keys
-        jinja_env: Optional Jinja2 environment
-
-    Returns:
-        Merged configuration data
-    """
+    enable_env: bool = True,
+) -> T:
+    """Resolve INHERIT directive in YAML data."""
     if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
         return data
 
@@ -299,6 +287,7 @@ def _resolve_inherit(
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
             jinja_env=jinja_env,
+            enable_env=enable_env,
         )
         data = context.merge(data, parent_data)
 
@@ -317,6 +306,7 @@ def load_yaml(
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: None = None,
+    enable_env: bool = True,
 ) -> Any: ...
 
 
@@ -332,6 +322,7 @@ def load_yaml[T](
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T],
+    enable_env: bool = True,
 ) -> T: ...
 
 
@@ -346,6 +337,7 @@ def load_yaml[T](
     variables: dict[str, Any] | None = None,
     jinja_env: jinja2.Environment | None = None,
     verify_type: type[T] | None = None,
+    enable_env: bool = True,
 ) -> Any | T:
     r"""Load a YAML string with specified safety mode and include path support.
 
@@ -362,6 +354,7 @@ def load_yaml[T](
         jinja_env: Optional Jinja2 environment for template resolution
         variables: An optional dictionary to resolving !var tags
         verify_type: Type to verify and cast the output to (supports TypedDict)
+        enable_env: Whether to enable the !ENV tag
 
     Returns:
         The parsed YAML data, typed according to verify_type if provided
@@ -402,6 +395,7 @@ def load_yaml[T](
             resolve_dict_keys=resolve_dict_keys,
             variables=variables,
             jinja_env=jinja_env,
+            enable_env=enable_env,
         )
         data = yaml.load(text, Loader=loader)
         if resolve_inherit:
@@ -450,6 +444,7 @@ def load_yaml_file(
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
+    enable_env: bool = True,
 ) -> Any: ...
 
 
@@ -466,6 +461,7 @@ def load_yaml_file[T](
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T],
+    enable_env: bool = True,
 ) -> T: ...
 
 
@@ -481,6 +477,7 @@ def load_yaml_file[T](
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
+    enable_env: bool = True,
 ) -> Any | T:
     """Load a YAML file with specified options.
 
@@ -498,6 +495,7 @@ def load_yaml_file[T](
         variables: An optional dictionary to resolving !var tags
         storage_options: Additional keywords to pass to fsspec backend
         verify_type: Type to verify and cast the output to (supports TypedDict)
+        enable_env: Whether to enable the !ENV tag
 
     Returns:
         The parsed YAML data
@@ -535,6 +533,7 @@ def load_yaml_file[T](
             resolve_dict_keys=resolve_dict_keys,
             resolve_inherit=False,  # We'll handle inheritance separately
             jinja_env=jinja_env,
+            enable_env=enable_env,
         )
 
         if resolve_inherit:
