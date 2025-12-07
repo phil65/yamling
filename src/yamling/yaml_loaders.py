@@ -259,6 +259,7 @@ def _resolve_inherit[T](
     resolve_dict_keys: bool,
     jinja_env: jinja2.Environment | None,
     enable_env: bool = True,
+    variables: dict[str, Any] | None = None,
 ) -> T:
     """Resolve INHERIT directive in YAML data."""
     if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
@@ -288,6 +289,7 @@ def _resolve_inherit[T](
             resolve_dict_keys=resolve_dict_keys,
             jinja_env=jinja_env,
             enable_env=enable_env,
+            variables=variables,
         )
         data = context.merge(data, parent_data)
 
@@ -414,6 +416,8 @@ def load_yaml[T](
                     resolve_strings=resolve_strings,
                     resolve_dict_keys=resolve_dict_keys,
                     jinja_env=jinja_env,
+                    enable_env=enable_env,
+                    variables=variables,
                 )
     except yaml.YAMLError:
         logger.exception("Failed to load YAML: \n%s", text)
@@ -532,6 +536,7 @@ def load_yaml_file[T](
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
             resolve_inherit=False,  # We'll handle inheritance separately
+            variables=variables,
             jinja_env=jinja_env,
             enable_env=enable_env,
         )
@@ -545,6 +550,8 @@ def load_yaml_file[T](
                 resolve_strings=resolve_strings,
                 resolve_dict_keys=resolve_dict_keys,
                 jinja_env=jinja_env,
+                enable_env=enable_env,
+                variables=variables,
             )
     except (OSError, yaml.YAMLError):
         logger.exception("Failed to load YAML file %r", path)

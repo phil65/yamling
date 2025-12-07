@@ -214,3 +214,21 @@ def test_nonexistent_file() -> None:
     """
     with pytest.raises(FileNotFoundError):
         load_yaml_file(Path("nonexistent.yaml"))
+
+
+def test_variables_parameter(tmp_path: Path) -> None:
+    """Test that variables parameter works correctly with load_yaml_file."""
+    yaml_content = """
+    name: !var username
+    age: !var user_age
+    active: true
+    """
+    yaml_file = tmp_path / "test.yaml"
+    yaml_file.write_text(yaml_content)
+
+    variables = {"username": "john_doe", "user_age": 25}
+    result = load_yaml_file(yaml_file, variables=variables)
+
+    assert result["name"] == "john_doe"
+    assert result["age"] == 25
+    assert result["active"] is True
