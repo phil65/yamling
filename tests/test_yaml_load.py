@@ -24,7 +24,7 @@ def test_basic_load():
 
 def test_load_modes():
     yaml_str = "!!python/name:os.system"
-    with pytest.raises(yaml.constructor.ConstructorError):
+    with pytest.raises(yamling.YAMLError):  # Now catches YAMLError
         yamling.load_yaml(yaml_str, mode="safe")
     assert yamling.load_yaml(yaml_str, mode="unsafe") is os.system
 
@@ -105,7 +105,7 @@ def test_load_yaml_with_include(tmp_path: pathlib.Path):
 def test_load_yaml_with_modes():
     """Test load_yaml with different modes."""
     yaml_str = "!!python/name:os.system"
-    with pytest.raises(yaml.constructor.ConstructorError):
+    with pytest.raises(yamling.YAMLError):  # Now catches YAMLError
         yamling.load_yaml(yaml_str, mode="safe")
 
     assert yamling.load_yaml(yaml_str, mode="unsafe") is os.system

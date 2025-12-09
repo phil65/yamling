@@ -358,6 +358,7 @@ def load_yaml[T](
         verify_type: Type to verify and cast the output to (supports TypedDict)
         enable_env: Whether to enable the !ENV tag
 
+
     Returns:
         The parsed YAML data, typed according to verify_type if provided
 
@@ -419,9 +420,12 @@ def load_yaml[T](
                     enable_env=enable_env,
                     variables=variables,
                 )
-    except yaml.YAMLError:
+    except yaml.YAMLError as e:
         logger.exception("Failed to load YAML: \n%s", text)
-        raise
+        from yamling.yaml_errors import YAMLError
+
+        doc_path = getattr(text, "name", None) if hasattr(text, "name") else None
+        raise YAMLError(e, doc_path=doc_path) from e
     except Exception:
         logger.exception("Unexpected error while loading YAML:\n%s", text)
         raise
@@ -501,6 +505,7 @@ def load_yaml_file[T](
         verify_type: Type to verify and cast the output to (supports TypedDict)
         enable_env: Whether to enable the !ENV tag
 
+
     Returns:
         The parsed YAML data
 
@@ -553,7 +558,12 @@ def load_yaml_file[T](
                 enable_env=enable_env,
                 variables=variables,
             )
-    except (OSError, yaml.YAMLError):
+    except yaml.YAMLError as e:
+        logger.exception("Failed to load YAML file %r", path)
+        from yamling.yaml_errors import YAMLError
+
+        raise YAMLError(e, doc_path=path_obj) from e
+    except OSError:
         logger.exception("Failed to load YAML file %r", path)
         raise
     except Exception:

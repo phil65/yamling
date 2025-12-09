@@ -24,8 +24,7 @@ from yamling.dump_universal import dump, dump_file
 from yamling.yamlparser import YAMLParser
 from yamling.exceptions import DumpingError, ParsingError
 from yamling.typedefs import SupportedFormats, FormatType, LoaderType
-
-YAMLError = yaml.YAMLError  # Reference for external libs that need to catch this error
+from yamling.yaml_errors import YAMLError
 
 
 __all__ = [
