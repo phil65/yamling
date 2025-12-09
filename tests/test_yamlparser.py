@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from yamling import YAMLError
 from yamling.yamlparser import YAMLParser
 
 
@@ -126,7 +127,7 @@ def test_invalid_tag(yaml_parser: YAMLParser):
     """Test handling of unregistered tags."""
     yaml_content = "value: !invalid_tag data"
 
-    with pytest.raises(ValueError, match="No handler registered for tag"):
+    with pytest.raises(YAMLError):
         yaml_parser.load_yaml(yaml_content)
 
 

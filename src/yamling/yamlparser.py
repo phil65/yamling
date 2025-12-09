@@ -3,8 +3,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, overload
 
-import yaml
-
 from yamling import yaml_loaders
 
 
@@ -13,6 +11,7 @@ if TYPE_CHECKING:
 
     import fsspec  # type: ignore[import-untyped]
     import jinja2
+    import yaml
     from yaml import Node
 
     from yamling import typedefs
@@ -285,22 +284,17 @@ class YAMLParser:
         """
         loader_class = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
         self.register_with_loader(loader_class)
-        try:
-            return yaml_loaders.load_yaml(  # type: ignore[misc]
-                text,
-                mode=loader_class,
-                include_base_path=include_base_path,
-                resolve_strings=resolve_strings,
-                resolve_dict_keys=resolve_dict_keys,
-                resolve_inherit=resolve_inherit,
-                variables=variables,
-                jinja_env=jinja_env,
-                verify_type=verify_type,  # type: ignore[arg-type]
-            )
-        except yaml.constructor.ConstructorError as e:
-            tag = e.problem.split()[-1] if e.problem else "unknown"
-            msg = f"No handler registered for tag: {tag}"
-            raise ValueError(msg) from e
+        return yaml_loaders.load_yaml(  # type: ignore[misc]
+            text,
+            mode=loader_class,
+            include_base_path=include_base_path,
+            resolve_strings=resolve_strings,
+            resolve_dict_keys=resolve_dict_keys,
+            resolve_inherit=resolve_inherit,
+            variables=variables,
+            jinja_env=jinja_env,
+            verify_type=verify_type,  # type: ignore[arg-type]
+        )
 
     @overload
     def load_yaml_file(
@@ -392,23 +386,18 @@ class YAMLParser:
         """
         loader = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
         self.register_with_loader(loader)
-        try:
-            return yaml_loaders.load_yaml_file(
-                path,
-                mode=loader,
-                include_base_path=include_base_path,
-                resolve_inherit=resolve_inherit,
-                resolve_strings=resolve_strings,
-                resolve_dict_keys=resolve_dict_keys,
-                jinja_env=jinja_env,
-                variables=variables,
-                storage_options=storage_options,
-                verify_type=verify_type,  # type: ignore
-            )
-        except yaml.constructor.ConstructorError as e:
-            tag = e.problem.split()[-1] if e.problem else "unknown"
-            msg = f"No handler registered for tag: {tag}"
-            raise ValueError(msg) from e
+        return yaml_loaders.load_yaml_file(
+            path,
+            mode=loader,
+            include_base_path=include_base_path,
+            resolve_inherit=resolve_inherit,
+            resolve_strings=resolve_strings,
+            resolve_dict_keys=resolve_dict_keys,
+            jinja_env=jinja_env,
+            variables=variables,
+            storage_options=storage_options,
+            verify_type=verify_type,  # type: ignore
+        )
 
 
 # Usage example:

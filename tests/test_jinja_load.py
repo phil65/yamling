@@ -5,8 +5,8 @@ import fsspec
 import jinja2
 import pytest
 import yaml
-from yaml.constructor import ConstructorError
 
+from yamling import YAMLError
 from yamling.yaml_loaders import load_yaml, load_yaml_file
 
 
@@ -145,7 +145,7 @@ def test_invalid_yaml_structure():
     !!python/name:os.system
     - test
     """
-    with pytest.raises(ConstructorError):
+    with pytest.raises(YAMLError):
         load_yaml(invalid_yaml)
 
 
