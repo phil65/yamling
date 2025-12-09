@@ -13,6 +13,8 @@ import yaml
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from rich.console import Console
+
 
 class YAMLError(yaml.YAMLError):
     """YAML error with rich formatting capabilities.
@@ -57,7 +59,7 @@ class YAMLError(yaml.YAMLError):
         self._render_with_rich(console)
         return string_io.getvalue()
 
-    def _render_with_rich(self, console) -> None:
+    def _render_with_rich(self, console: Console) -> None:
         """Render error using rich formatting."""
         if not (
             hasattr(self.original_error, "problem_mark")
@@ -66,25 +68,25 @@ class YAMLError(yaml.YAMLError):
             self._render_simple(console)
             return
 
-        if hasattr(self.original_error, "context_mark") and self.original_error.context_mark:
+        if context_mark := getattr(self.original_error, "context_mark", None):
             self._render_marked_error(
                 console,
                 getattr(self.original_error, "context", str(self.original_error)),
-                self.original_error.context_mark.line + 1,
-                self.original_error.context_mark.column + 1,
-                self.original_error.context_mark.get_snippet(),
+                context_mark.line + 1,
+                context_mark.column + 1,
+                context_mark.get_snippet(),
             )
 
-        if hasattr(self.original_error, "problem_mark") and self.original_error.problem_mark:
+        if problem_mark := getattr(self.original_error, "problem_mark", None):
             self._render_marked_error(
                 console,
                 getattr(self.original_error, "problem", str(self.original_error)),
-                self.original_error.problem_mark.line + 1,
-                self.original_error.problem_mark.column + 1,
-                self.original_error.problem_mark.get_snippet(),
+                problem_mark.line + 1,
+                problem_mark.column + 1,
+                problem_mark.get_snippet(),
             )
 
-    def _render_simple(self, console) -> None:
+    def _render_simple(self, console: Console) -> None:
         """Render simple error without line markers."""
         from rich import box
         from rich.panel import Panel
@@ -101,7 +103,12 @@ class YAMLError(yaml.YAMLError):
             self._render_extra(console)
 
     def _render_marked_error(
-        self, console, cause: str, line_number: int, column_number: int, snippet: str | None
+        self,
+        console: Console,
+        cause: str,
+        line_number: int,
+        column_number: int,
+        snippet: str | None,
     ) -> None:
         """Render error with line and column markers."""
         from rich.text import Text
@@ -162,7 +169,7 @@ class YAMLError(yaml.YAMLError):
 
         console.print()
 
-    def _render_extra(self, console) -> None:
+    def _render_extra(self, console: Console) -> None:
         """Render extra help information."""
         from collections.abc import Iterable as IterableABC
 
@@ -182,7 +189,7 @@ class YAMLError(yaml.YAMLError):
         extra_items = (
             self.extra_help
             if isinstance(self.extra_help, IterableABC) and not isinstance(self.extra_help, str)
-            else [self.extra_help]
+            else [str(self.extra_help)]
         )
         for item in extra_items:
             table.add_row(str(item))
@@ -199,16 +206,14 @@ class YAMLError(yaml.YAMLError):
         path_str = f" in {self.doc_path}" if self.doc_path else ""
         lines.append(f"\n❌ YAML Error{path_str}:")
 
-        if hasattr(self.original_error, "problem_mark") and self.original_error.problem_mark:
-            mark = self.original_error.problem_mark
-            lines.append(f"  Line {mark.line + 1}, Column {mark.column + 1}")
-            if hasattr(self.original_error, "problem"):
-                lines.append(f"  {self.original_error.problem}")
-        elif hasattr(self.original_error, "context_mark") and self.original_error.context_mark:
-            mark = self.original_error.context_mark
-            lines.append(f"  Line {mark.line + 1}, Column {mark.column + 1}")
-            if hasattr(self.original_error, "context"):
-                lines.append(f"  {self.original_error.context}")
+        if problem_mark := getattr(self.original_error, "problem_mark", None):
+            lines.append(f"  Line {problem_mark.line + 1}, Column {problem_mark.column + 1}")
+            if problem := getattr(self.original_error, "problem", None):
+                lines.append(f"  {problem}")
+        elif context_mark := getattr(self.original_error, "context_mark", None):
+            lines.append(f"  Line {context_mark.line + 1}, Column {context_mark.column + 1}")
+            if context := getattr(self.original_error, "context", None):
+                lines.append(f"  {context}")
         else:
             lines.append(f"  {self.original_error}")
 
