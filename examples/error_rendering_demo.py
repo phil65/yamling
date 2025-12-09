@@ -135,7 +135,7 @@ def demo_multiple_error_scenarios():
         except yamling.YAMLError as e:
             # Just show the formatted version inline
             formatted = e.format()
-            print(formatted[:200] + "..." if len(formatted) > 200 else formatted)
+            print(formatted[:200] + "..." if len(formatted) > 200 else formatted)  # noqa: PLR2004
 
 
 def main():

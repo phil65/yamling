@@ -153,7 +153,7 @@ class YAMLError(yaml.YAMLError):
                     console.print(prefix, Text(line), sep="")
 
         console.print(
-            Text("╰─" + "─" * len(str(line_number)) + "─❯ ", style=error_color)
+            Text("╰─" + "─" * len(str(line_number)) + "─❯ ", style=error_color)  # noqa: RUF001
             + Text(cause, style="bright_red")
         )
 

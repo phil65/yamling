@@ -16,7 +16,6 @@ __copyright__ = "Copyright (c) 2024 Philipp Temminghoff"
 __license__ = "MIT"
 __url__ = "https://github.com/phil65/yamling"
 
-import yaml
 from yamling.yaml_loaders import load_yaml, load_yaml_file, get_loader, YAMLInput
 from yamling.load_universal import load, load_file
 from yamling.yaml_dumpers import dump_yaml
