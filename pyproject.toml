@@ -2,7 +2,7 @@
 
 [project]
 name = "yamling"
-version = "2.1.6"
+version = "2.1.7"
 description = "Enhanced YAML loading and dumping."
 readme = "README.md"
 requires-python = ">=3.13"
