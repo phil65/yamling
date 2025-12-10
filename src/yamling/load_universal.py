@@ -3,6 +3,7 @@ from __future__ import annotations
 import configparser
 import logging
 import os
+import re
 from typing import TYPE_CHECKING, Any, get_args, overload
 
 import upath
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
     from upath.types import JoinablePathLike
 
 logger = logging.getLogger(__name__)
+
+ENV_VAR_PATTERN = re.compile(r"\{env:([^:}]+)(?::([^}]*))?\}")
 
 
 def _resolve_inherit(
@@ -55,12 +58,40 @@ def _resolve_inherit(
     return data
 
 
+def _resolve_env_vars(data: Any) -> Any:
+    """Resolve environment variables in data using {env:VAR_NAME} or {env:VAR_NAME:default} syntax.
+
+    Args:
+        data: The data structure to resolve environment variables in
+
+    Returns:
+        Data with environment variables resolved
+    """
+    if isinstance(data, str):
+
+        def replace_env(match: re.Match[str]) -> str:
+            var_name = match.group(1)
+            default_value = match.group(2) if match.lastindex == 2 else None
+            return os.environ.get(var_name, default_value or match.group(0))
+
+        return ENV_VAR_PATTERN.sub(replace_env, data)
+
+    if isinstance(data, dict):
+        return {key: _resolve_env_vars(value) for key, value in data.items()}
+
+    if isinstance(data, list):
+        return [_resolve_env_vars(item) for item in data]
+
+    return data
+
+
 @overload
 def load(
     text: str,
     mode: typedefs.SupportedFormats,
     verify_type: None = None,
     resolve_inherit: bool | JoinablePathLike = False,
+    resolve_env_vars: bool = False,
     **kwargs: Any,
 ) -> Any: ...
 
@@ -71,6 +102,7 @@ def load[T](
     mode: typedefs.SupportedFormats,
     verify_type: type[T],
     resolve_inherit: bool | JoinablePathLike = False,
+    resolve_env_vars: bool = False,
     **kwargs: Any,
 ) -> T: ...
 
@@ -80,6 +112,7 @@ def load[T](
     mode: typedefs.SupportedFormats,
     verify_type: type[T] | None = None,
     resolve_inherit: bool | JoinablePathLike = False,
+    resolve_env_vars: bool = False,
     **kwargs: Any,
 ) -> Any | T:
     """Load data from a string in the specified format.
@@ -89,6 +122,7 @@ def load[T](
         mode: Format of the input data ("yaml", "toml", "json", or "ini")
         verify_type: Type to verify and cast the output to (supports TypedDict)
         resolve_inherit: Whether to resolve inheritance in the loaded data
+        resolve_env_vars: Whether to resolve {env:VAR_NAME} or {env:VAR_NAME:default} patterns
         **kwargs: Additional keyword arguments passed to the underlying load functions
 
     Returns:
@@ -165,6 +199,9 @@ def load[T](
             msg = f"Unsupported format: {mode}"
             raise ValueError(msg)
 
+    if resolve_env_vars:
+        data = _resolve_env_vars(data)
+
     if resolve_inherit:
         if hasattr(text, "name"):
             base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
@@ -192,6 +229,7 @@ def load_file(
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
     resolve_inherit: bool = True,
+    resolve_env_vars: bool = False,
 ) -> Any: ...
 
 
@@ -203,6 +241,7 @@ def load_file[T](
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T],
     resolve_inherit: bool = True,
+    resolve_env_vars: bool = False,
 ) -> T: ...
 
 
@@ -213,6 +252,7 @@ def load_file[T](
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
     resolve_inherit: bool = True,
+    resolve_env_vars: bool = False,
 ) -> Any | T:
     """Load data from a file, automatically detecting the format from extension if needed.
 
@@ -222,6 +262,7 @@ def load_file[T](
         storage_options: Additional keyword arguments to pass to the fsspec backend
         verify_type: Type to verify and cast the output to (supports TypedDict)
         resolve_inherit: Whether to resolve inheritance in the loaded data
+        resolve_env_vars: Whether to resolve {env:VAR_NAME} or {env:VAR_NAME:default} patterns
 
     Returns:
         Parsed data structure, typed according to verify_type if provided
@@ -276,7 +317,7 @@ def load_file[T](
 
     try:
         text = path_obj.read_text(encoding="utf-8")
-        data = load(text, mode, verify_type=verify_type)
+        data = load(text, mode, verify_type=verify_type, resolve_env_vars=resolve_env_vars)
         if resolve_inherit:
             data = _resolve_inherit(data, path_obj.parent, mode=mode)
     except (OSError, FileNotFoundError, PermissionError) as e:
