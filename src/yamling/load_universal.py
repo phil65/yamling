@@ -71,7 +71,7 @@ def _resolve_env_vars(data: Any) -> Any:
 
         def replace_env(match: re.Match[str]) -> str:
             var_name = match.group(1)
-            default_value = match.group(2) if match.lastindex == 2 else None
+            default_value = match.group(2) if match.lastindex == 2 else None  # noqa: PLR2004
             return os.environ.get(var_name, default_value or match.group(0))
 
         return ENV_VAR_PATTERN.sub(replace_env, data)
