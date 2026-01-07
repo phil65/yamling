@@ -2,7 +2,7 @@
 
 [project]
 name = "configz"
-version = "2.1.7"
+version = "3.0.0"
 description = "Serialization stuff for config files"
 readme = "README.md"
 requires-python = ">=3.13"
