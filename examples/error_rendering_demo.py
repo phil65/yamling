@@ -1,6 +1,6 @@
 """Demo of enhanced YAML error rendering capabilities.
 
-This example shows how yamling now provides beautiful, informative error messages
+This example shows how configz now provides beautiful, informative error messages
 through YAMLError that inherits from yaml.YAMLError.
 """
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import yamling
+import configz
 
 
 def demo_basic_enhanced_error():
@@ -26,9 +26,9 @@ config:
 """
 
     try:
-        yamling.load_yaml(bad_yaml, mode="safe")
-    except yamling.YAMLError as e:  # Still catches YAMLError!
-        print("Caught YAMLError - but it's actually yamling.YAMLError:")
+        configz.load_yaml(bad_yaml, mode="safe")
+    except configz.YAMLError as e:  # Still catches YAMLError!
+        print("Caught YAMLError - but it's actually configz.YAMLError:")
         print(f"Type: {type(e).__name__}")
         print("\nRendering the error:")
         e.render()  # Beautiful output to stderr
@@ -47,8 +47,8 @@ servers:
 """
 
     try:
-        yamling.load_yaml(bad_yaml, mode="safe")
-    except yamling.YAMLError as e:
+        configz.load_yaml(bad_yaml, mode="safe")
+    except configz.YAMLError as e:
         formatted = e.format()
         print("Formatted error as string:")
         print(formatted)
@@ -77,8 +77,8 @@ application:
         config_file.write_text(bad_content)
 
         try:
-            yamling.load_yaml_file(config_file, mode="safe")
-        except yamling.YAMLError as e:
+            configz.load_yaml_file(config_file, mode="safe")
+        except configz.YAMLError as e:
             print(f"Error in {config_file.name}:")
             e.render()
 
@@ -97,10 +97,10 @@ database:
 """
 
     try:
-        yamling.load_yaml(bad_yaml, mode="safe")
-    except yamling.YAMLError as original_error:
+        configz.load_yaml(bad_yaml, mode="safe")
+    except configz.YAMLError as original_error:
         # Create our own yaml error with custom context
-        yaml_error = yamling.YAMLError(
+        yaml_error = configz.YAMLError(
             original_error,
             doc_path="config/database.yaml",
             context_lines=4,
@@ -131,8 +131,8 @@ def demo_multiple_error_scenarios():
     for title, yaml_content in error_examples:
         print(f"\n--- {title} ---")
         try:
-            yamling.load_yaml(yaml_content, mode="safe")
-        except yamling.YAMLError as e:
+            configz.load_yaml(yaml_content, mode="safe")
+        except configz.YAMLError as e:
             # Just show the formatted version inline
             formatted = e.format()
             print(formatted[:200] + "..." if len(formatted) > 200 else formatted)  # noqa: PLR2004
@@ -147,7 +147,7 @@ def main():
     print("║" + " " * 78 + "║")
     print("╚" + "=" * 78 + "╝")
 
-    print("\nYamling now throws YAMLError that:")
+    print("\nconfigz now throws YAMLError that:")
     print("• Inherits from yaml.YAMLError (existing code still works)")
     print("• Can render itself beautifully with .render()")
     print("• Can format itself as string with .format()")

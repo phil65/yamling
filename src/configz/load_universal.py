@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, get_args, overload
 import upath
 from upathtools import to_upath
 
-from yamling import consts, deepmerge, exceptions, typedefs, verify
+from configz import consts, deepmerge, exceptions, typedefs, verify
 
 
 if TYPE_CHECKING:
@@ -176,7 +176,7 @@ def load[T](
         case "yaml":
             from yaml import YAMLError
 
-            from yamling.yaml_loaders import load_yaml
+            from configz.yaml_loaders import load_yaml
 
             try:
                 data = load_yaml(text, **kwargs)

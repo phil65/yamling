@@ -1,7 +1,7 @@
-site_name: "yamling"
-site_description: "Enhanced YAML loading and dumping."
-repo_url: "https://github.com/phil65/yamling/"
-site_url: https://phil65.github.io/yamling/
+site_name: "configz"
+site_description: "Serialization stuff for config files"
+repo_url: "https://github.com/phil65/configz/"
+site_url: https://phil65.github.io/configz/
 site_author: "Philipp Temminghoff"
 copyright: Copyright &copy; 2024 Philipp Temminghoff
 
@@ -89,4 +89,4 @@ extra:
   - icon: fontawesome/brands/github
     link: https://github.com/phil65
   - icon: fontawesome/brands/python
-    link: https://pypi.org/project/yamling/
+    link: https://pypi.org/project/configz/

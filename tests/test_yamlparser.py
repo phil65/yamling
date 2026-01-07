@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from yamling import YAMLError
-from yamling.yamlparser import YAMLParser
+from configz import YAMLError
+from configz.yamlparser import YAMLParser
 
 
 if TYPE_CHECKING:

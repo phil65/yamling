@@ -15,11 +15,11 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from yamling.yaml_loaders import load_yaml_file
+from configz.yaml_loaders import load_yaml_file
 
 
 if TYPE_CHECKING:
-    from yamling import typedefs
+    from configz import typedefs
 
 
 @pytest.fixture

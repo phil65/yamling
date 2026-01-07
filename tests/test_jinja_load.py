@@ -6,8 +6,8 @@ import jinja2
 import pytest
 import yaml
 
-from yamling import YAMLError
-from yamling.yaml_loaders import load_yaml, load_yaml_file
+from configz import YAMLError
+from configz.yaml_loaders import load_yaml, load_yaml_file
 
 
 # Test Constants

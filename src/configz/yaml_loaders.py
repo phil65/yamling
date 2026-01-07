@@ -10,8 +10,8 @@ import upath
 from upathtools import to_upath
 import yaml
 
-from yamling import deepmerge, utils, verify
-from yamling.constructors import variable
+from configz import deepmerge, utils, verify
+from configz.constructors import variable
 
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from upath.types import JoinablePathLike
     import yaml_include
 
-    from yamling import typedefs
+    from configz import typedefs
 
 logger = logging.getLogger(__name__)
 
@@ -460,7 +460,7 @@ def load_yaml[T](
                 )
     except yaml.YAMLError as e:
         logger.exception("Failed to load YAML: \n%s", text)
-        from yamling.yaml_errors import YAMLError
+        from configz.yaml_errors import YAMLError
 
         doc_path = getattr(text, "name", None) if hasattr(text, "name") else None
         raise YAMLError(e, doc_path=doc_path) from e
@@ -604,7 +604,7 @@ def load_yaml_file[T](
             )
     except yaml.YAMLError as e:
         logger.exception("Failed to load YAML file %r", path)
-        from yamling.yaml_errors import YAMLError
+        from configz.yaml_errors import YAMLError
 
         raise YAMLError(e, doc_path=path_obj) from e
     except OSError:

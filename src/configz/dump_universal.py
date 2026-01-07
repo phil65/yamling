@@ -6,7 +6,7 @@ from io import StringIO
 import logging
 from typing import TYPE_CHECKING, Any, get_args
 
-from yamling import consts, exceptions, typedefs
+from configz import consts, exceptions, typedefs
 
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
         case "yaml":
             from yaml import YAMLError
 
-            from yamling import dump_yaml
+            from configz import dump_yaml
 
             try:
                 return dump_yaml(data, **kwargs)

@@ -1,9 +1,9 @@
 #:tombi schema.strict = false
 
 [project]
-name = "yamling"
+name = "configz"
 version = "2.1.7"
-description = "Enhanced YAML loading and dumping."
+description = "Serialization stuff for config files"
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT"
@@ -38,21 +38,21 @@ dependencies = [
 ]
 
 [project.urls]
-"Code coverage" = "https://app.codecov.io/gh/phil65/yamling"
-Discussions = "https://github.com/phil65/yamling/discussions"
-Documentation = "https://phil65.github.io/yamling/"
-Issues = "https://github.com/phil65/yamling/issues"
-Source = "https://github.com/phil65/yamling"
+"Code coverage" = "https://app.codecov.io/gh/phil65/configz"
+Discussions = "https://github.com/phil65/configz/discussions"
+Documentation = "https://phil65.github.io/configz/"
+Issues = "https://github.com/phil65/configz/issues"
+Source = "https://github.com/phil65/configz"
 
 [project.entry-points.toolreg_functions]
-dump_file = "yamling:dump_file"
-load_yaml = "yamling:load_yaml"
-load_yaml_file = "yamling:load_yaml_file"
-load = "yamling:load"
-load_file = "yamling:load_file"
-dump_yaml = "yamling:dump_yaml"
-dump_yaml_file = "yamling:dump_yaml_file"
-dump = "yamling:dump"
+dump_file = "configz:dump_file"
+load_yaml = "configz:load_yaml"
+load_yaml_file = "configz:load_yaml_file"
+load = "configz:load"
+load_file = "configz:load_file"
+dump_yaml = "configz:dump_yaml"
+dump_yaml_file = "configz:dump_yaml_file"
+dump = "configz:dump"
 
 [project.optional-dependencies]
 all = ["jinja2", "tomli_w"]

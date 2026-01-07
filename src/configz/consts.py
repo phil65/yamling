@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from yamling.typedefs import SupportedFormats
+    from configz.typedefs import SupportedFormats
 
 
 FORMAT_MAPPING: dict[str, SupportedFormats] = {

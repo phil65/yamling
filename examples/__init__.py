@@ -1,1 +1,1 @@
-"""Examples demonstrating yamling features."""
+"""Examples demonstrating configz features."""

@@ -1,32 +1,32 @@
-# yamling
+# configz
 
-[![PyPI License](https://img.shields.io/pypi/l/yamling.svg)](https://pypi.org/project/yamling/)
-[![Package status](https://img.shields.io/pypi/status/yamling.svg)](https://pypi.org/project/yamling/)
-[![Monthly downloads](https://img.shields.io/pypi/dm/yamling.svg)](https://pypi.org/project/yamling/)
-[![Distribution format](https://img.shields.io/pypi/format/yamling.svg)](https://pypi.org/project/yamling/)
-[![Wheel availability](https://img.shields.io/pypi/wheel/yamling.svg)](https://pypi.org/project/yamling/)
-[![Python version](https://img.shields.io/pypi/pyversions/yamling.svg)](https://pypi.org/project/yamling/)
-[![Implementation](https://img.shields.io/pypi/implementation/yamling.svg)](https://pypi.org/project/yamling/)
-[![Releases](https://img.shields.io/github/downloads/phil65/yamling/total.svg)](https://github.com/phil65/yamling/releases)
-[![Github Contributors](https://img.shields.io/github/contributors/phil65/yamling)](https://github.com/phil65/yamling/graphs/contributors)
-[![Github Discussions](https://img.shields.io/github/discussions/phil65/yamling)](https://github.com/phil65/yamling/discussions)
-[![Github Forks](https://img.shields.io/github/forks/phil65/yamling)](https://github.com/phil65/yamling/forks)
-[![Github Issues](https://img.shields.io/github/issues/phil65/yamling)](https://github.com/phil65/yamling/issues)
-[![Github Issues](https://img.shields.io/github/issues-pr/phil65/yamling)](https://github.com/phil65/yamling/pulls)
-[![Github Watchers](https://img.shields.io/github/watchers/phil65/yamling)](https://github.com/phil65/yamling/watchers)
-[![Github Stars](https://img.shields.io/github/stars/phil65/yamling)](https://github.com/phil65/yamling/stars)
-[![Github Repository size](https://img.shields.io/github/repo-size/phil65/yamling)](https://github.com/phil65/yamling)
-[![Github last commit](https://img.shields.io/github/last-commit/phil65/yamling)](https://github.com/phil65/yamling/commits)
-[![Github release date](https://img.shields.io/github/release-date/phil65/yamling)](https://github.com/phil65/yamling/releases)
-[![Github language count](https://img.shields.io/github/languages/count/phil65/yamling)](https://github.com/phil65/yamling)
-[![Github commits this month](https://img.shields.io/github/commit-activity/m/phil65/yamling)](https://github.com/phil65/yamling)
-[![Package status](https://codecov.io/gh/phil65/yamling/branch/main/graph/badge.svg)](https://codecov.io/gh/phil65/yamling/)
-[![PyUp](https://pyup.io/repos/github/phil65/yamling/shield.svg)](https://pyup.io/repos/github/phil65/yamling/)
+[![PyPI License](https://img.shields.io/pypi/l/configz.svg)](https://pypi.org/project/configz/)
+[![Package status](https://img.shields.io/pypi/status/configz.svg)](https://pypi.org/project/configz/)
+[![Monthly downloads](https://img.shields.io/pypi/dm/configz.svg)](https://pypi.org/project/configz/)
+[![Distribution format](https://img.shields.io/pypi/format/configz.svg)](https://pypi.org/project/configz/)
+[![Wheel availability](https://img.shields.io/pypi/wheel/configz.svg)](https://pypi.org/project/configz/)
+[![Python version](https://img.shields.io/pypi/pyversions/configz.svg)](https://pypi.org/project/configz/)
+[![Implementation](https://img.shields.io/pypi/implementation/configz.svg)](https://pypi.org/project/configz/)
+[![Releases](https://img.shields.io/github/downloads/phil65/configz/total.svg)](https://github.com/phil65/configz/releases)
+[![Github Contributors](https://img.shields.io/github/contributors/phil65/configz)](https://github.com/phil65/configz/graphs/contributors)
+[![Github Discussions](https://img.shields.io/github/discussions/phil65/configz)](https://github.com/phil65/configz/discussions)
+[![Github Forks](https://img.shields.io/github/forks/phil65/configz)](https://github.com/phil65/configz/forks)
+[![Github Issues](https://img.shields.io/github/issues/phil65/configz)](https://github.com/phil65/configz/issues)
+[![Github Issues](https://img.shields.io/github/issues-pr/phil65/configz)](https://github.com/phil65/configz/pulls)
+[![Github Watchers](https://img.shields.io/github/watchers/phil65/configz)](https://github.com/phil65/configz/watchers)
+[![Github Stars](https://img.shields.io/github/stars/phil65/configz)](https://github.com/phil65/configz/stars)
+[![Github Repository size](https://img.shields.io/github/repo-size/phil65/configz)](https://github.com/phil65/configz)
+[![Github last commit](https://img.shields.io/github/last-commit/phil65/configz)](https://github.com/phil65/configz/commits)
+[![Github release date](https://img.shields.io/github/release-date/phil65/configz)](https://github.com/phil65/configz/releases)
+[![Github language count](https://img.shields.io/github/languages/count/phil65/configz)](https://github.com/phil65/configz)
+[![Github commits this month](https://img.shields.io/github/commit-activity/m/phil65/configz)](https://github.com/phil65/configz)
+[![Package status](https://codecov.io/gh/phil65/configz/branch/main/graph/badge.svg)](https://codecov.io/gh/phil65/configz/)
+[![PyUp](https://pyup.io/repos/github/phil65/configz/shield.svg)](https://pyup.io/repos/github/phil65/configz/)
 
-[Read the documentation!](https://phil65.github.io/yamling/)
+[Read the documentation!](https://phil65.github.io/configz/)
 
 
-Yamling is a YAML handling library that provides enhanced loading and dumping capabilities for YAML files. It builds upon [PyYAML](https://pyyaml.org/) to offer additional features like environment variable support, file inclusion, and Jinja2 template resolution.
+configz is a YAML handling library that provides enhanced loading and dumping capabilities for YAML files. It builds upon [PyYAML](https://pyyaml.org/) to offer additional features like environment variable support, file inclusion, and Jinja2 template resolution.
 Special mentions also to `pyyaml_env_tag` as well as `pyyaml-include`, this library exposes these YAML extensions with a unified interface.
 
 ## Loading YAML
@@ -36,7 +36,7 @@ Special mentions also to `pyyaml_env_tag` as well as `pyyaml-include`, this libr
 To load YAML content from a string:
 
 ```python
-from yamling import load_yaml
+from configz import load_yaml
 
 # Simple YAML loading
 data = load_yaml("""
@@ -48,7 +48,7 @@ age: 30
 To load from a file:
 
 ```python
-from yamling import load_yaml_file
+from configz import load_yaml_file
 
 # Load from local file
 config = load_yaml_file("config.yaml")
@@ -59,7 +59,7 @@ remote_config = load_yaml_file("s3://bucket/config.yaml")
 
 ### Safety Modes
 
-Yamling supports three safety modes when loading YAML:
+configz supports three safety modes when loading YAML:
 
 ```python
 # Safe mode - most restrictive, recommended for untrusted input
@@ -77,7 +77,7 @@ data = load_yaml(content, mode="unsafe")
 
 ### File Inclusion
 
-Yamling supports including other YAML files using the `!include` tag:
+configz supports including other YAML files using the `!include` tag:
 
 ```yaml
 # main.yaml
@@ -105,11 +105,11 @@ database:
 
 ### Template Resolution
 
-Yamling can resolve [Jinja2](https://jinja.palletsprojects.com/) templates in YAML:
+configz can resolve [Jinja2](https://jinja.palletsprojects.com/) templates in YAML:
 
 ```python
 from jinja2 import Environment
-import yamling
+import configz
 
 env = Environment()
 yaml_content = """
@@ -192,7 +192,7 @@ config = load_yaml_file("prod.yaml", resolve_inherit=True)
 To serialize Python objects to YAML:
 
 ```python
-from yamling import dump_yaml
+from configz import dump_yaml
 
 data = {
     "name": "John",
@@ -220,7 +220,7 @@ yaml_string = dump_yaml(data, class_mappings={OrderedDict: dict})
 For advanced use cases, you can create a custom loader:
 
 ```python
-from yamling import get_loader
+from configz import get_loader
 import yaml
 
 # Create custom loader with specific features
@@ -240,14 +240,14 @@ data = yaml.load(content, Loader=loader_cls)
 
 ## Custom Tag Handling
 
-Yamling provides a `YAMLParser` class for handling custom YAML tags. This allows you to define how specific tagged values should be processed during YAML loading.
+configz provides a `YAMLParser` class for handling custom YAML tags. This allows you to define how specific tagged values should be processed during YAML loading.
 
 ### Basic Tag Registration
 
 You can register tag handlers using either a decorator or explicit registration:
 
 ```python
-from yamling import YAMLParser
+from configz import YAMLParser
 
 # Create parser instance
 yaml_parser = YAMLParser()
@@ -289,7 +289,7 @@ you can use the `register_class` method. The method will automatically use the l
 as the tag name (following YAML tag conventions), but you can override this with a custom tag name:
 
 ```python
-from yamling import YAMLParser
+from configz import YAMLParser
 from dataclasses import dataclass
 
 @dataclass
@@ -347,7 +347,7 @@ messages:
 
 ### Combining with Other Features
 
-The `YAMLParser` class supports all of Yamling's standard features:
+The `YAMLParser` class supports all of configz's standard features:
 
 ```python
 data = yaml_parser.load_yaml_file(
@@ -372,29 +372,29 @@ print(tags)  # ['!person', '!uppercase']
 
 ## Universal load / dump interface
 
-Yamling provides a universal load function that can handle YAML, JSON, TOML, and INI files.
+configz provides a universal load function that can handle YAML, JSON, TOML, and INI files.
 Apart from yaml, only stdlib modules are used, so no additional dependencies are required.
 Here's a simple example:
 
 ```python
-import yamling
+import configz
 
 # Load files based on their extension
-config = yamling.load_file("config.yaml")    # YAML
-settings = yamling.load_file("settings.json") # JSON
-params = yamling.load_file("params.toml")    # TOML
+config = configz.load_file("config.yaml")    # YAML
+settings = configz.load_file("settings.json") # JSON
+params = configz.load_file("params.toml")    # TOML
 
 # Or explicitly specify the format
-data = yamling.load_file("config.txt", mode="yaml")
+data = configz.load_file("config.txt", mode="yaml")
 
 # Load directly from strings
 yaml_text = """
 name: John
 age: 30
 """
-data = yamling.load(yaml_text, mode="yaml")
+data = configz.load(yaml_text, mode="yaml")
 # same in other direction
-json_text = yamling.dump(data, mode="json")
+json_text = configz.dump(data, mode="json")
 yaml.dump_file("config.yaml", data)
 ```
 

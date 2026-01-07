@@ -1,4 +1,4 @@
-"""Logging configuration for yamling."""
+"""Logging configuration for configz."""
 
 from __future__ import annotations
 
@@ -13,13 +13,13 @@ def get_logger(name: str, log_level: LogLevel | None = None) -> logging.Logger:
 
     Args:
         name: The name of the logger.
-              Will be prefixed with 'yamling'
+              Will be prefixed with 'configz'
         log_level: The logging level to set for the logger
 
     Returns:
         A logger instance
     """
-    logger = logging.getLogger(f"yamling.{name}")
+    logger = logging.getLogger(f"configz.{name}")
     if log_level is not None:
         logger.setLevel(log_level)
     return logger

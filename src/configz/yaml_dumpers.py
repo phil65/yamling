@@ -6,15 +6,15 @@ import dataclasses
 import importlib.util
 from typing import TYPE_CHECKING, Any
 
-from yamling import exceptions, utils
-from yamling.exceptions import DumpingError
+from configz import exceptions, utils
+from configz.exceptions import DumpingError
 
 
 if TYPE_CHECKING:
     from upath.types import JoinablePathLike
     import yaml
 
-    from yamling import typedefs
+    from configz import typedefs
 
 
 def map_class_to_builtin_type(

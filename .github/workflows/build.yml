@@ -44,10 +44,10 @@ jobs:
           args: "format --check"
 
       - name: Static type checking (MyPy)
-        run: uv run --no-group docs mypy src/yamling/
+        run: uv run --no-group docs mypy src/configz/
 
       - name: Run tests
-        run: uv run --no-group docs pytest --cov-report=xml --cov=src/yamling/ --cov-report=term-missing
+        run: uv run --no-group docs pytest --cov-report=xml --cov=src/configz/ --cov-report=term-missing
 
       - name: Upload test results to Codecov
         uses: codecov/codecov-action@v5

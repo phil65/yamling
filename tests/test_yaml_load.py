@@ -8,8 +8,8 @@ import pytest
 import yaml
 import yaml_include
 
-import yamling
-from yamling import yaml_loaders
+import configz
+from configz import yaml_loaders
 
 
 if TYPE_CHECKING:
@@ -17,23 +17,23 @@ if TYPE_CHECKING:
 
 
 def test_basic_load():
-    assert yamling.load_yaml("foo: bar") == {"foo": "bar"}
-    assert yamling.load_yaml("[1, 2, 3]") == [1, 2, 3]
-    assert yamling.load_yaml("42") == 42  # noqa: PLR2004
+    assert configz.load_yaml("foo: bar") == {"foo": "bar"}
+    assert configz.load_yaml("[1, 2, 3]") == [1, 2, 3]
+    assert configz.load_yaml("42") == 42  # noqa: PLR2004
 
 
 def test_load_modes():
     yaml_str = "!!python/name:os.system"
-    with pytest.raises(yamling.YAMLError):  # Now catches YAMLError
-        yamling.load_yaml(yaml_str, mode="safe")
-    assert yamling.load_yaml(yaml_str, mode="unsafe") is os.system
+    with pytest.raises(configz.YAMLError):  # Now catches YAMLError
+        configz.load_yaml(yaml_str, mode="safe")
+    assert configz.load_yaml(yaml_str, mode="unsafe") is os.system
 
 
 def test_env_tag():
     os.environ["TEST_VAR"] = "42"
-    assert yamling.load_yaml("!ENV TEST_VAR") == 42  # noqa: PLR2004
-    assert yamling.load_yaml("!ENV [NONEXISTENT]") is None
-    assert yamling.load_yaml("!ENV [NONEXISTENT, 'default']") == "default"
+    assert configz.load_yaml("!ENV TEST_VAR") == 42  # noqa: PLR2004
+    assert configz.load_yaml("!ENV [NONEXISTENT]") is None
+    assert configz.load_yaml("!ENV [NONEXISTENT, 'default']") == "default"
 
 
 @pytest.fixture
@@ -46,18 +46,18 @@ def temp_yaml_file(tmp_path: pathlib.Path) -> pathlib.Path:
 
 def test_include_constructor(temp_yaml_file: pathlib.Path):
     yaml_str = f"!include {temp_yaml_file!s}"
-    result = yamling.load_yaml(yaml_str)
+    result = configz.load_yaml(yaml_str)
     assert result == {"test": "value"}
 
 
 def test_invalid_yaml():
-    with pytest.raises(yamling.YAMLError):
-        yamling.load_yaml("{invalid: yaml: content")
+    with pytest.raises(configz.YAMLError):
+        configz.load_yaml("{invalid: yaml: content")
 
 
 def test_empty_yaml():
-    assert yamling.load_yaml("") is None
-    assert yamling.load_yaml("   ") is None
+    assert configz.load_yaml("") is None
+    assert configz.load_yaml("   ") is None
 
 
 def test_safe_loader():
@@ -98,17 +98,17 @@ def test_load_yaml_with_include(tmp_path: pathlib.Path):
     include_file.write_text("included: true")
 
     yaml_str = f"!include {include_file!s}"
-    result = yamling.load_yaml(yaml_str, include_base_path=tmp_path)
+    result = configz.load_yaml(yaml_str, include_base_path=tmp_path)
     assert result == {"included": True}
 
 
 def test_load_yaml_with_modes():
     """Test load_yaml with different modes."""
     yaml_str = "!!python/name:os.system"
-    with pytest.raises(yamling.YAMLError):  # Now catches YAMLError
-        yamling.load_yaml(yaml_str, mode="safe")
+    with pytest.raises(configz.YAMLError):  # Now catches YAMLError
+        configz.load_yaml(yaml_str, mode="safe")
 
-    assert yamling.load_yaml(yaml_str, mode="unsafe") is os.system
+    assert configz.load_yaml(yaml_str, mode="unsafe") is os.system
 
 
 def test_load_yaml_accepts_textio():
@@ -120,7 +120,7 @@ def test_load_yaml_accepts_textio():
 
     # Create a StringIO object (TextIO wrapper)
     text_io = io.StringIO(yaml_content)
-    assert yamling.load_yaml(text_io)
+    assert configz.load_yaml(text_io)
 
 
 if __name__ == "__main__":

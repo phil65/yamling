@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, overload
 
-from yamling import yaml_loaders
+from configz import yaml_loaders
 
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     import yaml
     from yaml import Node
 
-    from yamling import typedefs
+    from configz import typedefs
 
 
 type HandlerFunc[T] = Callable[[Any], T]
