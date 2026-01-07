@@ -25,24 +25,34 @@ from configz.yamlparser import YAMLParser
 from configz.exceptions import DumpingError, ParsingError
 from configz.typedefs import SupportedFormats, FormatType, LoaderType
 from configz.yaml_errors import YAMLError
+from configz.json_tools import load_json, JsonLoadError, dump_json, JsonDumpError
+from configz.toml_tools import load_toml, TomlLoadError, dump_toml, TomlDumpError
 
 
 __all__ = [
     "DumpingError",
     "FormatType",
+    "JsonDumpError",
+    "JsonLoadError",
     "LoaderType",
     "ParsingError",
     "SupportedFormats",
+    "TomlDumpError",
+    "TomlLoadError",
     "YAMLError",
     "YAMLInput",
     "YAMLParser",
     "__version__",
     "dump",
     "dump_file",
+    "dump_json",
+    "dump_toml",
     "dump_yaml",
     "get_loader",
     "load",
     "load_file",
+    "load_json",
+    "load_toml",
     "load_yaml",
     "load_yaml_file",
 ]
