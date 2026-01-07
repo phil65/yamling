@@ -398,5 +398,36 @@ json_text = configz.dump(data, mode="json")
 yaml.dump_file("config.yaml", data)
 ```
 
+
+## JSON Tools
+
+Cross-platform JSON handling that works in all environments:
+
+```python
+from anyenv import load_json, dump_json, JsonLoadError, JsonDumpError
+
+# Load JSON from various sources
+data = load_json('{"key": "value"}')  # From string
+data = load_json(Path("config.json"))  # From file
+data = load_json(b'{"key": "value"}')  # From bytes
+
+# Dump JSON to various targets
+json_str = dump_json(data)  # To string
+dump_json(data, Path("output.json"))  # To file
+json_bytes = dump_json(data, return_bytes=True)  # To bytes
+
+# Error handling
+try:
+    data = load_json('invalid json')
+except JsonLoadError as e:
+    print(f"Failed to parse JSON: {e}")
+
+try:
+    dump_json(set())  # Sets aren't JSON serializable
+except JsonDumpError as e:
+    print(f"Failed to serialize: {e}")
+```
+
+
 > **Note**
 > If [orjson](https://github.com/ijl/orjson) is installed, the loader will automatically use it for JSON parsing / dumping, offering significantly better performance compared to the standard `json` module.
