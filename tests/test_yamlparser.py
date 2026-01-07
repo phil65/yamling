@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from configz.yamlparser import YAMLParser
 import pytest
 
 from configz import YAMLError
+from configz.yaml_tools.yamlparser import YAMLParser
 
 
 if TYPE_CHECKING:

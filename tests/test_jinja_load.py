@@ -1,13 +1,13 @@
 import os
 from textwrap import dedent
 
-from configz.yaml_loaders import load_yaml, load_yaml_file
 import fsspec
 import jinja2
 import pytest
 import yaml
 
 from configz import YAMLError
+from configz.yaml_tools.yaml_loaders import load_yaml, load_yaml_file
 
 
 # Test Constants

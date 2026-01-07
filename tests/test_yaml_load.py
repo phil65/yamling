@@ -9,7 +9,7 @@ import yaml
 import yaml_include
 
 import configz
-from configz import yaml_loaders
+from configz.yaml_tools import yaml_loaders
 
 
 if TYPE_CHECKING:

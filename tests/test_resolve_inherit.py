@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 import fsspec
 import pytest
 
-from configz import yaml_loaders
+from configz.yaml_tools import yaml_loaders
 
 
 if TYPE_CHECKING:

@@ -13,8 +13,9 @@ This module tests the YAML loading capabilities including:
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from configz.yaml_loaders import load_yaml_file
 import pytest
+
+from configz.yaml_tools.yaml_loaders import load_yaml_file
 
 
 if TYPE_CHECKING:
