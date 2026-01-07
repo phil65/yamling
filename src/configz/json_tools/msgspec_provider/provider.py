@@ -6,8 +6,8 @@ from io import TextIOWrapper
 import re
 from typing import Any
 
-from anyenv.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
-from anyenv.json_tools.utils import handle_datetimes, prepare_numpy_arrays
+from configz.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
+from configz.json_tools.utils import handle_datetimes, prepare_numpy_arrays
 
 
 def _extract_msgspec_error_info(exc: Exception, source: str) -> tuple[str, int | None, int | None]:

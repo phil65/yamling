@@ -5,7 +5,7 @@ from __future__ import annotations
 from io import TextIOWrapper
 from typing import Any
 
-from anyenv.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
+from configz.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
 
 
 class OrJsonProvider(JsonProviderBase):

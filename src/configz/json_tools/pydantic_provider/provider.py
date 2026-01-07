@@ -6,9 +6,9 @@ from io import TextIOWrapper
 import logging
 from typing import Any
 
-from anyenv.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
-from anyenv.json_tools.stdlib_provider.provider import StdLibProvider
-from anyenv.json_tools.utils import handle_datetimes, prepare_numpy_arrays
+from configz.json_tools.base import JsonDumpError, JsonLoadError, JsonProviderBase
+from configz.json_tools.stdlib_provider.provider import StdLibProvider
+from configz.json_tools.utils import handle_datetimes, prepare_numpy_arrays
 
 
 logger = logging.getLogger(__name__)
