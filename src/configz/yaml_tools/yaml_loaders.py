@@ -11,7 +11,7 @@ from upathtools import to_upath
 import yaml
 
 from configz import deepmerge, utils, verify
-from configz.constructors import variable
+from configz.yaml_tools.constructors import variable
 
 
 if TYPE_CHECKING:
