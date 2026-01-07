@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 from typing import TYPE_CHECKING, Any
 
-from anyenv.parse_errors import ParseErrorInfo
+from configz.parse_errors import ParseErrorInfo
 
 
 if TYPE_CHECKING:
