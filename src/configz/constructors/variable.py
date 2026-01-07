@@ -40,8 +40,6 @@ class ConfigConstructor(Constructor):
 
 
 if __name__ == "__main__":
-    import anyenv
-
     import configz
 
     text = """
@@ -51,4 +49,4 @@ llm_settings:
 """
     variables = {"temperature": 0.5, "max_tokens": 50}
     dct = configz.load_yaml(text, variables=variables)
-    print(anyenv.dump_json(dct))
+    print(configz.dump_json(dct))

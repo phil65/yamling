@@ -29,7 +29,6 @@ classifiers = [
 dependencies = [
   # Only add below (Copier)
   "PyYAML >=5.1",
-  "anyenv>=0.4.7",
   "fsspec",
   "pydantic",
   "pyyaml-include",

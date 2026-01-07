@@ -196,11 +196,11 @@ def load[T](
                 raise exceptions.ParsingError(msg, e) from e
 
         case "json":
-            import anyenv
+            import configz
 
             try:
-                data = anyenv.load_json(text, **kwargs)
-            except anyenv.JsonLoadError as e:
+                data = configz.load_json(text, **kwargs)
+            except configz.JsonLoadError as e:
                 logger.exception("Failed to load JSON data with json")
                 msg = f"Failed to parse JSON data: {e}"
                 raise exceptions.ParsingError(msg, e) from e

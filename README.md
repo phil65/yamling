@@ -404,7 +404,7 @@ yaml.dump_file("config.yaml", data)
 Cross-platform JSON handling that works in all environments:
 
 ```python
-from anyenv import load_json, dump_json, JsonLoadError, JsonDumpError
+from configz import load_json, dump_json, JsonLoadError, JsonDumpError
 
 # Load JSON from various sources
 data = load_json('{"key": "value"}')  # From string

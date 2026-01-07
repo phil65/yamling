@@ -66,11 +66,11 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
                 raise exceptions.DumpingError(msg, e) from e
 
         case "json":
-            import anyenv
+            import configz
 
             try:
-                return anyenv.dump_json(data, indent=True, **kwargs)
-            except anyenv.JsonDumpError as e:
+                return configz.dump_json(data, indent=True, **kwargs)
+            except configz.JsonDumpError as e:
                 logger.exception("Failed to dump JSON data with json")
                 msg = f"Failed to dump data to JSON: {e}"
                 raise exceptions.DumpingError(msg, e) from e
