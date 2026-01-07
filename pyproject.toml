@@ -58,7 +58,11 @@ dump = "yamling:dump"
 all = ["jinja2", "tomli_w"]
 exceptions = ["rich"]
 jinja2 = ["jinja2"]
+msgspec = ["msgspec"]
+pytomlpp = ["pytomlpp; python_version < '3.14'"]
+rtoml = ["rtoml"]
 toml = ["tomli_w"]
+toml-rs = ["toml-rs"]
 toon = ["python-toon"]
 
 [dependency-groups]
