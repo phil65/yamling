@@ -9,7 +9,7 @@ from typing import Any
 
 from upath import UPath
 
-from anyenv.toml_tools.base import TomlDumpError, TomlLoadError, TomlProviderBase
+from configz.toml_tools.base import TomlDumpError, TomlLoadError, TomlProviderBase
 
 
 def _extract_tomllib_error_info(
@@ -74,7 +74,7 @@ class TomlLibProvider(TomlProviderBase):
             source_path: str | Path | None = (
                 str(data) if isinstance(data, UPath) else (data if isinstance(data, Path) else None)
             )
-            raise TomlLoadError(  # noqa: TRY003
+            raise TomlLoadError(
                 f"Invalid TOML: {msg}",
                 line=line,
                 column=column,

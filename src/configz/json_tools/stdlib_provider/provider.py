@@ -30,7 +30,7 @@ class StdLibProvider(JsonProviderBase):
                     source_content = data
             return json.loads(data)
         except json.JSONDecodeError as exc:
-            raise JsonLoadError(  # noqa: TRY003
+            raise JsonLoadError(
                 f"Invalid JSON: {exc.msg}",
                 line=exc.lineno,
                 column=exc.colno,

@@ -9,30 +9,30 @@ from __future__ import annotations
 import importlib.util
 from typing import Any, Literal, TYPE_CHECKING
 
-from anyenv.json_tools.base import JsonDumpError, JsonLoadError
+from configz.json_tools.base import JsonDumpError, JsonLoadError
 from anyenv.parse_errors import ParseErrorInfo
 
 if TYPE_CHECKING:
-    from anyenv.json_tools.base import JsonProviderBase
+    from configz.json_tools.base import JsonProviderBase
     from io import TextIOWrapper
 
 # Determine the best available provider
 _provider: type[JsonProviderBase]
 
 if importlib.util.find_spec("orjson") is not None:
-    from anyenv.json_tools.orjson_provider.provider import OrJsonProvider
+    from configz.json_tools.orjson_provider.provider import OrJsonProvider
 
     _provider = OrJsonProvider
 elif importlib.util.find_spec("pydantic_core") is not None:
-    from anyenv.json_tools.pydantic_provider.provider import PydanticProvider
+    from configz.json_tools.pydantic_provider.provider import PydanticProvider
 
     _provider = PydanticProvider
 elif importlib.util.find_spec("msgspec") is not None:
-    from anyenv.json_tools.msgspec_provider.provider import MsgSpecProvider
+    from configz.json_tools.msgspec_provider.provider import MsgSpecProvider
 
     _provider = MsgSpecProvider
 else:
-    from anyenv.json_tools.stdlib_provider.provider import StdLibProvider
+    from configz.json_tools.stdlib_provider.provider import StdLibProvider
 
     _provider = StdLibProvider
 
@@ -57,7 +57,7 @@ def get_json_provider(backend: BackendType = "auto") -> type[JsonProviderBase]:
 
     if backend == "orjson":
         if importlib.util.find_spec("orjson") is not None:
-            from anyenv.json_tools.orjson_provider.provider import OrJsonProvider
+            from configz.json_tools.orjson_provider.provider import OrJsonProvider
 
             return OrJsonProvider
         msg = "orjson backend requested but not installed"
@@ -65,7 +65,7 @@ def get_json_provider(backend: BackendType = "auto") -> type[JsonProviderBase]:
 
     if backend == "pydantic":
         if importlib.util.find_spec("pydantic_core") is not None:
-            from anyenv.json_tools.pydantic_provider.provider import PydanticProvider
+            from configz.json_tools.pydantic_provider.provider import PydanticProvider
 
             return PydanticProvider
         msg = "pydantic backend requested but pydantic_core not installed"
@@ -73,14 +73,14 @@ def get_json_provider(backend: BackendType = "auto") -> type[JsonProviderBase]:
 
     if backend == "msgspec":
         if importlib.util.find_spec("msgspec") is not None:
-            from anyenv.json_tools.msgspec_provider.provider import MsgSpecProvider
+            from configz.json_tools.msgspec_provider.provider import MsgSpecProvider
 
             return MsgSpecProvider
         msg = "msgspec backend requested but not installed"
         raise ImportError(msg)
 
     if backend == "stdlib":
-        from anyenv.json_tools.stdlib_provider.provider import StdLibProvider
+        from configz.json_tools.stdlib_provider.provider import StdLibProvider
 
         return StdLibProvider
 

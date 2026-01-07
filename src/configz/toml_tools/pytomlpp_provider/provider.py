@@ -9,7 +9,7 @@ from typing import Any
 
 from upath import UPath
 
-from anyenv.toml_tools.base import TomlDumpError, TomlLoadError, TomlProviderBase
+from configz.toml_tools.base import TomlDumpError, TomlLoadError, TomlProviderBase
 
 
 def _extract_pytomlpp_error_info(exc: Exception) -> tuple[str, int | None, int | None]:
@@ -65,7 +65,7 @@ class PytomlppProvider(TomlProviderBase):
                     return pytomlpp.loads(data)
         except Exception as exc:
             msg, line, column = _extract_pytomlpp_error_info(exc)
-            raise TomlLoadError(  # noqa: TRY003
+            raise TomlLoadError(
                 f"Invalid TOML: {msg}",
                 line=line,
                 column=column,

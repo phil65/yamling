@@ -9,11 +9,11 @@ from __future__ import annotations
 import importlib.util
 from typing import Any, Literal, TYPE_CHECKING
 
-from anyenv.toml_tools.base import TomlDumpError, TomlLoadError
+from configz.toml_tools.base import TomlDumpError, TomlLoadError
 from anyenv.parse_errors import ParseErrorInfo
 
 if TYPE_CHECKING:
-    from anyenv.toml_tools.base import TomlProviderBase
+    from configz.toml_tools.base import TomlProviderBase
     from io import TextIOWrapper
     from pathlib import Path
 
@@ -21,19 +21,19 @@ if TYPE_CHECKING:
 _provider: type[TomlProviderBase]
 
 if importlib.util.find_spec("toml_rs") is not None:
-    from anyenv.toml_tools.toml_rs_provider.provider import TomlRsProvider
+    from configz.toml_tools.toml_rs_provider.provider import TomlRsProvider
 
     _provider = TomlRsProvider
 elif importlib.util.find_spec("rtoml") is not None:
-    from anyenv.toml_tools.rtoml_provider.provider import RtomlProvider
+    from configz.toml_tools.rtoml_provider.provider import RtomlProvider
 
     _provider = RtomlProvider
 elif importlib.util.find_spec("pytomlpp") is not None:
-    from anyenv.toml_tools.pytomlpp_provider.provider import PytomlppProvider
+    from configz.toml_tools.pytomlpp_provider.provider import PytomlppProvider
 
     _provider = PytomlppProvider
 else:
-    from anyenv.toml_tools.tomllib_provider.provider import TomlLibProvider
+    from configz.toml_tools.tomllib_provider.provider import TomlLibProvider
 
     _provider = TomlLibProvider
 
@@ -58,7 +58,7 @@ def get_toml_provider(backend: BackendType = "auto") -> type[TomlProviderBase]:
 
     if backend == "toml_rs":
         if importlib.util.find_spec("toml_rs") is not None:
-            from anyenv.toml_tools.toml_rs_provider.provider import TomlRsProvider
+            from configz.toml_tools.toml_rs_provider.provider import TomlRsProvider
 
             return TomlRsProvider
         msg = "toml_rs backend requested but not installed"
@@ -66,7 +66,7 @@ def get_toml_provider(backend: BackendType = "auto") -> type[TomlProviderBase]:
 
     if backend == "rtoml":
         if importlib.util.find_spec("rtoml") is not None:
-            from anyenv.toml_tools.rtoml_provider.provider import RtomlProvider
+            from configz.toml_tools.rtoml_provider.provider import RtomlProvider
 
             return RtomlProvider
         msg = "rtoml backend requested but not installed"
@@ -74,14 +74,14 @@ def get_toml_provider(backend: BackendType = "auto") -> type[TomlProviderBase]:
 
     if backend == "pytomlpp":
         if importlib.util.find_spec("pytomlpp") is not None:
-            from anyenv.toml_tools.pytomlpp_provider.provider import PytomlppProvider
+            from configz.toml_tools.pytomlpp_provider.provider import PytomlppProvider
 
             return PytomlppProvider
         msg = "pytomlpp backend requested but not installed"
         raise ImportError(msg)
 
     if backend == "tomllib":
-        from anyenv.toml_tools.tomllib_provider.provider import TomlLibProvider
+        from configz.toml_tools.tomllib_provider.provider import TomlLibProvider
 
         return TomlLibProvider
 

@@ -52,7 +52,7 @@ class MsgSpecProvider(JsonProviderBase):
             return msgspec.json.decode(data)
         except msgspec.DecodeError as exc:
             msg, line, column = _extract_msgspec_error_info(exc, source_content or "")
-            raise JsonLoadError(  # noqa: TRY003
+            raise JsonLoadError(
                 f"Invalid JSON: {msg}",
                 line=line,
                 column=column,

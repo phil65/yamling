@@ -8,7 +8,7 @@ from typing import Any
 
 from upath import UPath
 
-from anyenv.toml_tools.base import TomlLoadError, TomlProviderBase
+from configz.toml_tools.base import TomlLoadError, TomlProviderBase
 
 
 class TomlRsProvider(TomlProviderBase):
@@ -40,7 +40,7 @@ class TomlRsProvider(TomlProviderBase):
                     source_content = data
                     return toml_rs.loads(data)
         except toml_rs.TOMLDecodeError as exc:
-            raise TomlLoadError(  # noqa: TRY003
+            raise TomlLoadError(
                 f"Invalid TOML: {exc.msg}",
                 line=exc.lineno,
                 column=exc.colno,

@@ -55,7 +55,7 @@ class PydanticProvider(JsonProviderBase):
             return from_json(data)
         except Exception as exc:
             msg, line, column = _extract_pydantic_error_info(exc)
-            raise JsonLoadError(  # noqa: TRY003
+            raise JsonLoadError(
                 f"Invalid JSON: {msg}",
                 line=line,
                 column=column,
