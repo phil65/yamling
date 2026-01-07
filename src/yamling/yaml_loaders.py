@@ -260,25 +260,63 @@ def _resolve_inherit[T](
     jinja_env: jinja2.Environment | None,
     enable_env: bool = True,
     variables: dict[str, Any] | None = None,
+    inherit_from: list[str] | str | None = None,
 ) -> T:
-    """Resolve INHERIT directive in YAML data."""
-    if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
+    """Resolve INHERIT directive in YAML data.
+
+    Args:
+        data: The loaded YAML data
+        base_dir: Directory to resolve inherited paths from
+        mode: YAML loader mode
+        include_base_path: Base path for !include resolution
+        resolve_strings: Whether to resolve Jinja2 template strings
+        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
+        jinja_env: Optional Jinja2 environment
+        enable_env: Whether to enable !ENV tag
+        variables: Variables for !var tag resolution
+        inherit_from: Additional paths to inherit from. These form the base layer,
+                      meaning explicit INHERIT directives in the file take precedence.
+
+    Returns:
+        Merged configuration data
+    """
+    import upath
+
+    if not isinstance(data, dict) or base_dir is None:
         return data
 
-    parent_path = data.pop("INHERIT")
-    if not parent_path:
+    parent_path = data.pop("INHERIT", None)
+
+    # Build combined inheritance chain: inherit_from is base, INHERIT has priority
+    file_paths: list[str] = []
+
+    # Add inherit_from first (processed last = true base layer)
+    if inherit_from:
+        if isinstance(inherit_from, str):
+            file_paths.append(inherit_from)
+        else:
+            file_paths.extend(inherit_from)
+
+    # Add explicit INHERIT paths (higher priority, processed earlier)
+    if parent_path:
+        if isinstance(parent_path, str):
+            file_paths.append(parent_path)
+        else:
+            file_paths.extend(parent_path)
+
+    if not file_paths:
         return data
 
     from upathtools import to_upath
 
     base_dir = to_upath(base_dir)
-    # Convert string to list for uniform handling
-    file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
     context = deepmerge.DeepMerger()
 
     # Process inheritance in reverse order (last file is base configuration)
     for p_path in reversed(file_paths):
-        parent_cfg = base_dir / p_path
+        # Handle absolute vs relative paths
+        p_upath = upath.UPath(p_path)
+        parent_cfg = p_upath if p_upath.is_absolute() else base_dir / p_path
         logger.debug("Loading parent configuration file %r relative to %r", parent_cfg, base_dir)
         parent_data = load_yaml_file(
             parent_cfg,
@@ -453,6 +491,7 @@ def load_yaml_file(
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
     enable_env: bool = True,
+    inherit_from: list[str] | str | None = None,
 ) -> Any: ...
 
 
@@ -470,6 +509,7 @@ def load_yaml_file[T](
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T],
     enable_env: bool = True,
+    inherit_from: list[str] | str | None = None,
 ) -> T: ...
 
 
@@ -486,6 +526,7 @@ def load_yaml_file[T](
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
     enable_env: bool = True,
+    inherit_from: list[str] | str | None = None,
 ) -> Any | T:
     """Load a YAML file with specified options.
 
@@ -504,6 +545,8 @@ def load_yaml_file[T](
         storage_options: Additional keywords to pass to fsspec backend
         verify_type: Type to verify and cast the output to (supports TypedDict)
         enable_env: Whether to enable the !ENV tag
+        inherit_from: Additional paths to inherit from. These form the base layer,
+                      meaning explicit INHERIT directives in the file take precedence.
 
 
     Returns:
@@ -546,7 +589,7 @@ def load_yaml_file[T](
             enable_env=enable_env,
         )
 
-        if resolve_inherit:
+        if resolve_inherit or inherit_from:
             data = _resolve_inherit(
                 data,
                 path_obj.parent,  # Pass the parent directory directly
@@ -557,6 +600,7 @@ def load_yaml_file[T](
                 jinja_env=jinja_env,
                 enable_env=enable_env,
                 variables=variables,
+                inherit_from=inherit_from,
             )
     except yaml.YAMLError as e:
         logger.exception("Failed to load YAML file %r", path)

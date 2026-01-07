@@ -24,6 +24,7 @@ def _resolve_inherit(
     data: Any,
     base_dir: JoinablePathLike | None,
     mode: typedefs.SupportedFormats,
+    inherit_from: list[str] | str | None = None,
 ) -> Any:
     """Resolve INHERIT directive in YAML data.
 
@@ -31,26 +32,44 @@ def _resolve_inherit(
         data: The loaded YAML data
         base_dir: Directory to resolve inherited paths from
         mode: YAML loader mode or YAML loader class
-        include_base_path: Base path for !include resolution
-        jinja_env: Optional Jinja2 environment
+        inherit_from: Additional paths to inherit from. These form the base layer,
+                      meaning explicit INHERIT directives in the file take precedence.
 
     Returns:
         Merged configuration data
     """
-    if not isinstance(data, dict) or "INHERIT" not in data or base_dir is None:
+    if not isinstance(data, dict) or base_dir is None:
         return data
 
-    parent_path = data.pop("INHERIT")
-    if not parent_path:
+    parent_path = data.pop("INHERIT", None)
+
+    # Build combined inheritance chain: inherit_from is base, INHERIT has priority
+    file_paths: list[str] = []
+
+    # Add inherit_from first (processed last = true base layer)
+    if inherit_from:
+        if isinstance(inherit_from, str):
+            file_paths.append(inherit_from)
+        else:
+            file_paths.extend(inherit_from)
+
+    # Add explicit INHERIT paths (higher priority, processed earlier)
+    if parent_path:
+        if isinstance(parent_path, str):
+            file_paths.append(parent_path)
+        else:
+            file_paths.extend(parent_path)
+
+    if not file_paths:
         return data
 
     base_dir = to_upath(base_dir)
-    # Convert string to list for uniform handling
-    file_paths = [parent_path] if isinstance(parent_path, str) else parent_path
     context = deepmerge.DeepMerger()
     # Process inheritance in reverse order (last file is base configuration)
     for p_path in reversed(file_paths):
-        parent_cfg = base_dir / p_path
+        parent_cfg = (
+            base_dir / p_path if not upath.UPath(p_path).is_absolute() else upath.UPath(p_path)
+        )
         logger.debug("Loading parent configuration file %r relative to %r", parent_cfg, base_dir)
         parent_data = load_file(parent_cfg, mode=mode, resolve_inherit=True)
         data = context.merge(data, parent_data)
@@ -92,6 +111,7 @@ def load(
     verify_type: None = None,
     resolve_inherit: bool | JoinablePathLike = False,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
     **kwargs: Any,
 ) -> Any: ...
 
@@ -103,6 +123,7 @@ def load[T](
     verify_type: type[T],
     resolve_inherit: bool | JoinablePathLike = False,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
     **kwargs: Any,
 ) -> T: ...
 
@@ -113,6 +134,7 @@ def load[T](
     verify_type: type[T] | None = None,
     resolve_inherit: bool | JoinablePathLike = False,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
     **kwargs: Any,
 ) -> Any | T:
     """Load data from a string in the specified format.
@@ -123,6 +145,8 @@ def load[T](
         verify_type: Type to verify and cast the output to (supports TypedDict)
         resolve_inherit: Whether to resolve inheritance in the loaded data
         resolve_env_vars: Whether to resolve {env:VAR_NAME} or {env:VAR_NAME:default} patterns
+        inherit_from: Additional paths to inherit from. These form the base layer,
+                      meaning explicit INHERIT directives in the file take precedence.
         **kwargs: Additional keyword arguments passed to the underlying load functions
 
     Returns:
@@ -202,15 +226,15 @@ def load[T](
     if resolve_env_vars:
         data = _resolve_env_vars(data)
 
-    if resolve_inherit:
+    if resolve_inherit or inherit_from:
         if hasattr(text, "name"):
             base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
         elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
             base_dir = to_upath(resolve_inherit)
         else:
             base_dir = None
-        if base_dir:
-            data = _resolve_inherit(data, base_dir, mode=mode)
+        if base_dir or inherit_from:
+            data = _resolve_inherit(data, base_dir, mode=mode, inherit_from=inherit_from)
 
     if verify_type is not None:
         try:
@@ -230,6 +254,7 @@ def load_file(
     verify_type: None = None,
     resolve_inherit: bool = True,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
 ) -> Any: ...
 
 
@@ -242,6 +267,7 @@ def load_file[T](
     verify_type: type[T],
     resolve_inherit: bool = True,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
 ) -> T: ...
 
 
@@ -253,6 +279,7 @@ def load_file[T](
     verify_type: type[T] | None = None,
     resolve_inherit: bool = True,
     resolve_env_vars: bool = False,
+    inherit_from: list[str] | str | None = None,
 ) -> Any | T:
     """Load data from a file, automatically detecting the format from extension if needed.
 
@@ -263,6 +290,8 @@ def load_file[T](
         verify_type: Type to verify and cast the output to (supports TypedDict)
         resolve_inherit: Whether to resolve inheritance in the loaded data
         resolve_env_vars: Whether to resolve {env:VAR_NAME} or {env:VAR_NAME:default} patterns
+        inherit_from: Additional paths to inherit from. These form the base layer,
+                      meaning explicit INHERIT directives in the file take precedence.
 
     Returns:
         Parsed data structure, typed according to verify_type if provided
@@ -318,8 +347,8 @@ def load_file[T](
     try:
         text = path_obj.read_text(encoding="utf-8")
         data = load(text, mode, verify_type=verify_type, resolve_env_vars=resolve_env_vars)
-        if resolve_inherit:
-            data = _resolve_inherit(data, path_obj.parent, mode=mode)
+        if resolve_inherit or inherit_from:
+            data = _resolve_inherit(data, path_obj.parent, mode=mode, inherit_from=inherit_from)
     except (OSError, FileNotFoundError, PermissionError) as e:
         logger.exception("Failed to read file %r", path)
         msg = f"Failed to read file {path}: {e!s}"
