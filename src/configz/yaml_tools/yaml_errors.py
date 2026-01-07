@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from io import StringIO
-from pathlib import Path
 import sys
 from typing import TYPE_CHECKING
 
+from upath import UPath
 import yaml
 
 
@@ -26,7 +26,7 @@ class YAMLError(yaml.YAMLError):
     def __init__(
         self,
         original_error: yaml.YAMLError,
-        doc_path: str | Path | None = None,
+        doc_path: str | UPath | None = None,
         context_lines: int = 3,
         extra_help: Iterable[str] | str | None = None,
     ) -> None:
@@ -122,7 +122,7 @@ class YAMLError(yaml.YAMLError):
             Text("  ")
             + Text("-->", style=arrow_color)
             + Text(
-                f" {Path(self.doc_path or '<string>').resolve()}:{line_number}:{column_number}",
+                f" {UPath(self.doc_path or '<string>').resolve()}:{line_number}:{column_number}",
                 style="white",
             )
         )
