@@ -176,7 +176,7 @@ def load[T](
         case "yaml":
             from yaml import YAMLError
 
-            from configz.yaml_loaders import load_yaml
+            from configz.yaml_tools.yaml_loaders import load_yaml
 
             try:
                 data = load_yaml(text, **kwargs)

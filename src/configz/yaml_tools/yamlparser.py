@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, overload
 
-from configz import yaml_loaders
+from configz.yaml_tools import yaml_loaders
 
 
 if TYPE_CHECKING:

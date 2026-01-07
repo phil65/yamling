@@ -460,7 +460,7 @@ def load_yaml[T](
                 )
     except yaml.YAMLError as e:
         logger.exception("Failed to load YAML: \n%s", text)
-        from configz.yaml_errors import YAMLError
+        from configz.yaml_tools.yaml_errors import YAMLError
 
         doc_path = getattr(text, "name", None) if hasattr(text, "name") else None
         raise YAMLError(e, doc_path=doc_path) from e
@@ -570,11 +570,12 @@ def load_yaml_file[T](
         )
         ```
     """
-    try:
-        import upath
+    import upath
 
-        p = os.fspath(path) if isinstance(path, os.PathLike) else path
-        path_obj = upath.UPath(p, **storage_options or {}).resolve()
+    p = os.fspath(path) if isinstance(path, os.PathLike) else path
+    path_obj = upath.UPath(p, **storage_options or {}).resolve()
+
+    try:
         text = path_obj.read_text("utf-8")
 
         data = load_yaml(
@@ -604,7 +605,7 @@ def load_yaml_file[T](
             )
     except yaml.YAMLError as e:
         logger.exception("Failed to load YAML file %r", path)
-        from configz.yaml_errors import YAMLError
+        from configz.yaml_tools.yaml_errors import YAMLError
 
         raise YAMLError(e, doc_path=path_obj) from e
     except OSError:
