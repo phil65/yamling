@@ -58,6 +58,7 @@ all = ["jinja2", "tomli_w"]
 exceptions = ["rich"]
 jinja2 = ["jinja2"]
 msgspec = ["msgspec"]
+orjson = ["orjson"]
 pytomlpp = ["pytomlpp; python_version < '3.14'"]
 rtoml = ["rtoml"]
 toml = ["tomli_w"]
@@ -118,6 +119,11 @@ check_untyped_defs = true
 strict = true
 exclude = ["venv/", ".venv/", "tests/"]
 plugins = []
+
+[[tool.mypy.overrides]]
+# No pytomlpp release supports Python 3.14+, so it is only installed below that.
+module = ["pytomlpp"]
+ignore_missing_imports = true
 
 [tool.pyright]
 venvPath = "."

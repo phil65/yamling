@@ -80,7 +80,9 @@ class PytomlppProvider(TomlProviderBase):
 
         try:
             # pytomlpp doesn't have a pretty option, it always formats nicely
-            return pytomlpp.dumps(data)
+            result: str = pytomlpp.dumps(data)
         except Exception as exc:
             error_msg = f"Cannot serialize to TOML: {exc}"
             raise TomlDumpError(error_msg) from exc
+        else:
+            return result
