@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import importlib.util
 from typing import Any
 
@@ -16,7 +16,7 @@ def handle_datetimes(data: Any, naive_utc: bool) -> Any:
 
     # Define a recursive conversion function
     def _convert(obj: Any) -> Any:
-        if isinstance(obj, datetime.datetime):
+        if isinstance(obj, dt.datetime):
             # Check if it's a naive datetime (no tzinfo)
             if obj.tzinfo is None:
                 if not naive_utc:
@@ -26,7 +26,7 @@ def handle_datetimes(data: Any, naive_utc: bool) -> Any:
                     )
                     raise ValueError(msg)
                 # Interpret as UTC without changing the actual time
-                return obj.replace(tzinfo=datetime.UTC)
+                return obj.replace(tzinfo=dt.UTC)
 
         # Handle nested dictionaries
         elif isinstance(obj, dict):

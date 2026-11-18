@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 from io import TextIOWrapper
 import json
 from typing import Any
@@ -58,7 +58,7 @@ class StdLibProvider(JsonProviderBase):
             # So we need a custom encoder
             class CustomEncoder(json.JSONEncoder):
                 def default(self, o: Any) -> Any:
-                    if isinstance(o, datetime.datetime):
+                    if isinstance(o, dt.datetime):
                         return o.isoformat()
                     return super().default(o)
 
