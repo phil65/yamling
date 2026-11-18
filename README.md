@@ -116,11 +116,7 @@ yaml_content = """
 message: "Hello {{ name }}!"
 """
 
-data = load_yaml(
-    yaml_content,
-    resolve_strings=True,
-    jinja_env=env
-)
+data = load_yaml(yaml_content, resolve_strings=True, jinja_env=env)
 ```
 
 ### Inheritance
@@ -194,11 +190,7 @@ To serialize Python objects to YAML:
 ```python
 from yamling import dump_yaml
 
-data = {
-    "name": "John",
-    "scores": [1, 2, 3],
-    "active": True
-}
+data = {"name": "John", "scores": [1, 2, 3], "active": True}
 
 yaml_string = dump_yaml(data)
 ```
@@ -231,7 +223,7 @@ loader_cls = get_loader(
     enable_env=True,
     resolve_strings=True,
     jinja_env=jinja_env,
-    type_converters={int: str}
+    type_converters={int: str},
 )
 
 # Use custom loader
@@ -252,9 +244,11 @@ from yamling import YAMLParser
 # Create parser instance
 yaml_parser = YAMLParser()
 
+
 # register handler
 def handle_uppercase(data: str) -> str:
     return data.upper()
+
 
 yaml_parser.register_handler("uppercase", handle_uppercase)
 ```
@@ -292,15 +286,18 @@ as the tag name (following YAML tag conventions), but you can override this with
 from yamling import YAMLParser
 from dataclasses import dataclass
 
+
 @dataclass
 class Person:
     name: str
     age: int
 
+
 @dataclass
 class HomeAddress:
     street: str
     city: str
+
 
 yaml_parser = YAMLParser()
 
@@ -320,8 +317,8 @@ home: !address
   city: New York
 """)
 
-print(data["user"])    # Person(name='John Doe', age=30)
-print(data["home"])    # HomeAddress(street='123 Main St', city='New York')
+print(data["user"])  # Person(name='John Doe', age=30)
+print(data["home"])  # HomeAddress(street='123 Main St', city='New York')
 ```
 
 ### Complex Structures
@@ -352,11 +349,11 @@ The `YAMLParser` class supports all of Yamling's standard features:
 ```python
 data = yaml_parser.load_yaml_file(
     "config.yaml",
-    mode="safe",                    # Safety mode
-    include_base_path="configs/",   # For !include directives
-    resolve_strings=True,           # Enable Jinja2 template resolution
-    resolve_inherit=True,           # Enable inheritance
-    jinja_env=jinja_env           # Custom Jinja2 environment
+    mode="safe",  # Safety mode
+    include_base_path="configs/",  # For !include directives
+    resolve_strings=True,  # Enable Jinja2 template resolution
+    resolve_inherit=True,  # Enable inheritance
+    jinja_env=jinja_env,  # Custom Jinja2 environment
 )
 ```
 
@@ -380,9 +377,9 @@ Here's a simple example:
 import yamling
 
 # Load files based on their extension
-config = yamling.load_file("config.yaml")    # YAML
-settings = yamling.load_file("settings.json") # JSON
-params = yamling.load_file("params.toml")    # TOML
+config = yamling.load_file("config.yaml")  # YAML
+settings = yamling.load_file("settings.json")  # JSON
+params = yamling.load_file("params.toml")  # TOML
 
 # Or explicitly specify the format
 data = yamling.load_file("config.txt", mode="yaml")

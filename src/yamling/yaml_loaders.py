@@ -65,7 +65,7 @@ def get_env_constructor(loader: yaml.Loader, node: yaml.Node) -> Any:
         case yaml.nodes.SequenceNode():
             child_nodes = node.value
             if len(child_nodes) > 1:
-                default = loader.construct_object(child_nodes[-1])  # type: ignore[no-untyped-call]
+                default = loader.construct_object(child_nodes[-1])
                 child_nodes = child_nodes[:-1]
             env_vars = [loader.construct_scalar(child) for child in child_nodes]
 
@@ -81,7 +81,7 @@ def get_env_constructor(loader: yaml.Loader, node: yaml.Node) -> Any:
         if var in os.environ:
             value = os.environ[var]
             tag = loader.resolve(yaml.nodes.ScalarNode, value, (True, False))  # type: ignore[no-untyped-call]
-            return loader.construct_object(yaml.nodes.ScalarNode(tag, value))  # type: ignore[no-untyped-call]
+            return loader.construct_object(yaml.nodes.ScalarNode(tag, value))
 
     return default
 
@@ -190,7 +190,7 @@ def get_safe_loader(base_loader_cls: typedefs.LoaderType) -> typedefs.LoaderType
         "tag:yaml.org,2002:python/object/apply:",
     )
     for tag in python_tags:
-        loader_cls.add_multi_constructor(tag, lambda loader, suffix, node: None)  # type: ignore[no-untyped-call]
+        loader_cls.add_multi_constructor(tag, lambda loader, suffix, node: None)
     # https://github.com/smart-home-network-security/pyyaml-loaders/
     # loader_cls.add_multi_constructor("!", lambda loader, suffix, node: None)
     return loader_cls
