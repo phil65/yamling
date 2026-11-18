@@ -190,6 +190,13 @@ def test_resolution_with_different_modes(basic_jinja_env):
         assert result == {"greeting": "Hello John!"}
 
 
+@pytest.mark.skipif(
+    not fsspec.filesystem("memory").cachable,
+    reason=(
+        "memory:// is overridden by a non-shared implementation (upathtools registers "
+        "IsolatedMemoryFileSystem), so a file written here is invisible to the loader"
+    ),
+)
 def test_resolution_with_fsspec_filesystem(basic_jinja_env):
     fs = fsspec.filesystem("memory")
     fs.makedirs("test", exist_ok=True)
