@@ -26,18 +26,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-try:
-    LOADERS: dict[str, typedefs.LoaderType] = {  # pyright: ignore[reportAttributeAccessIssue, reportRedeclaration]
-        "unsafe": yaml.CUnsafeLoader,
-        "full": yaml.CFullLoader,
-        "safe": yaml.CSafeLoader,
-    }
-except Exception:  # noqa: BLE001
-    LOADERS: dict[str, typedefs.LoaderType] = {  # type: ignore
-        "unsafe": yaml.UnsafeLoader,
-        "full": yaml.FullLoader,
-        "safe": yaml.SafeLoader,
-    }
+# The C loaders only exist when PyYAML was built with libyaml.
+LOADERS: dict[str, typedefs.LoaderType] = (
+    {"unsafe": yaml.CUnsafeLoader, "full": yaml.CFullLoader, "safe": yaml.CSafeLoader}
+    if yaml.__with_libyaml__
+    else {"unsafe": yaml.UnsafeLoader, "full": yaml.FullLoader, "safe": yaml.SafeLoader}
+)
 
 _T_co = TypeVar("_T_co", covariant=True)
 
