@@ -1,13 +1,20 @@
+from __future__ import annotations
+
 import os
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
-import fsspec
 import jinja2
 import pytest
+from upath import UPath
 import yaml
 
 from configz import YAMLError
 from configz.yaml_tools.yaml_loaders import load_yaml, load_yaml_file
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 # Test Constants
@@ -36,7 +43,7 @@ value: "{{ parent_value }}"
 
 
 @pytest.fixture
-def basic_jinja_env():
+def basic_jinja_env() -> jinja2.Environment:
     env = jinja2.Environment()
     env.globals.update({
         "name": "John",
@@ -50,7 +57,7 @@ def basic_jinja_env():
 
 
 @pytest.fixture
-def temp_yaml_files(tmp_path):
+def temp_yaml_files(tmp_path: Path) -> tuple[Path, Path]:
     parent = tmp_path / "parent.yaml"
     child = tmp_path / "child.yaml"
     parent.write_text(PARENT_YAML)
@@ -58,27 +65,27 @@ def temp_yaml_files(tmp_path):
     return parent, child
 
 
-def test_basic_string_resolution(basic_jinja_env):
+def test_basic_string_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(BASIC_STR), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == "Hello John!"
 
 
-def test_basic_dict_resolution(basic_jinja_env):
+def test_basic_dict_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(BASIC_DICT), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"greeting": "Hello John!"}
 
 
-def test_nested_dict_resolution(basic_jinja_env):
+def test_nested_dict_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(NESTED_DICT), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"user": {"greeting": "Hello John!", "farewell": "Goodbye John!"}}
 
 
-def test_list_resolution(basic_jinja_env):
+def test_list_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(BASIC_LIST), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == ["Hello John!", "Hi John!"]
 
 
-def test_dict_key_resolution(basic_jinja_env):
+def test_dict_key_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(
         yaml.dump(DICT_WITH_TEMPLATE_KEYS),
         resolve_strings=True,
@@ -88,7 +95,7 @@ def test_dict_key_resolution(basic_jinja_env):
     assert result == {"dynamic_key": "value"}
 
 
-def test_complex_nested_resolution(basic_jinja_env):
+def test_complex_nested_resolution(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(
         yaml.dump(COMPLEX_NESTED),
         resolve_strings=True,
@@ -102,34 +109,36 @@ def test_complex_nested_resolution(basic_jinja_env):
     assert result == expected
 
 
-def test_no_resolution_when_disabled(basic_jinja_env):
+def test_no_resolution_when_disabled(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(BASIC_DICT), resolve_strings=False, jinja_env=basic_jinja_env)
     assert result == BASIC_DICT
 
 
-def test_resolution_without_env():
+def test_resolution_without_env() -> None:
     """Should not resolve templates when no environment is provided."""
     result = load_yaml(yaml.dump(BASIC_DICT), resolve_strings=True)
     assert result == BASIC_DICT
 
 
-def test_non_string_values(basic_jinja_env):
+def test_non_string_values(basic_jinja_env: jinja2.Environment) -> None:
     data = {"number": 42, "bool": True, "none": None}
     result = load_yaml(yaml.dump(data), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == data
 
 
-def test_empty_string(basic_jinja_env):
+def test_empty_string(basic_jinja_env: jinja2.Environment) -> None:
     result = load_yaml(yaml.dump(""), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == ""
 
 
-def test_invalid_template(basic_jinja_env):
+def test_invalid_template(basic_jinja_env: jinja2.Environment) -> None:
     with pytest.raises(jinja2.TemplateError):
         load_yaml(yaml.dump("{{ invalid"), resolve_strings=True, jinja_env=basic_jinja_env)
 
 
-def test_file_loading_with_resolution(basic_jinja_env, temp_yaml_files):
+def test_file_loading_with_resolution(
+    basic_jinja_env: jinja2.Environment, temp_yaml_files: tuple[Path, Path]
+) -> None:
     _parent_path, child_path = temp_yaml_files
     result = load_yaml_file(
         child_path, resolve_strings=True, resolve_inherit=True, jinja_env=basic_jinja_env
@@ -140,7 +149,7 @@ def test_file_loading_with_resolution(basic_jinja_env, temp_yaml_files):
 
 
 # Add a test for invalid YAML
-def test_invalid_yaml_structure():
+def test_invalid_yaml_structure() -> None:
     invalid_yaml = """
     !!python/name:os.system
     - test
@@ -149,7 +158,7 @@ def test_invalid_yaml_structure():
         load_yaml(invalid_yaml)
 
 
-def test_resolution_with_include_tag(tmp_path, basic_jinja_env):
+def test_resolution_with_include_tag(tmp_path: Path, basic_jinja_env: jinja2.Environment) -> None:
     include_file = tmp_path / "include.yaml"
     include_file.write_text("included_value: '{{ name }}'")
 
@@ -168,7 +177,7 @@ def test_resolution_with_include_tag(tmp_path, basic_jinja_env):
     assert result["direct"] == "John"
 
 
-def test_resolution_with_env_tag(basic_jinja_env):
+def test_resolution_with_env_tag(basic_jinja_env: jinja2.Environment) -> None:
     os.environ["TEST_ENV_VAR"] = "env_value"
     yaml_content = """
     env_var: !ENV TEST_ENV_VAR
@@ -179,7 +188,7 @@ def test_resolution_with_env_tag(basic_jinja_env):
     assert result["template"] == "John"
 
 
-def test_resolution_with_different_modes(basic_jinja_env):
+def test_resolution_with_different_modes(basic_jinja_env: jinja2.Environment) -> None:
     for mode in ["unsafe", "full", "safe"]:
         result = load_yaml(
             yaml.dump(BASIC_DICT),
@@ -190,24 +199,24 @@ def test_resolution_with_different_modes(basic_jinja_env):
         assert result == {"greeting": "Hello John!"}
 
 
-def test_resolution_with_fsspec_filesystem(basic_jinja_env):
-    fs = fsspec.filesystem("memory")
-    fs.makedirs("test", exist_ok=True)
-    fs.write_text("test/test.yaml", yaml.dump(BASIC_DICT))
+def test_resolution_with_fsspec_filesystem(basic_jinja_env: jinja2.Environment) -> None:
+    # Write and load through the same path object: memory:// may be backed by a
+    # per-instance store (upathtools registers IsolatedMemoryFileSystem).
+    path = UPath("memory://test/test.yaml")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.dump(BASIC_DICT))
 
-    result = load_yaml_file(
-        "memory://test/test.yaml", resolve_strings=True, jinja_env=basic_jinja_env
-    )
+    result = load_yaml_file(path, resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"greeting": "Hello John!"}
 
 
-def test_unicode_strings(basic_jinja_env):
+def test_unicode_strings(basic_jinja_env: jinja2.Environment) -> None:
     unicode_dict = {"greeting": "Hello {{ name }} 👋"}
     result = load_yaml(yaml.dump(unicode_dict), resolve_strings=True, jinja_env=basic_jinja_env)
     assert result == {"greeting": "Hello John 👋"}
 
 
-def test_mixed_resolution(basic_jinja_env):
+def test_mixed_resolution(basic_jinja_env: jinja2.Environment) -> None:
     """Test mixing template and non-template strings."""
     mixed_dict = {
         "template": "Hello {{ name }}!",
