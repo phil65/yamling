@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 
 def create_subclass[T: type](base_cls: T) -> T:
     """Create a subclass of the given base class to avoid modifying original classes.
@@ -12,4 +14,4 @@ def create_subclass[T: type](base_cls: T) -> T:
     Returns:
         New subclass of the base class
     """
-    return type("SubClass", (base_cls,), {})  # type: ignore[return-value]
+    return cast("T", type("SubClass", (base_cls,), {}))

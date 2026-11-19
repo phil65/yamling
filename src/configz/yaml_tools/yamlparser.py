@@ -284,7 +284,7 @@ class YAMLParser:
         """
         loader_class = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
         self.register_with_loader(loader_class)
-        return yaml_loaders.load_yaml(  # type: ignore[misc]
+        return yaml_loaders.load_yaml(
             text,
             mode=loader_class,
             include_base_path=include_base_path,
@@ -396,7 +396,7 @@ class YAMLParser:
             jinja_env=jinja_env,
             variables=variables,
             storage_options=storage_options,
-            verify_type=verify_type,  # type: ignore
+            verify_type=verify_type,
         )
 
 

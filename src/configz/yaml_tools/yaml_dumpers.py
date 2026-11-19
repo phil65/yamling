@@ -12,7 +12,6 @@ from configz.exceptions import DumpingError
 
 if TYPE_CHECKING:
     from upath.types import JoinablePathLike
-    import yaml
 
     from configz import typedefs
 
@@ -21,7 +20,7 @@ def map_class_to_builtin_type(
     dumper_class: typedefs.DumperType,
     class_type: type,
     target_type: type,
-) -> Any:
+) -> None:
     """Maps a Python class to use an existing PyYAML representer for a built-in type.
 
     The original type is preserved, only the representation format is borrowed.
@@ -31,18 +30,13 @@ def map_class_to_builtin_type(
         class_type: The custom Python class to map
         target_type: The built-in type whose representer should be used
     """
-    method_name = f"represent_{target_type.__name__}"
-
-    if hasattr(dumper_class, method_name):
-        representer = getattr(dumper_class, method_name)
-
-        def represent_as_builtin(dumper: typedefs.DumperType, data: Any) -> yaml.Node:
-            return representer(dumper, data)  # type: ignore[no-any-return]
-
-        dumper_class.add_representer(class_type, represent_as_builtin)  # type: ignore[arg-type]
-    else:
+    representer = dumper_class.yaml_representers.get(
+        target_type
+    ) or dumper_class.yaml_multi_representers.get(target_type)
+    if representer is None:
         msg = f"No representer found for type {target_type}"
         raise ValueError(msg)
+    dumper_class.add_representer(class_type, representer)
 
 
 def dump_yaml(

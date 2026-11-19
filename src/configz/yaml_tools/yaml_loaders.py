@@ -10,8 +10,9 @@ import upath
 from upathtools import to_upath
 import yaml
 
-from configz import deepmerge, utils, verify
+from configz import deepmerge, typedefs, utils, verify
 from configz.yaml_tools.constructors import variable
+from configz.yaml_tools.constructors.scalar import construct_scalar
 
 
 if TYPE_CHECKING:
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from upath.types import JoinablePathLike
     import yaml_include
 
-    from configz import typedefs
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ def get_jinja2_constructor(
     def construct_jinja2_str(loader: yaml.Loader, node: yaml.Node) -> Any:  # noqa: PLR0911
         try:
             if env is None or not resolve_strings:
-                return loader.construct_scalar(node)  # type: ignore[arg-type]
+                return construct_scalar(loader, node)
 
             match node:
                 case yaml.ScalarNode():
@@ -128,13 +128,13 @@ def get_jinja2_constructor(
                     return loader.construct_sequence(node)
 
                 case _:
-                    return loader.construct_scalar(node)  # type: ignore[arg-type]
+                    return construct_scalar(loader, node)
 
         except jinja2.TemplateError:  # Handle Jinja2 errors separately
             raise  # Re-raise Jinja2 errors
         except Exception:  # Handle other exceptions
             logger.exception("Error in Jinja2 constructor")
-            return loader.construct_scalar(node)  # type: ignore[arg-type]
+            return construct_scalar(loader, node)
 
     return construct_jinja2_str
 
@@ -360,6 +360,22 @@ def load_yaml[T](
 ) -> T: ...
 
 
+@overload
+def load_yaml[T](
+    text: YAMLInput,
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    resolve_inherit: bool | JoinablePathLike = False,
+    variables: dict[str, Any] | None = None,
+    jinja_env: jinja2.Environment | None = None,
+    verify_type: type[T] | None = None,
+    enable_env: bool = True,
+) -> T | Any: ...
+
+
 def load_yaml[T](
     text: YAMLInput,
     mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
@@ -434,8 +450,8 @@ def load_yaml[T](
         )
         data = yaml.load(text, Loader=loader)
         if resolve_inherit:
-            if hasattr(text, "name"):
-                base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
+            if isinstance(text, typedefs.NamedStream) and isinstance(text.name, str):
+                base_dir = upath.UPath(text.name).parent
             elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
                 base_dir = to_upath(resolve_inherit)
             else:
@@ -505,6 +521,24 @@ def load_yaml_file[T](
     enable_env: bool = True,
     inherit_from: list[str] | str | None = None,
 ) -> T: ...
+
+
+@overload
+def load_yaml_file[T](
+    path: JoinablePathLike,
+    mode: typedefs.LoaderStr | typedefs.LoaderType = "unsafe",
+    *,
+    include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None = None,
+    resolve_inherit: bool = False,
+    resolve_strings: bool = False,
+    resolve_dict_keys: bool = False,
+    jinja_env: jinja2.Environment | None = None,
+    variables: dict[str, Any] | None = None,
+    storage_options: dict[str, Any] | None = None,
+    verify_type: type[T] | None = None,
+    enable_env: bool = True,
+    inherit_from: list[str] | str | None = None,
+) -> T | Any: ...
 
 
 def load_yaml_file[T](

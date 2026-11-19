@@ -44,7 +44,7 @@ class JsonLoadError(Exception):
         column: int | None = None,
         source_path: str | Path | None = None,
         source_content: str | None = None,
-    ):
+    ) -> None:
         super().__init__(message)
         self.info = ParseErrorInfo(
             message=message,

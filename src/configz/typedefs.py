@@ -1,11 +1,20 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, Protocol, runtime_checkable
 
 import yaml
 
 
 YAMLPrimitive = str | int | float | bool | None
+
+
+@runtime_checkable
+class NamedStream(Protocol):
+    """A stream that knows where it was opened from (e.g. a file object)."""
+
+    name: object  # str or bytes path, or an int for file descriptors
+
+
 YAMLValue = YAMLPrimitive | dict[str, Any] | list[Any]
 
 # `type` aliases are evaluated lazily: the C classes only exist when PyYAML

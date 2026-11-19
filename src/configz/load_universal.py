@@ -227,8 +227,8 @@ def load[T](
         data = _resolve_env_vars(data)
 
     if resolve_inherit or inherit_from:
-        if hasattr(text, "name"):
-            base_dir = upath.UPath(text.name).parent  # pyright: ignore[reportAttributeAccessIssue]
+        if isinstance(text, typedefs.NamedStream) and isinstance(text.name, str):
+            base_dir = upath.UPath(text.name).parent
         elif resolve_inherit is not None and not isinstance(resolve_inherit, bool):
             base_dir = to_upath(resolve_inherit)
         else:

@@ -11,6 +11,8 @@ import yaml
 from yaml.constructor import ConstructorError
 from yaml.nodes import MappingNode, Node, ScalarNode, SequenceNode
 
+from configz.yaml_tools.constructors.scalar import construct_scalar
+
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +138,7 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
                     return process_value(map_val)
 
                 case _:
-                    return loader.construct_scalar(node)  # type: ignore[arg-type]
+                    return construct_scalar(loader, node)
 
         except JinjaConstructionError:
             raise
