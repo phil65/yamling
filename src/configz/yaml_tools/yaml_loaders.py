@@ -7,7 +7,7 @@ import os
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, overload
 
 import upath
-from upathtools import to_upath
+from upathtools import core, to_upath
 import yaml
 
 from configz import deepmerge, typedefs, utils, verify
@@ -157,7 +157,7 @@ def get_include_constructor(
 
     match fs:
         case str() | os.PathLike():
-            filesystem, _ = fsspec.url_to_fs(str(fs))
+            filesystem, _ = core.url_to_fs(str(fs))
         case None:
             filesystem = fsspec.filesystem("file")
         case fsspec.AbstractFileSystem():

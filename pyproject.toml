@@ -33,7 +33,7 @@ dependencies = [
   "pydantic",
   "pyyaml-include",
   "universal_pathlib",
-  "upathtools>=0.6.4",
+  "upathtools>=1.17.0",
 ]
 
 [project.urls]
