@@ -153,9 +153,13 @@ def get_include_constructor(
     import fsspec
     import yaml_include
 
+    base_dir: str | os.PathLike[str] | None = None
     match fs:
+        case upath.UPath():
+            filesystem = fs.fs
+            base_dir = fs.path
         case str() | os.PathLike():
-            filesystem, _ = core.url_to_fs(str(fs))
+            filesystem, base_dir = core.url_to_fs(str(fs))
         case None:
             filesystem = fsspec.filesystem("file")
         case fsspec.AbstractFileSystem():
@@ -164,6 +168,8 @@ def get_include_constructor(
             msg = f"Unsupported filesystem type: {type(fs)}"
             raise TypeError(msg)
 
+    if base_dir is not None:
+        kwargs.setdefault("base_dir", base_dir)
     return yaml_include.Constructor(fs=filesystem, **kwargs)
 
 
