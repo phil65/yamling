@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, overload
 
+from configz import utils
 from configz.yaml_tools import yaml_loaders
 
 
@@ -280,7 +281,8 @@ class YAMLParser:
             )
             ```
         """
-        loader_class = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
+        base_loader = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
+        loader_class = utils.create_subclass(base_loader)
         self.register_with_loader(loader_class)
         return yaml_loaders.load_yaml(
             text,
@@ -382,7 +384,8 @@ class YAMLParser:
             )
             ```
         """
-        loader = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
+        base_loader = yaml_loaders.LOADERS[mode] if isinstance(mode, str) else mode
+        loader = utils.create_subclass(base_loader)
         self.register_with_loader(loader)
         return yaml_loaders.load_yaml_file(
             path,
