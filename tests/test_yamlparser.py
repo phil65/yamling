@@ -248,3 +248,43 @@ def test_register_decorator_requires_tag_for_function(yaml_parser: YAMLParser):
         @yaml_parser.register()
         def handle_test(data: str) -> str:
             return data.upper()
+
+
+def test_yamlparser_does_not_mutate_global_loader():
+    """Tags registered on one YAMLParser must not leak to other parsers or load_yaml."""
+    import configz
+
+    parser1 = YAMLParser()
+    parser1.register_handler("isolated_tag", lambda data: f"handled:{data}")
+    assert parser1.load_yaml("v: !isolated_tag ok", mode="safe") == {"v": "handled:ok"}
+
+    parser2 = YAMLParser()
+    with pytest.raises(YAMLError):
+        parser2.load_yaml("v: !isolated_tag ok", mode="safe")
+
+    with pytest.raises(YAMLError):
+        configz.load_yaml("v: !isolated_tag ok", mode="safe")
+
+
+def test_yamlparser_nested_mapping_and_sequence_in_tag(yaml_parser: YAMLParser):
+    """Tag handlers must receive fully populated nested mappings and sequences."""
+    seen: dict[str, Any] = {}
+
+    @yaml_parser.register("record")
+    def handle_record(data: dict[str, Any]) -> dict[str, Any]:
+        seen["nested"] = dict(data["nested"])
+        seen["items"] = list(data["items"])
+        return data
+
+    yaml_content = """
+    rec: !record
+      nested:
+        city: Berlin
+        zip: 10115
+      items:
+        - a
+        - b
+    """
+    result = yaml_parser.load_yaml(yaml_content, mode="safe")
+    assert seen == {"nested": {"city": "Berlin", "zip": 10115}, "items": ["a", "b"]}
+    assert result["rec"] == {"nested": {"city": "Berlin", "zip": 10115}, "items": ["a", "b"]}

@@ -128,11 +128,11 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
                     return process_value(scalar_val)
 
                 case SequenceNode():
-                    seq_val = loader.construct_sequence(node)
+                    seq_val = loader.construct_sequence(node, deep=True)
                     return process_value(seq_val)
 
                 case MappingNode():
-                    map_val = loader.construct_mapping(node)
+                    map_val = loader.construct_mapping(node, deep=True)
                     return process_value(map_val)
 
                 case _:

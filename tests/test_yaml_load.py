@@ -100,6 +100,21 @@ def test_load_yaml_with_include(tmp_path: pathlib.Path):
     assert result == {"included": True}
 
 
+def test_load_yaml_with_relative_include_base_path(tmp_path: pathlib.Path):
+    """Relative !include paths should resolve against include_base_path."""
+    from upath import UPath
+
+    (tmp_path / "db.yaml").write_text("host: localhost\n")
+    result = configz.load_yaml("database: !include db.yaml", include_base_path=tmp_path)
+    assert result == {"database": {"host": "localhost"}}
+
+    mem_dir = UPath("memory://test_relative_include_dir")
+    mem_dir.mkdir(parents=True, exist_ok=True)
+    (mem_dir / "mem.yaml").write_text("source: memory\n")
+    mem_result = configz.load_yaml("cfg: !include mem.yaml", include_base_path=mem_dir)
+    assert mem_result == {"cfg": {"source": "memory"}}
+
+
 def test_load_yaml_with_modes():
     """Test load_yaml with different modes."""
     yaml_str = "!!python/name:os.system"

@@ -67,7 +67,8 @@ def dump(data: Any, mode: typedefs.SupportedFormats, **kwargs: Any) -> str:
             import configz
 
             try:
-                return configz.dump_json(data, indent=True, **kwargs)
+                indent = kwargs.pop("indent", True)
+                return configz.dump_json(data, indent=indent, **kwargs)
             except configz.JsonDumpError as e:
                 logger.exception("Failed to dump JSON data with json")
                 msg = f"Failed to dump data to JSON: {e}"

@@ -227,3 +227,26 @@ def test_mixed_resolution(basic_jinja_env: jinja2.Environment) -> None:
         "static": "Hello World!",
         "nested": {"template": "John", "static": "static"},
     }
+
+
+def test_jinja_tag_nested_collections() -> None:
+    """!JINJA on a mapping or sequence keeps (and renders) its nested collections."""
+    from configz.yaml_tools.jinja_tag import get_jinja_constructor
+
+    env = jinja2.Environment()
+    env.globals["name"] = "World"
+    loader = type("JinjaLoader", (yaml.SafeLoader,), {})
+    loader.add_constructor("!JINJA", get_jinja_constructor(env))
+    text = dedent("""
+        m: !JINJA
+          inner:
+            greet: "Hi {{ name }}"
+          items: ["{{ name }}"]
+        s: !JINJA
+          - ["{{ name }}"]
+    """)
+    data = yaml.load(text, Loader=loader)
+    assert data == {
+        "m": {"inner": {"greet": "Hi World"}, "items": ["World"]},
+        "s": [["World"]],
+    }

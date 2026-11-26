@@ -89,7 +89,8 @@ def _resolve_env_vars(data: Any) -> Any:
         def replace_env(match: re.Match[str]) -> str:
             var_name = match.group(1)
             default_value = match.group(2) if match.lastindex == 2 else None  # noqa: PLR2004
-            return os.environ.get(var_name, default_value or match.group(0))
+            fallback = match.group(0) if default_value is None else default_value
+            return os.environ.get(var_name, fallback)
 
         return ENV_VAR_PATTERN.sub(replace_env, data)
 
@@ -344,7 +345,7 @@ def load_file[T](
 
     try:
         text = path_obj.read_text(encoding="utf-8")
-        data = load(text, mode, verify_type=verify_type, resolve_env_vars=resolve_env_vars)
+        data = load(text, mode, resolve_env_vars=resolve_env_vars)
         if resolve_inherit or inherit_from:
             data = _resolve_inherit(data, path_obj.parent, mode=mode, inherit_from=inherit_from)
     except (OSError, FileNotFoundError, PermissionError) as e:
@@ -356,6 +357,12 @@ def load_file[T](
         msg = f"Failed to load {path} as {mode} format: {e!s}"
         raise
     else:
+        if verify_type is not None:
+            try:
+                return verify.verify_type(data, verify_type)
+            except TypeError as e:
+                msg = f"Data loaded from {mode} format doesn't match expected type: {e}"
+                raise TypeError(msg) from e
         return data
 
 

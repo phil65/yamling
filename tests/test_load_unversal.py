@@ -203,3 +203,35 @@ def test_load_file_with_different_path_types(setup_temp_files: Path):
     # Test with Path object
     result2 = load_file(Path(setup_temp_files / "test.yaml"))
     assert result2 == EXPECTED_DATA
+
+
+def test_load_file_verify_type_after_inherit(tmp_path: Path):
+    """load_file must resolve INHERIT before running verify_type."""
+    from typing import TypedDict
+
+    import pydantic
+
+    class ServerTypedDict(TypedDict):
+        host: str
+        port: int
+
+    class ServerModel(pydantic.BaseModel):
+        host: str
+        port: int
+
+    (tmp_path / "base.yaml").write_text("host: localhost\nport: 5432\n")
+    child = tmp_path / "child.yaml"
+    child.write_text("INHERIT: base.yaml\nport: 9000\n")
+
+    typed = load_file(child, verify_type=ServerTypedDict, resolve_inherit=True)
+    assert typed == {"host": "localhost", "port": 9000}
+
+    model = load_file(child, verify_type=ServerModel, resolve_inherit=True)
+    assert model == ServerModel(host="localhost", port=9000)
+
+
+def test_load_env_var_empty_default(monkeypatch: pytest.MonkeyPatch):
+    """{env:VAR:} with an unset VAR resolves to the empty default."""
+    monkeypatch.delenv("CONFIGZ_UNSET_VAR", raising=False)
+    result = load('key: "a{env:CONFIGZ_UNSET_VAR:}b"', mode="yaml", resolve_env_vars=True)
+    assert result == {"key": "ab"}

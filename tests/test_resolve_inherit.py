@@ -417,3 +417,25 @@ def test_load_yaml_multiple_inherit_nonexistent(tmp_path: Path):
 
     with pytest.raises(FileNotFoundError):
         yaml_loaders.load_yaml_file(test_file, resolve_inherit=True)
+
+
+def test_resolve_inherit_with_date_and_dataclass_values(tmp_path: Path):
+    """DeepMerger should not crash on child-only values requiring constructor args."""
+    from dataclasses import dataclass
+    import datetime as dt
+
+    from configz.deepmerge import DeepMerger
+
+    (tmp_path / "base.yaml").write_text("name: base\n")
+    child = tmp_path / "child.yaml"
+    child.write_text("INHERIT: base.yaml\nrelease_date: 2025-01-15\n")
+
+    data = yaml_loaders.load_yaml_file(child, resolve_inherit=True)
+    assert data == {"name": "base", "release_date": dt.date(2025, 1, 15)}
+
+    @dataclass
+    class Item:
+        label: str
+
+    merged = DeepMerger().merge({"item": Item("x")}, {"other": 1})
+    assert merged == {"other": 1, "item": Item("x")}
