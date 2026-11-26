@@ -26,7 +26,7 @@
 [Read the documentation!](https://phil65.github.io/yamling/)
 
 
-configz is a YAML handling library that provides enhanced loading and dumping capabilities for YAML files. It builds upon [PyYAML](https://pyyaml.org/) to offer additional features like environment variable support, file inclusion, and Jinja2 template resolution.
+configz is a YAML handling library that provides enhanced loading and dumping capabilities for YAML files. It builds upon [PyYAML](https://pyyaml.org/) to offer additional features like environment variable support, file inclusion, and MiniJinja template resolution.
 Special mentions also to `pyyaml_env_tag` as well as `pyyaml-include`, this library exposes these YAML extensions with a unified interface.
 
 ## Loading YAML
@@ -105,13 +105,13 @@ database:
 
 ### Template Resolution
 
-configz can resolve [Jinja2](https://jinja.palletsprojects.com/) templates in YAML:
+configz can resolve [MiniJinja](https://github.com/mitsuhiko/minijinja) templates in YAML:
 
 ```python
-from jinja2 import Environment
+from minijinja import Environment
 import configz
 
-env = Environment()
+env = Environment(globals={"name": "World"})
 yaml_content = """
 message: "Hello {{ name }}!"
 """
@@ -351,9 +351,9 @@ data = yaml_parser.load_yaml_file(
     "config.yaml",
     mode="safe",  # Safety mode
     include_base_path="configs/",  # For !include directives
-    resolve_strings=True,  # Enable Jinja2 template resolution
+    resolve_strings=True,  # Enable MiniJinja template resolution
     resolve_inherit=True,  # Enable inheritance
-    jinja_env=jinja_env,  # Custom Jinja2 environment
+    jinja_env=jinja_env,  # Custom MiniJinja environment
 )
 ```
 

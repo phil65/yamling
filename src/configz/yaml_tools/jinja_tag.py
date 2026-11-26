@@ -1,10 +1,10 @@
-"""Jinja2 template constructor for YAML loading."""
+"""MiniJinja template constructor for YAML loading."""
 
 from collections.abc import Callable, Hashable
 import logging
 from typing import Any
 
-import jinja2
+import minijinja
 import yaml
 from yaml.constructor import ConstructorError
 from yaml.nodes import MappingNode, Node, ScalarNode, SequenceNode
@@ -20,17 +20,17 @@ type TemplateValue = str | list[Any] | dict[Hashable, Any]
 
 
 class JinjaConstructionError(ConstructorError):
-    """Error raised when Jinja2 template construction fails."""
+    """Error raised when Jinja template construction fails."""
 
 
-def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
-    """Create a constructor that resolves !JINJA tags using a Jinja2 environment.
+def get_jinja_constructor(env: minijinja.Environment | None) -> YAMLConstructor:
+    """Create a constructor that resolves !JINJA tags using a MiniJinja environment.
 
     This constructor allows explicit template processing for values marked with the
     !JINJA tag in YAML documents. It supports scalar values, sequences, and mappings.
 
     Args:
-        env: Jinja2 environment to use for template resolution. If None,
+        env: MiniJinja environment to use for template resolution. If None,
              returns the raw string without template processing.
 
     Returns:
@@ -38,12 +38,11 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
 
     Example:
         ```python
-        from jinja2 import Environment
+        from minijinja import Environment
         import yaml
 
         # Setup environment
-        env = Environment()
-        env.globals['name'] = 'World'
+        env = Environment(globals={"name": "World"})
 
         # Create loader with constructor
         loader = yaml.Loader
@@ -53,8 +52,8 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
         yaml_text = '''
         message: !JINJA "Hello {{ name }}!"
         items: !JINJA
-          - "Item {{ loop.index }}"
-          - "Value {{ value }}"
+          - "Item {{ name }}"
+          - "Value {{ name | upper }}"
         nested:
           value: !JINJA "{{ name | upper }}"
         '''
@@ -63,7 +62,7 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
     """
 
     def render_template(template: str) -> str:
-        """Render a Jinja2 template string.
+        """Render a MiniJinja template string.
 
         Args:
             template: The template string to render.
@@ -78,9 +77,9 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
             return template
 
         try:
-            return env.from_string(template).render()
-        except jinja2.TemplateError as e:
-            msg = f"Failed to render Jinja2 template: {e!s}"
+            return env.render_str(template)
+        except minijinja.TemplateError as e:
+            msg = f"Failed to render Jinja template: {e!s}"
             raise JinjaConstructionError(None, None, msg, None) from e
 
     def process_value(value: TemplateValue) -> TemplateValue:
@@ -109,7 +108,7 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
                 return value
 
     def construct_jinja_expression(loader: yaml.Loader, node: Node) -> Any:
-        """Construct a value from a YAML node, processing any Jinja2 templates.
+        """Construct a value from a YAML node, processing any Jinja templates.
 
         Args:
             loader: The YAML loader instance.
@@ -141,11 +140,11 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
         except JinjaConstructionError:
             raise
         except Exception as e:
-            logger.exception("Unexpected error processing Jinja2 template")
+            logger.exception("Unexpected error processing Jinja template")
             raise JinjaConstructionError(
                 None,
                 None,
-                f"Unexpected error processing Jinja2 template: {e!s}",
+                f"Unexpected error processing Jinja template: {e!s}",
                 node.start_mark,
             ) from e
 
@@ -153,17 +152,17 @@ def get_jinja_constructor(env: jinja2.Environment | None) -> YAMLConstructor:
 
 
 def register_jinja_constructor(
-    loader_class: type[yaml.Loader], env: jinja2.Environment | None = None
+    loader_class: type[yaml.Loader], env: minijinja.Environment | None = None
 ) -> None:
     """Register the !JINJA tag constructor with a YAML loader class.
 
     Args:
         loader_class: The YAML loader class to register the constructor with.
-        env: Optional Jinja2 environment for template resolution.
+        env: Optional MiniJinja environment for template resolution.
 
     Example:
         ```python
-        from jinja2 import Environment
+        from minijinja import Environment
         import yaml
 
         env = Environment()

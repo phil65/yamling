@@ -50,9 +50,9 @@ dump_yaml_file = "configz:dump_yaml_file"
 dump = "configz:dump"
 
 [project.optional-dependencies]
-all = ["jinja2", "tomli_w"]
+all = ["minijinja", "tomli_w"]
 exceptions = ["rich"]
-jinja2 = ["jinja2"]
+minijinja = ["minijinja"]
 msgspec = ["msgspec"]
 orjson = ["orjson"]
 pytomlpp = ["pytomlpp; python_version < '3.14'"]

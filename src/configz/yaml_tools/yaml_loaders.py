@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     import fsspec  # type: ignore[import-untyped]
-    import jinja2
+    import minijinja
     from upath.types import JoinablePathLike
     import yaml_include
 
@@ -84,24 +84,24 @@ def get_env_constructor(loader: yaml.Loader, node: yaml.Node) -> Any:
     return default
 
 
-def get_jinja2_constructor(
-    env: jinja2.Environment | None,
+def get_jinja_constructor(
+    env: minijinja.Environment | None,
     resolve_strings: bool = True,
     resolve_dict_keys: bool = False,
 ) -> Callable[[yaml.Loader, yaml.Node], Any]:
-    """Create a constructor that resolves strings using a Jinja2 environment.
+    """Create a constructor that resolves strings using a MiniJinja environment.
 
     Args:
-        env: Jinja2 environment to use for template resolution
+        env: MiniJinja environment to use for template resolution
         resolve_strings: Whether to resolve string values
         resolve_dict_keys: Whether to resolve dictionary keys
 
     Returns:
         Constructor function for YAML loader
     """
-    import jinja2
+    import minijinja
 
-    def construct_jinja2_str(loader: yaml.Loader, node: yaml.Node) -> Any:  # noqa: PLR0911
+    def construct_jinja_str(loader: yaml.Loader, node: yaml.Node) -> Any:  # noqa: PLR0911
         try:
             if env is None or not resolve_strings:
                 return construct_scalar(loader, node)
@@ -110,14 +110,14 @@ def get_jinja2_constructor(
                 case yaml.ScalarNode():
                     scalar_val = loader.construct_scalar(node)
                     if isinstance(scalar_val, str):
-                        return env.from_string(scalar_val).render()  # Remove inner try-except
+                        return env.render_str(scalar_val)
                     return scalar_val
 
                 case yaml.MappingNode():
                     map_val = loader.construct_mapping(node)
                     if resolve_dict_keys:
                         return {
-                            (env.from_string(str(k)).render() if isinstance(k, str) else k): v
+                            (env.render_str(k) if isinstance(k, str) else k): v
                             for k, v in map_val.items()
                         }
                     return map_val
@@ -128,13 +128,13 @@ def get_jinja2_constructor(
                 case _:
                     return construct_scalar(loader, node)
 
-        except jinja2.TemplateError:  # Handle Jinja2 errors separately
-            raise  # Re-raise Jinja2 errors
+        except minijinja.TemplateError:  # Handle MiniJinja errors separately
+            raise  # Re-raise MiniJinja errors
         except Exception:  # Handle other exceptions
-            logger.exception("Error in Jinja2 constructor")
+            logger.exception("Error in MiniJinja constructor")
             return construct_scalar(loader, node)
 
-    return construct_jinja2_str
+    return construct_jinja_str
 
 
 def get_include_constructor(
@@ -202,7 +202,7 @@ def get_loader(
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
     variables: dict[str, Any] | None = None,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
 ) -> typedefs.LoaderType:
     """Construct an enhanced YAML loader with optional support for !env and !include tags.
 
@@ -211,10 +211,10 @@ def get_loader(
         include_base_path: Base path for !include tag resolution. If None, use cwd.
         enable_include: Whether to enable !include tag support
         enable_env: Whether to enable !ENV tag support
-        resolve_strings: Whether to resolve strings using Jinja2
-        resolve_dict_keys: Whether to resolve dictionary keys using Jinja2
+        resolve_strings: Whether to resolve strings using MiniJinja
+        resolve_dict_keys: Whether to resolve dictionary keys using MiniJinja
         variables: An optional dictionary to resolving !var tags
-        jinja_env: Optional Jinja2 environment for template resolution
+        jinja_env: Optional MiniJinja environment for template resolution
 
     Returns:
         Enhanced loader class
@@ -232,7 +232,7 @@ def get_loader(
         loader_cls.add_constructor("!ENV", get_env_constructor)
 
     if resolve_dict_keys or resolve_strings:
-        j_ctor = get_jinja2_constructor(
+        j_ctor = get_jinja_constructor(
             jinja_env,
             resolve_strings=resolve_strings,
             resolve_dict_keys=resolve_dict_keys,
@@ -249,7 +249,7 @@ def _resolve_inherit[T](
     include_base_path: JoinablePathLike | fsspec.AbstractFileSystem | None,
     resolve_strings: bool,
     resolve_dict_keys: bool,
-    jinja_env: jinja2.Environment | None,
+    jinja_env: minijinja.Environment | None,
     enable_env: bool = True,
     variables: dict[str, Any] | None = None,
     inherit_from: list[str] | str | None = None,
@@ -261,9 +261,9 @@ def _resolve_inherit[T](
         base_dir: Directory to resolve inherited paths from
         mode: YAML loader mode
         include_base_path: Base path for !include resolution
-        resolve_strings: Whether to resolve Jinja2 template strings
-        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
-        jinja_env: Optional Jinja2 environment
+        resolve_strings: Whether to resolve MiniJinja template strings
+        resolve_dict_keys: Whether to resolve MiniJinja templates in dictionary keys
+        jinja_env: Optional MiniJinja environment
         enable_env: Whether to enable !ENV tag
         variables: Variables for !var tag resolution
         inherit_from: Additional paths to inherit from. These form the base layer,
@@ -336,7 +336,7 @@ def load_yaml(
     resolve_dict_keys: bool = False,
     resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     verify_type: None = None,
     enable_env: bool = True,
 ) -> Any: ...
@@ -352,7 +352,7 @@ def load_yaml[T](
     resolve_dict_keys: bool = False,
     resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     verify_type: type[T],
     enable_env: bool = True,
 ) -> T: ...
@@ -368,7 +368,7 @@ def load_yaml[T](
     resolve_dict_keys: bool = False,
     resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     verify_type: type[T] | None = None,
     enable_env: bool = True,
 ) -> T | Any: ...
@@ -383,7 +383,7 @@ def load_yaml[T](
     resolve_dict_keys: bool = False,
     resolve_inherit: bool | JoinablePathLike = False,
     variables: dict[str, Any] | None = None,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     verify_type: type[T] | None = None,
     enable_env: bool = True,
 ) -> Any | T:
@@ -394,12 +394,12 @@ def load_yaml[T](
         mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
               Custom YAML loader classes are also accepted.
         include_base_path: Base path for resolving !include directives
-        resolve_strings: Whether to resolve Jinja2 template strings
-        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
+        resolve_strings: Whether to resolve MiniJinja template strings
+        resolve_dict_keys: Whether to resolve MiniJinja templates in dictionary keys
         resolve_inherit: Whether to resolve INHERIT directives
                          If True, then requires IO object with name attribute for text
                          If str or PathLike, its interpreted as the base path
-        jinja_env: Optional Jinja2 environment for template resolution
+        jinja_env: Optional MiniJinja environment for template resolution
         variables: An optional dictionary to resolving !var tags
         verify_type: Type to verify and cast the output to (supports TypedDict)
         enable_env: Whether to enable the !ENV tag
@@ -425,9 +425,9 @@ def load_yaml[T](
             port: 8080
         ''', verify_type=Config)
 
-        # With Jinja2 template resolution
-        from jinja2 import Environment
-        env = Environment()
+        # With MiniJinja template resolution
+        from minijinja import Environment
+        env = Environment(globals={"name": "World"})
         data = load_yaml(
             "message: Hello {{ name }}!",
             resolve_strings=True,
@@ -494,7 +494,7 @@ def load_yaml_file(
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: None = None,
@@ -512,7 +512,7 @@ def load_yaml_file[T](
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T],
@@ -530,7 +530,7 @@ def load_yaml_file[T](
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
@@ -547,7 +547,7 @@ def load_yaml_file[T](
     resolve_inherit: bool = False,
     resolve_strings: bool = False,
     resolve_dict_keys: bool = False,
-    jinja_env: jinja2.Environment | None = None,
+    jinja_env: minijinja.Environment | None = None,
     variables: dict[str, Any] | None = None,
     storage_options: dict[str, Any] | None = None,
     verify_type: type[T] | None = None,
@@ -564,9 +564,9 @@ def load_yaml_file[T](
               Custom YAML loader classes are also accepted.
         include_base_path: Base path for resolving !include directives
         resolve_inherit: Whether to resolve INHERIT directives
-        resolve_strings: Whether to resolve Jinja2 template strings
-        resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
-        jinja_env: Optional Jinja2 environment for template resolution
+        resolve_strings: Whether to resolve MiniJinja template strings
+        resolve_dict_keys: Whether to resolve MiniJinja templates in dictionary keys
+        jinja_env: Optional MiniJinja environment for template resolution
         variables: An optional dictionary to resolving !var tags
         storage_options: Additional keywords to pass to fsspec backend
         verify_type: Type to verify and cast the output to (supports TypedDict)

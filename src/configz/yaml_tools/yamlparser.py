@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     import os
 
     import fsspec  # type: ignore[import-untyped]
-    import jinja2
+    import minijinja
     import yaml
     from yaml import Node
 
@@ -207,7 +207,7 @@ class YAMLParser:
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
         variables: dict[str, Any] | None = None,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         verify_type: None = None,
     ) -> Any: ...
 
@@ -222,7 +222,7 @@ class YAMLParser:
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
         variables: dict[str, Any] | None = None,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         verify_type: type[TVerify],
     ) -> TVerify: ...
 
@@ -236,7 +236,7 @@ class YAMLParser:
         resolve_dict_keys: bool = False,
         resolve_inherit: bool = False,
         variables: dict[str, Any] | None = None,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         verify_type: type[TVerify] | None = None,
     ) -> Any | TVerify:
         """Load YAML content with custom tag handlers.
@@ -246,11 +246,11 @@ class YAMLParser:
             mode: YAML loader safety mode ('unsafe', 'full', or 'safe')
                 Custom YAML loader classes are also accepted
             include_base_path: Base path for resolving !include directives
-            resolve_strings: Whether to resolve Jinja2 template strings
-            resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
+            resolve_strings: Whether to resolve MiniJinja template strings
+            resolve_dict_keys: Whether to resolve MiniJinja templates in dictionary keys
             resolve_inherit: Whether to resolve INHERIT directives
             variables: An optional dictionary to resolving !var tags
-            jinja_env: Optional Jinja2 environment for template resolution
+            jinja_env: Optional MiniJinja environment for template resolution
             verify_type: Type to verify and cast the output to
 
         Returns:
@@ -304,7 +304,7 @@ class YAMLParser:
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: None = None,
@@ -320,7 +320,7 @@ class YAMLParser:
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: type[TVerify],
@@ -335,7 +335,7 @@ class YAMLParser:
         resolve_inherit: bool = False,
         resolve_strings: bool = False,
         resolve_dict_keys: bool = False,
-        jinja_env: jinja2.Environment | None = None,
+        jinja_env: minijinja.Environment | None = None,
         variables: dict[str, Any] | None = None,
         storage_options: dict[str, Any] | None = None,
         verify_type: type[TVerify] | None = None,
@@ -348,9 +348,9 @@ class YAMLParser:
                 Custom YAML loader classes are also accepted
             include_base_path: Base path for resolving !include directives
             resolve_inherit: Whether to resolve INHERIT directives
-            resolve_strings: Whether to resolve Jinja2 template strings
-            resolve_dict_keys: Whether to resolve Jinja2 templates in dictionary keys
-            jinja_env: Optional Jinja2 environment for template resolution
+            resolve_strings: Whether to resolve MiniJinja template strings
+            resolve_dict_keys: Whether to resolve MiniJinja templates in dictionary keys
+            jinja_env: Optional MiniJinja environment for template resolution
             variables: An optional dictionary to resolving !var tags
             storage_options: Additional keywords to pass to fsspec backend
             verify_type: Type to verify and cast the output to
