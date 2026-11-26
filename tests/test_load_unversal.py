@@ -228,3 +228,10 @@ def test_load_file_verify_type_after_inherit(tmp_path: Path):
 
     model = load_file(child, verify_type=ServerModel, resolve_inherit=True)
     assert model == ServerModel(host="localhost", port=9000)
+
+
+def test_load_env_var_empty_default(monkeypatch: pytest.MonkeyPatch):
+    """{env:VAR:} with an unset VAR resolves to the empty default."""
+    monkeypatch.delenv("CONFIGZ_UNSET_VAR", raising=False)
+    result = load('key: "a{env:CONFIGZ_UNSET_VAR:}b"', mode="yaml", resolve_env_vars=True)
+    assert result == {"key": "ab"}
