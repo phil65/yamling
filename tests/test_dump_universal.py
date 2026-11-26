@@ -198,3 +198,8 @@ def test_dump_nested_lists():
     # For TOML, wrap the list in a dictionary
     result = dump({"array": nested_list}, "toml")
     assert result
+
+
+def test_dump_json_indent_override():
+    """An explicit indent kwarg must override the JSON default instead of clashing."""
+    assert dump({"a": 1}, "json", indent=False) == '{"a":1}'
