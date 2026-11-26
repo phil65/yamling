@@ -10,9 +10,11 @@ def merge_dict(
 ) -> Mapping[Any, Any]:
     result = dict(target)
     for key, source_value in source.items():
-        target_value = result[key] if key in result else type(source_value)()
+        if key not in result:
+            result[key] = source_value
+            continue
         try:
-            value = merger.merge(source_value, target_value)
+            value = merger.merge(source_value, result[key])
         except TypeError:
             # can't merge, so overwrite
             value = source_value
