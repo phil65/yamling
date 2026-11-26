@@ -1,7 +1,7 @@
 site_name: "configz"
 site_description: "Serialization stuff for config files"
-repo_url: "https://github.com/phil65/configz/"
-site_url: https://phil65.github.io/configz/
+repo_url: "https://github.com/phil65/yamling/"
+site_url: https://phil65.github.io/yamling/
 site_author: "Philipp Temminghoff"
 copyright: Copyright &copy; 2024 Philipp Temminghoff
 
@@ -34,7 +34,6 @@ theme:
         name: Switch to system preference
   features:
     - announce.dismiss
-    - content.action.edit
     - content.code.copy
     - content.code.select
     - content.code.annotate

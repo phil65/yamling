@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: v2.3.3
+_commit: v2.14.1
 _src_path: https://github.com/phil65/copier-phil65.git
 author_email: philipptemminghoff@googlemail.com
 author_fullname: Philipp Temminghoff
@@ -11,11 +11,12 @@ libraries_use_pydantic: false
 libraries_use_qt: false
 project_description: Serialization stuff for config files
 project_name: configz
-python_minimum_version: '3.13'
+python_minimum_version: '3.14'
 python_package_command_line_name: configz
 python_package_distribution_name: configz
 python_package_import_name: configz
-repository_name: configz
+repository_name: yamling
 repository_namespace: phil65
 repository_provider: github.com
+specs: []
 

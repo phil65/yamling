@@ -14,7 +14,7 @@ __author__ = "Philipp Temminghoff"
 __author_email__ = "philipptemminghoff@googlemail.com"
 __copyright__ = "Copyright (c) 2024 Philipp Temminghoff"
 __license__ = "MIT"
-__url__ = "https://github.com/phil65/configz"
+__url__ = "https://github.com/phil65/yamling"
 
 
 from configz.load_universal import load, load_file

@@ -18,9 +18,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.14",
-  "Topic :: Documentation",
   "Topic :: Software Development",
   "Topic :: Utilities",
   "Typing :: Typed",
@@ -36,11 +34,10 @@ dependencies = [
 ]
 
 [project.urls]
-"Code coverage" = "https://app.codecov.io/gh/phil65/configz"
-Discussions = "https://github.com/phil65/configz/discussions"
-Documentation = "https://phil65.github.io/configz/"
-Issues = "https://github.com/phil65/configz/issues"
-Source = "https://github.com/phil65/configz"
+"Code coverage" = "https://app.codecov.io/gh/phil65/yamling"
+Documentation = "https://phil65.github.io/yamling/"
+Issues = "https://github.com/phil65/yamling/issues"
+Source = "https://github.com/phil65/yamling"
 
 [project.entry-points.toolreg_functions]
 dump_file = "configz:dump_file"
@@ -66,6 +63,7 @@ toon = ["python-toon"]
 
 [dependency-groups]
 dev = [
+  "deptry",
   "devtools",
   "pyreadline3",
   "pytest",
@@ -80,10 +78,12 @@ docs = [
   # Only add below (Copier)
 ]
 lint = [
-  "ruff",
-  "ty",
-  "types-PyYAML",
+  # Pinned on purpose: CI, pre-commit and editors all run exactly these versions.
+  # Bump them here (template) and roll out via `copier update`.
+  "ruff==0.17.6",
+  "ty==0.0.110",
   # Only add below (Copier)
+  "types-PyYAML",
 ]
 
 [build-system]
@@ -296,7 +296,8 @@ python-platform = "all"
 
 [tool.ty.analysis]
 # numpy is optional: arrays are only converted when it is installed.
-allowed-unresolved-imports = ["numpy.**"]
+# pytomlpp has no wheels for Python >= 3.14 (its extra is marked `python_version < '3.14'`).
+allowed-unresolved-imports = ["numpy.**", "pytomlpp"]
 
 [tool.ty.rules]
 # Narrowing an overridden class attribute (e.g. pydantic discriminators,
