@@ -79,6 +79,6 @@ class MsgSpecProvider(JsonProviderBase):
             if indent:
                 return msgspec.json.format(result, indent=2).decode()
             return result.decode()
-        except (TypeError, msgspec.EncodeError) as exc:
+        except (TypeError, ValueError, msgspec.EncodeError) as exc:
             error_msg = f"Cannot serialize to JSON: {exc}"
             raise JsonDumpError(error_msg) from exc

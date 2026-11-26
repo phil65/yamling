@@ -203,3 +203,14 @@ def test_dump_nested_lists():
 def test_dump_json_indent_override():
     """An explicit indent kwarg must override the JSON default instead of clashing."""
     assert dump({"a": 1}, "json", indent=False) == '{"a":1}'
+
+
+def test_msgspec_naive_datetime_raises_json_dump_error():
+    """A naive datetime with naive_utc=False raises JsonDumpError, like other providers."""
+    import datetime as dt
+
+    from configz import JsonDumpError
+    from configz.json_tools.msgspec_provider.provider import MsgSpecProvider
+
+    with pytest.raises(JsonDumpError):
+        MsgSpecProvider.dump_json({"d": dt.datetime(2020, 1, 1)})
