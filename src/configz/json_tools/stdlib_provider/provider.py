@@ -1,7 +1,5 @@
 """Standard library JSON provider implementation."""
 
-from __future__ import annotations
-
 import datetime as dt
 from io import TextIOWrapper
 import json

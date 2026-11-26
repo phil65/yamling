@@ -1,7 +1,5 @@
 """Typed scalar construction for nodes of unknown kind."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any
 
 from yaml.constructor import ConstructorError

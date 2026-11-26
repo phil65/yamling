@@ -1,7 +1,5 @@
 """TOMLLIB provider implementation."""
 
-from __future__ import annotations
-
 from io import BytesIO, TextIOWrapper
 from pathlib import Path
 import re

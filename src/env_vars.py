@@ -1,7 +1,5 @@
 """Module for dictionary flattening and environment variable manipulation."""
 
-from __future__ import annotations
-
 import os
 from typing import Any
 

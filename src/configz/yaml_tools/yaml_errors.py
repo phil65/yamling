@@ -1,7 +1,5 @@
 """Enhanced YAML error with rich formatting capabilities."""
 
-from __future__ import annotations
-
 from io import StringIO
 import sys
 from typing import TYPE_CHECKING

@@ -1,7 +1,5 @@
 """Pydantic provider implementation."""
 
-from __future__ import annotations
-
 from io import TextIOWrapper
 import logging
 from typing import Any

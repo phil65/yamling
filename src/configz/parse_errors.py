@@ -1,7 +1,5 @@
 """Shared parse error handling for JSON and TOML."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 

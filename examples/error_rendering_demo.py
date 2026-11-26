@@ -4,8 +4,6 @@ This example shows how configz now provides beautiful, informative error message
 through YAMLError that inherits from yaml.YAMLError.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from tempfile import TemporaryDirectory
 

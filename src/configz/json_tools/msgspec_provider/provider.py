@@ -1,7 +1,5 @@
 """MsgSpec provider implementation."""
 
-from __future__ import annotations
-
 from io import TextIOWrapper
 import re
 from typing import Any

@@ -1,7 +1,5 @@
 """YAML dump functionality."""
 
-from __future__ import annotations
-
 import dataclasses
 import importlib.util
 from typing import TYPE_CHECKING, Any

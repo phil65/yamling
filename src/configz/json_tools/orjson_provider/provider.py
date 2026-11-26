@@ -1,7 +1,5 @@
 """OrJSON provider implementation."""
 
-from __future__ import annotations
-
 from io import TextIOWrapper
 from typing import Any
 

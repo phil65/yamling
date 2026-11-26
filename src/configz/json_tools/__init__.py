@@ -4,8 +4,6 @@ Provides a unified interface for JSON serialization/deserialization
 with automatic selection of the best available backend and type validation.
 """
 
-from __future__ import annotations
-
 import importlib.util
 from typing import Any, Literal, TYPE_CHECKING
 

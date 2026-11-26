@@ -1,7 +1,5 @@
 """Jinja2 template constructor for YAML loading."""
 
-from __future__ import annotations
-
 from collections.abc import Callable, Hashable
 import logging
 from typing import Any

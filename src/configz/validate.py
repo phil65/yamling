@@ -1,7 +1,5 @@
 """Type validation functionality with graceful Pydantic fallbacks."""
 
-from __future__ import annotations
-
 import collections.abc
 import importlib.util
 from typing import TYPE_CHECKING, Any, cast, get_args, get_origin

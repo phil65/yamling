@@ -1,7 +1,5 @@
 """Utility functions for JSON serialization and deserialization."""
 
-from __future__ import annotations
-
 import datetime as dt
 import importlib.util
 from typing import Any

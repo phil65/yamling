@@ -5,8 +5,6 @@ a source build that silently falls back to pure Python when libyaml headers
 are missing, so ``yaml.CDumper`` & co. don't exist.
 """
 
-from __future__ import annotations
-
 import subprocess
 import sys
 import textwrap

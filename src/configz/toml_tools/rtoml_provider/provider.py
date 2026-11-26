@@ -1,7 +1,5 @@
 """RTOML provider implementation."""
 
-from __future__ import annotations
-
 from io import TextIOWrapper
 from pathlib import Path
 import re

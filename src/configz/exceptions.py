@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 class DumpingError(Exception):
     """Common exception for all dumping errors in configz."""
 

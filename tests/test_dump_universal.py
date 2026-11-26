@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import tomllib
 from typing import TYPE_CHECKING
