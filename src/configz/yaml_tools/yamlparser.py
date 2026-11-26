@@ -171,9 +171,9 @@ class YAMLParser:
                 case ScalarNode():
                     value: Any = loader.construct_scalar(node)
                 case SequenceNode():
-                    value = loader.construct_sequence(node)
+                    value = loader.construct_sequence(node, deep=True)
                 case MappingNode():
-                    value = loader.construct_mapping(node)
+                    value = loader.construct_mapping(node, deep=True)
                 case _:
                     msg = f"Unsupported node type for tag {full_tag}"
                     raise TypeError(msg)
